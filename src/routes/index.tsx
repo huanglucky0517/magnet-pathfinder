@@ -46,6 +46,10 @@ interface TargetRow {
   expr: string;
   c: string;
   dir: string;
+  /** 电磁力幅值 pr(order, freq) 的可编辑参数 */
+  isPr?: boolean;
+  prOrder?: number;
+  prFreq?: number;
 }
 
 interface Workload {
