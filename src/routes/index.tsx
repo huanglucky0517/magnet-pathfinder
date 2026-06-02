@@ -168,28 +168,39 @@ function Index() {
                     <div className="mb-2 text-[13px] font-medium">工况优化目标</div>
                     <div className="grid grid-cols-[260px_1fr] gap-3">
                       <div className="rounded-md border border-border bg-card">
-                        <div className="border-b border-border px-3 py-2 font-medium">可用目标参数</div>
+                        <div className="border-b border-border px-3 py-2 font-medium">
+                          可用目标参数
+                          {active.type === "magnetic" && (
+                            <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                              （按组分类）
+                            </span>
+                          )}
+                        </div>
                         <div className="p-2">
                           <div className="relative mb-2">
                             <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                             <input
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
-                              placeholder="搜索..."
+                              placeholder="搜索参数名称或ID..."
                               className="w-full rounded border border-input bg-background py-1.5 pl-7 pr-2 text-[12px] focus:border-primary focus:outline-none"
                             />
                           </div>
-                          <div className="max-h-[360px] space-y-1 overflow-auto pr-1">
-                            {availableParams
-                              .filter((p) => p.includes(search))
-                              .map((p) => (
-                                <button
-                                  key={p}
-                                  className="w-full rounded border border-border bg-background px-3 py-1.5 text-left text-[12px] transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
-                                >
-                                  {p}
-                                </button>
-                              ))}
+                          <div className="max-h-[420px] space-y-2 overflow-auto pr-1">
+                            {active.type === "magnetic" ? (
+                              <GroupedParams search={search} />
+                            ) : (
+                              availableParams
+                                .filter((p) => p.includes(search))
+                                .map((p) => (
+                                  <button
+                                    key={p}
+                                    className="w-full rounded border border-border bg-background px-3 py-1.5 text-left text-[12px] transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
+                                  >
+                                    {p}
+                                  </button>
+                                ))
+                            )}
                           </div>
                         </div>
                       </div>
