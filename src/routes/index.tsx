@@ -14,6 +14,7 @@ import {
   Settings2,
   Sparkles,
 } from "lucide-react";
+import { magneticParamGroups } from "./magnetic-params";
 
 export const Route = createFileRoute("/")({
   head: () => ({
