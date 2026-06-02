@@ -46,6 +46,10 @@ interface TargetRow {
   expr: string;
   c: string;
   dir: string;
+  /** 电磁力幅值 pr(order, freq) 的可编辑参数 */
+  isPr?: boolean;
+  prOrder?: number;
+  prFreq?: number;
 }
 
 interface Workload {
@@ -169,7 +173,11 @@ function Index() {
     });
   };
 
-  const addTarget = (it: { desc: string; itemid: string }) => {
+  const addTarget = (it: { desc: string; itemid: string; kind?: "pr" }) => {
+    if (it.kind === "pr") {
+      // pr 由专用配置器调用 addPrTarget，避免歧义
+      return;
+    }
     if (active.targets.some((t) => t.expr === it.itemid)) return;
     const row: TargetRow = {
       v: it.desc,
@@ -181,8 +189,37 @@ function Index() {
     updateActive({ targets: [...active.targets, row] });
   };
 
-  const removeTarget = (expr: string) =>
-    updateActive({ targets: active.targets.filter((t) => t.expr !== expr) });
+  const addPrTarget = (order: number, freq: number) => {
+    const expr = `pr(${order},${freq})`;
+    // 同 (order,freq) 已存在则忽略
+    if (active.targets.some((t) => t.isPr && t.prOrder === order && t.prFreq === freq)) return;
+    // 生成唯一参数名
+    let n = 1;
+    const used = new Set(active.targets.map((t) => t.p));
+    while (used.has(`o_pr_${n}`)) n++;
+    const row: TargetRow = {
+      v: "电磁力幅值",
+      p: `o_pr_${n}`,
+      expr,
+      c: ">=0",
+      dir: "无",
+      isPr: true,
+      prOrder: order,
+      prFreq: freq,
+    };
+    updateActive({ targets: [...active.targets, row] });
+  };
+
+  const updatePrTarget = (p: string, order: number, freq: number) => {
+    updateActive({
+      targets: active.targets.map((t) =>
+        t.p === p && t.isPr ? { ...t, prOrder: order, prFreq: freq, expr: `pr(${order},${freq})` } : t,
+      ),
+    });
+  };
+
+  const removeTarget = (rowKey: string) =>
+    updateActive({ targets: active.targets.filter((t) => t.p !== rowKey) });
 
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
@@ -353,6 +390,7 @@ function Index() {
                                 search={search}
                                 selected={active.targets.map((t) => t.expr)}
                                 onAdd={addTarget}
+                                onAddPr={addPrTarget}
                               />
                             )}
                           </div>
@@ -373,18 +411,26 @@ function Index() {
                         ) : (
                           <Table
                             head={["变量名称", "参数名称", "目标表达式", "约束", "优化方向", ""]}
-                            widths={["1.4fr", "1.2fr", "1.4fr", "0.8fr", "1fr", "40px"]}
+                            widths={["1.4fr", "1.2fr", "1.6fr", "0.8fr", "1fr", "40px"]}
                           >
                             {active.targets.map((t) => (
                               <Row key={t.p}>
                                 <Cell>{t.v}</Cell>
                                 <Cell mono>{t.p}</Cell>
-                                <Cell mono>{t.expr}</Cell>
+                                {t.isPr ? (
+                                  <PrExprCell
+                                    order={t.prOrder ?? 2}
+                                    freq={t.prFreq ?? 450}
+                                    onChange={(o, f) => updatePrTarget(t.p, o, f)}
+                                  />
+                                ) : (
+                                  <Cell mono>{t.expr}</Cell>
+                                )}
                                 <Cell mono>{t.c}</Cell>
                                 <SelectCell value={t.dir} />
                                 <div className="flex items-center justify-center border-r border-border last:border-r-0">
                                   <button
-                                    onClick={() => removeTarget(t.expr)}
+                                    onClick={() => removeTarget(t.p)}
                                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
@@ -859,14 +905,16 @@ function ParamRow({
 }
 
 function FemParamList({
-  params, search, selected, onAdd,
+  params, search, selected, onAdd, onAddPr,
 }: {
   params: FemParam[];
   search: string;
   selected: string[];
   onAdd: (it: FemParam) => void;
+  onAddPr: (order: number, freq: number) => void;
 }) {
   const [open, setOpen] = useState(true);
+  const [prOpen, setPrOpen] = useState(false);
   const q = search.trim().toLowerCase();
   const filtered = params.filter(
     (it) => !q || it.desc.toLowerCase().includes(q) || it.itemid.toLowerCase().includes(q),
@@ -891,18 +939,154 @@ function FemParamList({
           {filtered.length === 0 ? (
             <div className="px-2 py-3 text-center text-[11px] text-muted-foreground">未找到匹配的参数</div>
           ) : (
-            filtered.map((it) => (
-              <ParamRow
-                key={it.itemid}
-                desc={it.desc}
-                itemid={it.itemid}
-                selected={selected.includes(it.itemid)}
-                onAdd={() => onAdd(it)}
-              />
-            ))
+            filtered.map((it) =>
+              it.kind === "pr" ? (
+                <PrParamRow
+                  key={it.itemid}
+                  desc={it.desc}
+                  open={prOpen}
+                  onToggle={() => setPrOpen((v) => !v)}
+                  onConfirm={(o, f) => { onAddPr(o, f); setPrOpen(false); }}
+                />
+              ) : (
+                <ParamRow
+                  key={it.itemid}
+                  desc={it.desc}
+                  itemid={it.itemid}
+                  selected={selected.includes(it.itemid)}
+                  onAdd={() => onAdd(it)}
+                />
+              ),
+            )
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ---------- 电磁力幅值 pr(order, freq) ---------- */
+
+function PrParamRow({
+  desc, open, onToggle, onConfirm,
+}: {
+  desc: string;
+  open: boolean;
+  onToggle: () => void;
+  onConfirm: (order: number, freq: number) => void;
+}) {
+  const [order, setOrder] = useState<string>("2");
+  const [freq, setFreq] = useState<string>("450");
+
+  const orderNum = Number(order);
+  const freqNum = Number(freq);
+  const orderValid = order.trim() !== "" && Number.isInteger(orderNum);
+  const freqValid = freq.trim() !== "" && Number.isFinite(freqNum) && freqNum >= 0;
+  const valid = orderValid && freqValid;
+  const preview = `pr(${order || "?"},${freq || "?"})`;
+
+  return (
+    <div className="rounded border border-[var(--fem)]/40 bg-[var(--fem-bg)]">
+      <button
+        onClick={onToggle}
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] transition-colors hover:bg-[var(--fem)]/10"
+        title="电磁力幅值 pr(空间阶次, 时间频率)"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="truncate font-medium">{desc}</span>
+            <span className="rounded bg-[var(--fem)]/15 px-1 py-px text-[10px] font-normal text-[var(--fem)]">需配置</span>
+          </div>
+          <div className="truncate font-mono text-[10px] text-muted-foreground">pr(空间阶次, 时间频率)</div>
+        </div>
+        {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--fem)]" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--fem)]" />}
+      </button>
+      {open && (
+        <div className="space-y-2 border-t border-[var(--fem)]/30 p-2">
+          <div>
+            <label className="mb-0.5 block text-[11px] font-medium">空间阶次</label>
+            <input
+              value={order}
+              onChange={(e) => setOrder(e.target.value)}
+              inputMode="numeric"
+              placeholder="如 2 / -1 / 0"
+              className={`w-full rounded border bg-background px-2 py-1 font-mono text-[12px] focus:outline-none ${orderValid ? "border-input focus:border-[var(--fem)]" : "border-destructive focus:border-destructive"}`}
+            />
+            <div className={`mt-0.5 text-[10px] ${orderValid ? "text-muted-foreground" : "text-destructive"}`}>
+              整数，可为正、负或 0
+            </div>
+          </div>
+          <div>
+            <label className="mb-0.5 block text-[11px] font-medium">时间频率 (Hz)</label>
+            <input
+              value={freq}
+              onChange={(e) => setFreq(e.target.value)}
+              inputMode="decimal"
+              placeholder="如 450"
+              className={`w-full rounded border bg-background px-2 py-1 font-mono text-[12px] focus:outline-none ${freqValid ? "border-input focus:border-[var(--fem)]" : "border-destructive focus:border-destructive"}`}
+            />
+            <div className={`mt-0.5 text-[10px] ${freqValid ? "text-muted-foreground" : "text-destructive"}`}>
+              数值，必须 ≥ 0
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <span className="truncate font-mono text-[11px] text-muted-foreground">预览：{preview}</span>
+            <button
+              disabled={!valid}
+              onClick={() => valid && onConfirm(Math.trunc(orderNum), freqNum)}
+              className="shrink-0 rounded bg-[var(--fem)] px-2.5 py-1 text-[11px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              添加
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PrExprCell({
+  order, freq, onChange,
+}: {
+  order: number;
+  freq: number;
+  onChange: (order: number, freq: number) => void;
+}) {
+  const [o, setO] = useState(String(order));
+  const [f, setF] = useState(String(freq));
+  // sync when parent changes
+  // (kept simple — local mirror for inputs)
+  const orderNum = Number(o);
+  const freqNum = Number(f);
+  const orderValid = o.trim() !== "" && Number.isInteger(orderNum);
+  const freqValid = f.trim() !== "" && Number.isFinite(freqNum) && freqNum >= 0;
+
+  const commit = () => {
+    if (orderValid && freqValid) onChange(Math.trunc(orderNum), freqNum);
+    else { setO(String(order)); setF(String(freq)); }
+  };
+
+  return (
+    <div className="flex items-center gap-1 border-r border-border px-2 py-1.5 last:border-r-0 font-mono text-[12px]">
+      <span>pr(</span>
+      <input
+        value={o}
+        onChange={(e) => setO(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+        title="空间阶次：整数，可正可负可0"
+        className={`w-12 rounded border bg-background px-1 py-0.5 text-center focus:outline-none ${orderValid ? "border-input focus:border-[var(--fem)]" : "border-destructive"}`}
+      />
+      <span>,</span>
+      <input
+        value={f}
+        onChange={(e) => setF(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+        title="时间频率 (Hz)：数值，必须 ≥ 0"
+        className={`w-16 rounded border bg-background px-1 py-0.5 text-center focus:outline-none ${freqValid ? "border-input focus:border-[var(--fem)]" : "border-destructive"}`}
+      />
+      <span>)</span>
     </div>
   );
 }
