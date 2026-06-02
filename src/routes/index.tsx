@@ -14,6 +14,7 @@ import {
   Settings2,
   Sparkles,
 } from "lucide-react";
+import { magneticParamGroups } from "./magnetic-params";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -167,28 +168,39 @@ function Index() {
                     <div className="mb-2 text-[13px] font-medium">工况优化目标</div>
                     <div className="grid grid-cols-[260px_1fr] gap-3">
                       <div className="rounded-md border border-border bg-card">
-                        <div className="border-b border-border px-3 py-2 font-medium">可用目标参数</div>
+                        <div className="border-b border-border px-3 py-2 font-medium">
+                          可用目标参数
+                          {active.type === "magnetic" && (
+                            <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                              （按组分类）
+                            </span>
+                          )}
+                        </div>
                         <div className="p-2">
                           <div className="relative mb-2">
                             <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                             <input
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
-                              placeholder="搜索..."
+                              placeholder="搜索参数名称或ID..."
                               className="w-full rounded border border-input bg-background py-1.5 pl-7 pr-2 text-[12px] focus:border-primary focus:outline-none"
                             />
                           </div>
-                          <div className="max-h-[360px] space-y-1 overflow-auto pr-1">
-                            {availableParams
-                              .filter((p) => p.includes(search))
-                              .map((p) => (
-                                <button
-                                  key={p}
-                                  className="w-full rounded border border-border bg-background px-3 py-1.5 text-left text-[12px] transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
-                                >
-                                  {p}
-                                </button>
-                              ))}
+                          <div className="max-h-[420px] space-y-2 overflow-auto pr-1">
+                            {active.type === "magnetic" ? (
+                              <GroupedParams search={search} />
+                            ) : (
+                              availableParams
+                                .filter((p) => p.includes(search))
+                                .map((p) => (
+                                  <button
+                                    key={p}
+                                    className="w-full rounded border border-border bg-background px-3 py-1.5 text-left text-[12px] transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
+                                  >
+                                    {p}
+                                  </button>
+                                ))
+                            )}
                           </div>
                         </div>
                       </div>
@@ -535,5 +547,84 @@ function StatusBar() {
         <ChevronUp className="h-3 w-3" />
       </div>
     </footer>
+  );
+}
+
+function GroupedParams({ search }: { search: string }) {
+  const q = search.trim().toLowerCase();
+  const filtered = magneticParamGroups
+    .map((g) => ({
+      ...g,
+      itemlist: g.itemlist.filter(
+        (it) =>
+          !q ||
+          it.desc.toLowerCase().includes(q) ||
+          it.itemid.toLowerCase().includes(q),
+      ),
+    }))
+    .filter((g) => g.itemlist.length > 0);
+
+  if (filtered.length === 0) {
+    return (
+      <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">
+        未找到匹配的参数
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {filtered.map((g) => (
+        <ParamGroupBlock key={g.groupdesc} group={g} forceOpen={!!q} />
+      ))}
+    </>
+  );
+}
+
+function ParamGroupBlock({
+  group,
+  forceOpen,
+}: {
+  group: { groupdesc: string; itemlist: { desc: string; itemid: string }[] };
+  forceOpen: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const isOpen = forceOpen || open;
+  return (
+    <div className="rounded border border-border bg-background">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-accent"
+      >
+        <span className="flex items-center gap-1.5">
+          {isOpen ? (
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          )}
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          {group.groupdesc}
+        </span>
+        <span className="text-[11px] font-normal text-muted-foreground">
+          {group.itemlist.length}
+        </span>
+      </button>
+      {isOpen && (
+        <div className="space-y-0.5 border-t border-border p-1.5">
+          {group.itemlist.map((it) => (
+            <button
+              key={it.itemid}
+              className="flex w-full items-center justify-between rounded px-2 py-1 text-left text-[12px] transition-colors hover:bg-accent hover:text-accent-foreground"
+              title={it.itemid}
+            >
+              <span className="truncate">{it.desc}</span>
+              <span className="ml-2 shrink-0 font-mono text-[10px] text-muted-foreground">
+                {it.itemid}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
