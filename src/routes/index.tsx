@@ -936,7 +936,7 @@ function FemParamList({
       >
         <span className="flex items-center gap-1.5">
           {isOpen ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--fem)]" />
+          
           计算参数
         </span>
         <span className="text-[11px] font-normal text-muted-foreground">{filtered.length}</span>
@@ -1153,7 +1153,7 @@ function ParamGroupBlock({
       >
         <span className="flex items-center gap-1.5">
           {isOpen ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          
           {group.groupdesc}
         </span>
         <span className="text-[11px] font-normal text-muted-foreground">{group.itemlist.length}</span>
