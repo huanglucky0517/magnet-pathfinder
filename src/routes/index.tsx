@@ -849,7 +849,7 @@ function ParamRow({
       <button
         disabled={selected}
         onClick={onAdd}
-        className="ml-2 shrink-0 rounded p-1 text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-transparent"
+        className="ml-2 shrink-0 rounded p-1 text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-transparent"
         title={selected ? "已添加" : "添加到目标参数列表"}
       >
         <ChevronsRight className="h-3.5 w-3.5" />
