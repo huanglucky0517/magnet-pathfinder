@@ -962,6 +962,7 @@ function FemParamList({
                   itemid={it.itemid}
                   selected={selected.includes(it.itemid)}
                   onAdd={() => onAdd(it)}
+                  tone="fem"
                 />
               ),
             )
