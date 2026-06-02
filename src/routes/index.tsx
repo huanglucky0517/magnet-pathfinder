@@ -123,12 +123,17 @@ function Index() {
 
   const addWorkload = (type: WorkType) => {
     const id = `w${Date.now()}`;
+    const baseName = type === "magnetic" ? "磁路法-新工况" : "有限元-新工况";
+    const existing = new Set(workloads.map((w) => w.name));
+    let name = baseName;
+    let n = 1;
+    while (existing.has(name)) name = `${baseName}${n++}`;
     const base: Workload =
       type === "magnetic"
-        ? { id, name: "磁路法-新工况", type, power: "4.5", freq: "200", targets: [] }
+        ? { id, name, type, power: "4.5", freq: "200", targets: [] }
         : {
             id,
-            name: "有限元-新工况",
+            name,
             type,
             femSource: "current",
             speed: "3000",
@@ -136,6 +141,7 @@ function Index() {
             powerAngle: "0",
             targets: [],
           };
+
     // prepend within its category by inserting before other items of that type
     setWorkloads((ws) => {
       const firstIdx = ws.findIndex((w) => w.type === type);
