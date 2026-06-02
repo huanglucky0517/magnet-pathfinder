@@ -98,8 +98,8 @@
 
   --panel-header: oklch(0.97 0.005 247);
   --table-header: oklch(0.96 0.008 247);
-  --fem: #814CF0;
-  --fem-bg: oklch(0.96 0.03 295);
+  --fem: #F59E0B;
+  --fem-bg: oklch(0.96 0.05 75);
 }
 
 .dark {
