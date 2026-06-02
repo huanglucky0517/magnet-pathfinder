@@ -744,17 +744,22 @@ function WorkloadItem({
         </>
       ) : (
         <>
+          <GripVertical
+            className={`mr-1 h-3.5 w-3.5 shrink-0 cursor-grab active:cursor-grabbing ${active ? "text-current opacity-60 hover:opacity-100" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="拖动排序"
+          />
           <button onClick={onClick} className="min-w-0 flex-1 truncate text-left">
             {w.name}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
-            className="ml-1 rounded p-0.5 opacity-70 hover:bg-black/10 hover:opacity-100"
+            className={`ml-1 rounded p-0.5 ${active ? "text-current opacity-60 hover:opacity-100 hover:bg-black/10" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
             title="更多"
           >
             <MoreHorizontal className="h-3.5 w-3.5" />
           </button>
         </>
+
       )}
 
       {menuOpen && !editing && (
