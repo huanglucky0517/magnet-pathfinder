@@ -649,17 +649,31 @@ function IconBtn({ children }: { children: React.ReactNode }) {
 }
 
 function Category({
-  label, color, onAdd, children,
-}: { label: string; color: "primary" | "fem"; onAdd: () => void; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true);
+  label, color, count, open, onOpenChange, onAdd, children,
+}: {
+  label: string;
+  color: "primary" | "fem";
+  count: number;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onAdd: () => void;
+  children: React.ReactNode;
+}) {
   const dot = color === "primary" ? "bg-primary" : "bg-[var(--fem)]";
+  const countTone =
+    color === "primary"
+      ? "bg-accent text-accent-foreground"
+      : "bg-[var(--fem-bg)] text-[var(--fem)]";
   return (
     <div>
       <div className="flex items-center justify-between px-1 pb-1">
-        <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground">
+        <button onClick={() => onOpenChange(!open)} className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground">
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
           <span className={`h-2 w-2 rounded-full ${dot}`} />
-          {label}
+          <span>{label}</span>
+          <span className={`ml-1 inline-flex h-4 min-w-[18px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tabular-nums ${countTone}`}>
+            {count}
+          </span>
         </button>
         <button onClick={onAdd} className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="新增工况">
           <Plus className="h-3 w-3" />
@@ -669,6 +683,7 @@ function Category({
     </div>
   );
 }
+
 
 function WorkloadItem({
   w, active, onClick, onRename, onDelete,
