@@ -220,7 +220,14 @@ function Index() {
                     <span className="font-medium">工况（{workloads.length}）</span>
                   </div>
                   <div className="space-y-3 p-2">
-                    <Category label="磁路法工况" color="primary" onAdd={() => addWorkload("magnetic")}>
+                    <Category
+                      label="磁路法工况"
+                      color="primary"
+                      count={magnetic.length}
+                      open={magOpen}
+                      onOpenChange={setMagOpen}
+                      onAdd={() => addWorkload("magnetic")}
+                    >
                       {magnetic.map((w) => (
                         <WorkloadItem
                           key={w.id}
@@ -233,7 +240,14 @@ function Index() {
                       ))}
                       {magnetic.length === 0 && <Empty>暂无磁路法工况</Empty>}
                     </Category>
-                    <Category label="有限元工况" color="fem" onAdd={() => addWorkload("fem")}>
+                    <Category
+                      label="有限元工况"
+                      color="fem"
+                      count={fem.length}
+                      open={femOpen}
+                      onOpenChange={setFemOpen}
+                      onAdd={() => addWorkload("fem")}
+                    >
                       {fem.map((w) => (
                         <WorkloadItem
                           key={w.id}
@@ -246,6 +260,7 @@ function Index() {
                       ))}
                       {fem.length === 0 && <Empty>暂无有限元工况</Empty>}
                     </Category>
+
                   </div>
                 </div>
 
