@@ -115,6 +115,8 @@ function Index() {
   const [activeId, setActiveId] = useState("w2");
   const active = workloads.find((w) => w.id === activeId)!;
   const [search, setSearch] = useState("");
+  const [magOpen, setMagOpen] = useState(true);
+  const [femOpen, setFemOpen] = useState(true);
 
   const updateActive = (patch: Partial<Workload>) =>
     setWorkloads((ws) => ws.map((w) => (w.id === activeId ? { ...w, ...patch } : w)));
@@ -134,9 +136,19 @@ function Index() {
             powerAngle: "0",
             targets: [],
           };
-    setWorkloads([...workloads, base]);
+    // prepend within its category by inserting before other items of that type
+    setWorkloads((ws) => {
+      const firstIdx = ws.findIndex((w) => w.type === type);
+      if (firstIdx === -1) return [...ws, base];
+      const next = [...ws];
+      next.splice(firstIdx, 0, base);
+      return next;
+    });
+    if (type === "magnetic") setMagOpen(true);
+    else setFemOpen(true);
     setActiveId(id);
   };
+
 
   const renameWorkload = (id: string, name: string) =>
     setWorkloads((ws) => ws.map((w) => (w.id === id ? { ...w, name } : w)));
@@ -208,7 +220,14 @@ function Index() {
                     <span className="font-medium">工况（{workloads.length}）</span>
                   </div>
                   <div className="space-y-3 p-2">
-                    <Category label="磁路法工况" color="primary" onAdd={() => addWorkload("magnetic")}>
+                    <Category
+                      label="磁路法工况"
+                      color="primary"
+                      count={magnetic.length}
+                      open={magOpen}
+                      onOpenChange={setMagOpen}
+                      onAdd={() => addWorkload("magnetic")}
+                    >
                       {magnetic.map((w) => (
                         <WorkloadItem
                           key={w.id}
@@ -221,7 +240,14 @@ function Index() {
                       ))}
                       {magnetic.length === 0 && <Empty>暂无磁路法工况</Empty>}
                     </Category>
-                    <Category label="有限元工况" color="fem" onAdd={() => addWorkload("fem")}>
+                    <Category
+                      label="有限元工况"
+                      color="fem"
+                      count={fem.length}
+                      open={femOpen}
+                      onOpenChange={setFemOpen}
+                      onAdd={() => addWorkload("fem")}
+                    >
                       {fem.map((w) => (
                         <WorkloadItem
                           key={w.id}
@@ -234,6 +260,7 @@ function Index() {
                       ))}
                       {fem.length === 0 && <Empty>暂无有限元工况</Empty>}
                     </Category>
+
                   </div>
                 </div>
 
@@ -622,17 +649,31 @@ function IconBtn({ children }: { children: React.ReactNode }) {
 }
 
 function Category({
-  label, color, onAdd, children,
-}: { label: string; color: "primary" | "fem"; onAdd: () => void; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true);
+  label, color, count, open, onOpenChange, onAdd, children,
+}: {
+  label: string;
+  color: "primary" | "fem";
+  count: number;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onAdd: () => void;
+  children: React.ReactNode;
+}) {
   const dot = color === "primary" ? "bg-primary" : "bg-[var(--fem)]";
+  const countTone =
+    color === "primary"
+      ? "bg-accent text-accent-foreground"
+      : "bg-[var(--fem-bg)] text-[var(--fem)]";
   return (
     <div>
       <div className="flex items-center justify-between px-1 pb-1">
-        <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground">
+        <button onClick={() => onOpenChange(!open)} className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground">
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
           <span className={`h-2 w-2 rounded-full ${dot}`} />
-          {label}
+          <span>{label}</span>
+          <span className={`ml-1 inline-flex h-4 min-w-[18px] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold tabular-nums ${countTone}`}>
+            {count}
+          </span>
         </button>
         <button onClick={onAdd} className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="新增工况">
           <Plus className="h-3 w-3" />
@@ -642,6 +683,7 @@ function Category({
     </div>
   );
 }
+
 
 function WorkloadItem({
   w, active, onClick, onRename, onDelete,
