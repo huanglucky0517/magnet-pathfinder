@@ -990,20 +990,28 @@ function PrParamRow({
   const preview = `pr(${order || "?"},${freq || "?"})`;
 
   return (
-    <div className="rounded border border-[var(--fem)]/40 bg-[var(--fem-bg)]">
+    <div
+      className={`rounded border transition-colors ${
+        open
+          ? "border-[var(--fem)]/60 bg-[var(--fem-bg)]"
+          : "border-border bg-background hover:border-[var(--fem)] hover:bg-[var(--fem-bg)]"
+      }`}
+    >
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] transition-colors hover:bg-[var(--fem)]/10"
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px]"
         title="电磁力幅值 pr(空间阶次, 时间频率)"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="truncate font-medium">{desc}</span>
-            <span className="rounded bg-[var(--fem)]/15 px-1 py-px text-[10px] font-normal text-[var(--fem)]">需配置</span>
+            <span className={`truncate font-medium ${open ? "text-[var(--fem)]" : ""}`}>{desc}</span>
+            {open && (
+              <span className="rounded bg-[var(--fem)]/15 px-1 py-px text-[10px] font-normal text-[var(--fem)]">需配置</span>
+            )}
           </div>
           <div className="truncate font-mono text-[10px] text-muted-foreground">pr(空间阶次, 时间频率)</div>
         </div>
-        {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--fem)]" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--fem)]" />}
+        {open ? <ChevronDown className="h-3.5 w-3.5 shrink-0 text-[var(--fem)]" /> : <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
       </button>
       {open && (
         <div className="space-y-2 border-t border-[var(--fem)]/30 p-2">
