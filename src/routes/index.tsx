@@ -173,7 +173,11 @@ function Index() {
     });
   };
 
-  const addTarget = (it: { desc: string; itemid: string }) => {
+  const addTarget = (it: { desc: string; itemid: string; kind?: "pr" }) => {
+    if (it.kind === "pr") {
+      // pr 由专用配置器调用 addPrTarget，避免歧义
+      return;
+    }
     if (active.targets.some((t) => t.expr === it.itemid)) return;
     const row: TargetRow = {
       v: it.desc,
@@ -185,8 +189,37 @@ function Index() {
     updateActive({ targets: [...active.targets, row] });
   };
 
-  const removeTarget = (expr: string) =>
-    updateActive({ targets: active.targets.filter((t) => t.expr !== expr) });
+  const addPrTarget = (order: number, freq: number) => {
+    const expr = `pr(${order},${freq})`;
+    // 同 (order,freq) 已存在则忽略
+    if (active.targets.some((t) => t.isPr && t.prOrder === order && t.prFreq === freq)) return;
+    // 生成唯一参数名
+    let n = 1;
+    const used = new Set(active.targets.map((t) => t.p));
+    while (used.has(`o_pr_${n}`)) n++;
+    const row: TargetRow = {
+      v: "电磁力幅值",
+      p: `o_pr_${n}`,
+      expr,
+      c: ">=0",
+      dir: "无",
+      isPr: true,
+      prOrder: order,
+      prFreq: freq,
+    };
+    updateActive({ targets: [...active.targets, row] });
+  };
+
+  const updatePrTarget = (p: string, order: number, freq: number) => {
+    updateActive({
+      targets: active.targets.map((t) =>
+        t.p === p && t.isPr ? { ...t, prOrder: order, prFreq: freq, expr: `pr(${order},${freq})` } : t,
+      ),
+    });
+  };
+
+  const removeTarget = (rowKey: string) =>
+    updateActive({ targets: active.targets.filter((t) => t.p !== rowKey) });
 
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
