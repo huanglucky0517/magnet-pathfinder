@@ -115,6 +115,8 @@ function Index() {
   const [activeId, setActiveId] = useState("w2");
   const active = workloads.find((w) => w.id === activeId)!;
   const [search, setSearch] = useState("");
+  const [magOpen, setMagOpen] = useState(true);
+  const [femOpen, setFemOpen] = useState(true);
 
   const updateActive = (patch: Partial<Workload>) =>
     setWorkloads((ws) => ws.map((w) => (w.id === activeId ? { ...w, ...patch } : w)));
@@ -134,9 +136,19 @@ function Index() {
             powerAngle: "0",
             targets: [],
           };
-    setWorkloads([...workloads, base]);
+    // prepend within its category by inserting before other items of that type
+    setWorkloads((ws) => {
+      const firstIdx = ws.findIndex((w) => w.type === type);
+      if (firstIdx === -1) return [...ws, base];
+      const next = [...ws];
+      next.splice(firstIdx, 0, base);
+      return next;
+    });
+    if (type === "magnetic") setMagOpen(true);
+    else setFemOpen(true);
     setActiveId(id);
   };
+
 
   const renameWorkload = (id: string, name: string) =>
     setWorkloads((ws) => ws.map((w) => (w.id === id ? { ...w, name } : w)));
