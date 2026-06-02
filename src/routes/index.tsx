@@ -549,3 +549,82 @@ function StatusBar() {
     </footer>
   );
 }
+
+function GroupedParams({ search }: { search: string }) {
+  const q = search.trim().toLowerCase();
+  const filtered = magneticParamGroups
+    .map((g) => ({
+      ...g,
+      itemlist: g.itemlist.filter(
+        (it) =>
+          !q ||
+          it.desc.toLowerCase().includes(q) ||
+          it.itemid.toLowerCase().includes(q),
+      ),
+    }))
+    .filter((g) => g.itemlist.length > 0);
+
+  if (filtered.length === 0) {
+    return (
+      <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">
+        未找到匹配的参数
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {filtered.map((g) => (
+        <ParamGroupBlock key={g.groupdesc} group={g} forceOpen={!!q} />
+      ))}
+    </>
+  );
+}
+
+function ParamGroupBlock({
+  group,
+  forceOpen,
+}: {
+  group: { groupdesc: string; itemlist: { desc: string; itemid: string }[] };
+  forceOpen: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const isOpen = forceOpen || open;
+  return (
+    <div className="rounded border border-border bg-background">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-accent"
+      >
+        <span className="flex items-center gap-1.5">
+          {isOpen ? (
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          )}
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          {group.groupdesc}
+        </span>
+        <span className="text-[11px] font-normal text-muted-foreground">
+          {group.itemlist.length}
+        </span>
+      </button>
+      {isOpen && (
+        <div className="space-y-0.5 border-t border-border p-1.5">
+          {group.itemlist.map((it) => (
+            <button
+              key={it.itemid}
+              className="flex w-full items-center justify-between rounded px-2 py-1 text-left text-[12px] transition-colors hover:bg-accent hover:text-accent-foreground"
+              title={it.itemid}
+            >
+              <span className="truncate">{it.desc}</span>
+              <span className="ml-2 shrink-0 font-mono text-[10px] text-muted-foreground">
+                {it.itemid}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
