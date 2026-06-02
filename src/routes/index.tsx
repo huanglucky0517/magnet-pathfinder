@@ -17,7 +17,9 @@ import {
   Check,
   X,
   ChevronsRight,
+  GripVertical,
 } from "lucide-react";
+
 import { magneticParamGroups } from "./magnetic-params";
 import {
   femCurrentSourceParams,
