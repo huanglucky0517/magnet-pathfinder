@@ -390,6 +390,7 @@ function Index() {
                                 search={search}
                                 selected={active.targets.map((t) => t.expr)}
                                 onAdd={addTarget}
+                                onAddPr={addPrTarget}
                               />
                             )}
                           </div>
@@ -410,18 +411,26 @@ function Index() {
                         ) : (
                           <Table
                             head={["变量名称", "参数名称", "目标表达式", "约束", "优化方向", ""]}
-                            widths={["1.4fr", "1.2fr", "1.4fr", "0.8fr", "1fr", "40px"]}
+                            widths={["1.4fr", "1.2fr", "1.6fr", "0.8fr", "1fr", "40px"]}
                           >
                             {active.targets.map((t) => (
                               <Row key={t.p}>
                                 <Cell>{t.v}</Cell>
                                 <Cell mono>{t.p}</Cell>
-                                <Cell mono>{t.expr}</Cell>
+                                {t.isPr ? (
+                                  <PrExprCell
+                                    order={t.prOrder ?? 2}
+                                    freq={t.prFreq ?? 450}
+                                    onChange={(o, f) => updatePrTarget(t.p, o, f)}
+                                  />
+                                ) : (
+                                  <Cell mono>{t.expr}</Cell>
+                                )}
                                 <Cell mono>{t.c}</Cell>
                                 <SelectCell value={t.dir} />
                                 <div className="flex items-center justify-center border-r border-border last:border-r-0">
                                   <button
-                                    onClick={() => removeTarget(t.expr)}
+                                    onClick={() => removeTarget(t.p)}
                                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                                   >
                                     <Trash2 className="h-3.5 w-3.5" />
