@@ -877,25 +877,32 @@ function StatusBar() {
 /* ---------- available-params ---------- */
 
 function ParamRow({
-  desc, itemid, selected, onAdd,
-}: { desc: string; itemid: string; selected: boolean; onAdd: () => void }) {
+  desc, itemid, selected, onAdd, tone = "primary",
+}: { desc: string; itemid: string; selected: boolean; onAdd: () => void; tone?: "primary" | "fem" }) {
+  const selectedCls =
+    tone === "fem"
+      ? "border-[var(--fem)]/60 bg-[var(--fem-bg)] text-[var(--fem)]"
+      : "border-primary/60 bg-accent text-accent-foreground";
+  const hoverCls =
+    tone === "fem"
+      ? "border-border bg-background hover:border-[var(--fem)] hover:bg-[var(--fem-bg)]"
+      : "border-border bg-background hover:border-primary hover:bg-accent";
+  const iconCls = tone === "fem" ? "text-[var(--fem)]" : "text-primary";
   return (
     <div
       className={`flex items-center justify-between rounded border px-2.5 py-1.5 text-[12px] transition-colors ${
-        selected
-          ? "border-primary/40 bg-accent text-muted-foreground"
-          : "border-border bg-background hover:border-primary hover:bg-accent"
+        selected ? selectedCls : hoverCls
       }`}
       title={itemid}
     >
       <div className="min-w-0 flex-1">
         <div className="truncate">{desc}</div>
-        <div className="truncate font-mono text-[10px] text-muted-foreground">{itemid}</div>
+        <div className={`truncate font-mono text-[10px] ${selected ? "opacity-70" : "text-muted-foreground"}`}>{itemid}</div>
       </div>
       <button
         disabled={selected}
         onClick={onAdd}
-        className="ml-2 shrink-0 rounded p-1 text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-transparent"
+        className={`ml-2 shrink-0 rounded p-1 transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent ${iconCls}`}
         title={selected ? "已添加" : "添加到目标参数列表"}
       >
         <ChevronsRight className="h-3.5 w-3.5" />
