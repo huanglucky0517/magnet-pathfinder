@@ -13,8 +13,17 @@ import {
   ChevronUp,
   Settings2,
   Sparkles,
+  Pencil,
+  Check,
+  X,
+  ChevronsRight,
 } from "lucide-react";
 import { magneticParamGroups } from "./magnetic-params";
+import {
+  femCurrentSourceParams,
+  femVoltageSourceParams,
+  type FemParam,
+} from "./fem-params";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,12 +36,29 @@ export const Route = createFileRoute("/")({
 });
 
 type WorkType = "magnetic" | "fem";
+type FemSource = "current" | "voltage";
+
+interface TargetRow {
+  v: string;
+  p: string;
+  expr: string;
+  c: string;
+  dir: string;
+}
+
 interface Workload {
   id: string;
   name: string;
   type: WorkType;
-  power: string;
-  freq: string;
+  femSource?: FemSource;
+  power?: string;
+  freq?: string;
+  speed?: string;
+  current?: string;
+  powerAngle?: string;
+  voltage?: string;
+  freqV?: string;
+  targets: TargetRow[];
 }
 
 const variables = [
@@ -44,45 +70,99 @@ const variables = [
   { name: "spanAngle(磁钢张角)", def: 100, lo: 80, hi: 110, prec: 1 },
 ];
 
-const availableParams = [
-  "铁芯长度", "铁芯叠压系数", "定子材料名称", "定子槽数",
-  "定子斜槽宽度(定子齿距)", "定子槽形", "平行齿", "齿宽",
-  "定子槽尺寸b0", "定子槽尺寸b1", "定子槽尺寸b2", "定子槽尺寸r",
-  "定子槽尺寸h0", "定子槽尺寸h1", "定子槽尺寸h2",
-];
-
-const targetParams = [
+const magneticDefaultTargets: TargetRow[] = [
   { v: "线电压", p: "o_UL_1", expr: "UL", c: ">=0", dir: "接近于45" },
   { v: "效率", p: "o_Kef_1", expr: "Kef", c: ">=0", dir: "最大" },
   { v: "电机线电流有效值", p: "o_I_line_1", expr: "I_line", c: ">=0", dir: "无" },
   { v: "电机热负荷", p: "o_TLs_1", expr: "TLs", c: "<90e9", dir: "无" },
-  { v: "铁芯损耗", p: "o_Pfe_1", expr: "Pfe", c: ">=0", dir: "无" },
-  { v: "电机铜耗", p: "o_Pcu_1", expr: "Pcu", c: ">=0", dir: "无" },
-  { v: "输出功率", p: "o_P2_1", expr: "P2", c: ">=0", dir: "无" },
-  { v: "功率因数", p: "o_Kpf_1", expr: "Kpf", c: ">=0", dir: "无" },
-  { v: "输出转矩", p: "o_M_output_1", expr: "M_output", c: ">=0", dir: "无" },
-  { v: "同步转速", p: "o_n_sync_1", expr: "n_sync", c: ">=0", dir: "无" },
-  { v: "线反电势", p: "o_Ulv_effh_line_1", expr: "Ulv_effh_line", c: ">=0", dir: "无" },
-  { v: "电磁钢的价格", p: "o_Jsw_1", expr: "Jsw", c: ">=0", dir: "无" },
 ];
 
 const initialWorkloads: Workload[] = [
-  { id: "w1", name: "磁路法-场路耦合优化", type: "magnetic", power: "4.5", freq: "200" },
-  { id: "w2", name: "有限元-额定工况", type: "fem", power: "4.5", freq: "200" },
+  {
+    id: "w1",
+    name: "磁路法-场路耦合优化",
+    type: "magnetic",
+    power: "4.5",
+    freq: "200",
+    targets: magneticDefaultTargets,
+  },
+  {
+    id: "w2",
+    name: "空载工况",
+    type: "fem",
+    femSource: "current",
+    speed: "3000",
+    current: "0",
+    powerAngle: "0",
+    targets: [
+      { v: "转矩波动峰峰值", p: "o_TrqP2P_1", expr: "TrqP2P", c: ">=0", dir: "最小" },
+    ],
+  },
+  {
+    id: "w3",
+    name: "负载工况",
+    type: "fem",
+    femSource: "current",
+    speed: "3000",
+    current: "10",
+    powerAngle: "30",
+    targets: [],
+  },
 ];
 
 function Index() {
   const [workloads, setWorkloads] = useState<Workload[]>(initialWorkloads);
-  const [activeId, setActiveId] = useState("w1");
+  const [activeId, setActiveId] = useState("w2");
   const active = workloads.find((w) => w.id === activeId)!;
   const [search, setSearch] = useState("");
 
+  const updateActive = (patch: Partial<Workload>) =>
+    setWorkloads((ws) => ws.map((w) => (w.id === activeId ? { ...w, ...patch } : w)));
+
   const addWorkload = (type: WorkType) => {
     const id = `w${Date.now()}`;
-    const name = type === "magnetic" ? "磁路法-新工况" : "有限元-新工况";
-    setWorkloads([...workloads, { id, name, type, power: "4.5", freq: "200" }]);
+    const base: Workload =
+      type === "magnetic"
+        ? { id, name: "磁路法-新工况", type, power: "4.5", freq: "200", targets: [] }
+        : {
+            id,
+            name: "有限元-新工况",
+            type,
+            femSource: "current",
+            speed: "3000",
+            current: "0",
+            powerAngle: "0",
+            targets: [],
+          };
+    setWorkloads([...workloads, base]);
     setActiveId(id);
   };
+
+  const renameWorkload = (id: string, name: string) =>
+    setWorkloads((ws) => ws.map((w) => (w.id === id ? { ...w, name } : w)));
+
+  const deleteWorkload = (id: string) => {
+    setWorkloads((ws) => {
+      const next = ws.filter((w) => w.id !== id);
+      if (id === activeId && next.length) setActiveId(next[0].id);
+      return next;
+    });
+  };
+
+  const addTarget = (it: { desc: string; itemid: string }) => {
+    if (active.targets.some((t) => t.expr === it.itemid)) return;
+    const row: TargetRow = {
+      v: it.desc,
+      p: `o_${it.itemid}_1`,
+      expr: it.itemid,
+      c: ">=0",
+      dir: "无",
+    };
+    updateActive({ targets: [...active.targets, row] });
+  };
+
+  const removeTarget = (expr: string) =>
+    updateActive({ targets: active.targets.filter((t) => t.expr !== expr) });
 
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
@@ -126,26 +206,31 @@ function Index() {
                 <div className="rounded-md border border-border bg-card">
                   <div className="flex items-center justify-between border-b border-border px-3 py-2">
                     <span className="font-medium">工况（{workloads.length}）</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => addWorkload("magnetic")}
-                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
-                        title="新增磁路法工况"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
                   </div>
                   <div className="space-y-3 p-2">
                     <Category label="磁路法工况" color="primary" onAdd={() => addWorkload("magnetic")}>
                       {magnetic.map((w) => (
-                        <WorkloadItem key={w.id} w={w} active={w.id === activeId} onClick={() => setActiveId(w.id)} />
+                        <WorkloadItem
+                          key={w.id}
+                          w={w}
+                          active={w.id === activeId}
+                          onClick={() => setActiveId(w.id)}
+                          onRename={(n) => renameWorkload(w.id, n)}
+                          onDelete={() => deleteWorkload(w.id)}
+                        />
                       ))}
                       {magnetic.length === 0 && <Empty>暂无磁路法工况</Empty>}
                     </Category>
                     <Category label="有限元工况" color="fem" onAdd={() => addWorkload("fem")}>
                       {fem.map((w) => (
-                        <WorkloadItem key={w.id} w={w} active={w.id === activeId} onClick={() => setActiveId(w.id)} />
+                        <WorkloadItem
+                          key={w.id}
+                          w={w}
+                          active={w.id === activeId}
+                          onClick={() => setActiveId(w.id)}
+                          onRename={(n) => renameWorkload(w.id, n)}
+                          onDelete={() => deleteWorkload(w.id)}
+                        />
                       ))}
                       {fem.length === 0 && <Empty>暂无有限元工况</Empty>}
                     </Category>
@@ -154,52 +239,86 @@ function Index() {
 
                 {/* Right details */}
                 <div className="space-y-4">
+                  {/* 工况参数 */}
                   <div>
-                    <div className="mb-2 text-[13px] font-medium">工况参数</div>
-                    <Table head={["功率(kW)", "频率(Hz)"]} widths={["1fr", "1fr"]}>
-                      <Row>
-                        <Cell>{active.power}</Cell>
-                        <Cell>{active.freq}</Cell>
-                      </Row>
-                    </Table>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-[13px] font-medium">工况参数</span>
+                      {active.type === "fem" && (
+                        <div className="flex items-center gap-2 text-[12px]">
+                          <span className="text-muted-foreground">工况类型</span>
+                          <select
+                            value={active.femSource ?? "current"}
+                            onChange={(e) =>
+                              updateActive({ femSource: e.target.value as FemSource })
+                            }
+                            className="rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none"
+                          >
+                            <option value="current">电流源试验</option>
+                            <option value="voltage">电压源试验</option>
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                    {active.type === "magnetic" ? (
+                      <Table head={["功率(kW)", "频率(Hz)"]} widths={["1fr", "1fr"]}>
+                        <Row>
+                          <Cell>{active.power}</Cell>
+                          <Cell>{active.freq}</Cell>
+                        </Row>
+                      </Table>
+                    ) : active.femSource === "voltage" ? (
+                      <Table head={["转速(rpm)", "线电压(V)", "频率(Hz)"]} widths={["1fr", "1fr", "1fr"]}>
+                        <Row>
+                          <Cell>{active.speed ?? "3000"}</Cell>
+                          <Cell>{active.voltage ?? "380"}</Cell>
+                          <Cell>{active.freqV ?? "50"}</Cell>
+                        </Row>
+                      </Table>
+                    ) : (
+                      <Table head={["转速(rpm)", "电流(A)", "内功率因数角(degree)"]} widths={["1fr", "1fr", "1fr"]}>
+                        <Row>
+                          <Cell>{active.speed ?? "3000"}</Cell>
+                          <Cell>{active.current ?? "0"}</Cell>
+                          <Cell>{active.powerAngle ?? "0"}</Cell>
+                        </Row>
+                      </Table>
+                    )}
                   </div>
 
+                  {/* 工况优化目标 */}
                   <div>
                     <div className="mb-2 text-[13px] font-medium">工况优化目标</div>
-                    <div className="grid grid-cols-[260px_1fr] gap-3">
+                    <div className="grid grid-cols-[300px_1fr] gap-3">
                       <div className="rounded-md border border-border bg-card">
-                        <div className="border-b border-border px-3 py-2 font-medium">
-                          可用目标参数
-                          {active.type === "magnetic" && (
-                            <span className="ml-2 text-[11px] font-normal text-muted-foreground">
-                              （按组分类）
-                            </span>
-                          )}
-                        </div>
+                        <div className="border-b border-border px-3 py-2 font-medium">可用目标参数</div>
                         <div className="p-2">
                           <div className="relative mb-2">
                             <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                             <input
                               value={search}
                               onChange={(e) => setSearch(e.target.value)}
-                              placeholder="搜索参数名称或ID..."
+                              placeholder="搜索..."
                               className="w-full rounded border border-input bg-background py-1.5 pl-7 pr-2 text-[12px] focus:border-primary focus:outline-none"
                             />
                           </div>
-                          <div className="max-h-[420px] space-y-2 overflow-auto pr-1">
+                          <div className="max-h-[440px] space-y-2 overflow-auto pr-1">
                             {active.type === "magnetic" ? (
-                              <GroupedParams search={search} />
+                              <GroupedParams
+                                search={search}
+                                selected={active.targets.map((t) => t.expr)}
+                                onAdd={addTarget}
+                              />
                             ) : (
-                              availableParams
-                                .filter((p) => p.includes(search))
-                                .map((p) => (
-                                  <button
-                                    key={p}
-                                    className="w-full rounded border border-border bg-background px-3 py-1.5 text-left text-[12px] transition-colors hover:border-primary hover:bg-accent hover:text-accent-foreground"
-                                  >
-                                    {p}
-                                  </button>
-                                ))
+                              <FemParamList
+                                params={
+                                  active.femSource === "voltage"
+                                    ? femVoltageSourceParams
+                                    : femCurrentSourceParams
+                                }
+                                search={search}
+                                selected={active.targets.map((t) => t.expr)}
+                                onAdd={addTarget}
+                              />
                             )}
                           </div>
                         </div>
@@ -207,24 +326,39 @@ function Index() {
 
                       <div className="rounded-md border border-border bg-card">
                         <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                          <span className="font-medium">目标参数列表</span>
+                          <span className="font-medium">目标参数列表（{active.targets.length}）</span>
                           <IconBtn><Plus className="h-4 w-4" /></IconBtn>
                         </div>
-                        <Table
-                          head={["变量名称", "参数名称", "目标表达式", "约束", "优化方向", ""]}
-                          widths={["1.4fr", "1.2fr", "1.4fr", "0.8fr", "1fr", "40px"]}
-                        >
-                          {targetParams.map((t) => (
-                            <Row key={t.p}>
-                              <Cell>{t.v}</Cell>
-                              <Cell mono>{t.p}</Cell>
-                              <Cell mono>{t.expr}</Cell>
-                              <Cell mono>{t.c}</Cell>
-                              <SelectCell value={t.dir} />
-                              <DeleteCell />
-                            </Row>
-                          ))}
-                        </Table>
+                        {active.targets.length === 0 ? (
+                          <div className="px-3 py-8 text-center text-[12px] text-muted-foreground">
+                            从左侧"可用目标参数"点击{" "}
+                            <ChevronsRight className="inline h-3.5 w-3.5 align-text-bottom text-primary" />{" "}
+                            添加到此处
+                          </div>
+                        ) : (
+                          <Table
+                            head={["变量名称", "参数名称", "目标表达式", "约束", "优化方向", ""]}
+                            widths={["1.4fr", "1.2fr", "1.4fr", "0.8fr", "1fr", "40px"]}
+                          >
+                            {active.targets.map((t) => (
+                              <Row key={t.p}>
+                                <Cell>{t.v}</Cell>
+                                <Cell mono>{t.p}</Cell>
+                                <Cell mono>{t.expr}</Cell>
+                                <Cell mono>{t.c}</Cell>
+                                <SelectCell value={t.dir} />
+                                <div className="flex items-center justify-center border-r border-border last:border-r-0">
+                                  <button
+                                    onClick={() => removeTarget(t.expr)}
+                                    className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </Row>
+                            ))}
+                          </Table>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -500,7 +634,7 @@ function Category({
           <span className={`h-2 w-2 rounded-full ${dot}`} />
           {label}
         </button>
-        <button onClick={onAdd} className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+        <button onClick={onAdd} className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground" title="新增工况">
           <Plus className="h-3 w-3" />
         </button>
       </div>
@@ -509,7 +643,20 @@ function Category({
   );
 }
 
-function WorkloadItem({ w, active, onClick }: { w: Workload; active: boolean; onClick: () => void }) {
+function WorkloadItem({
+  w, active, onClick, onRename, onDelete,
+}: {
+  w: Workload;
+  active: boolean;
+  onClick: () => void;
+  onRename: (n: string) => void;
+  onDelete: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(w.name);
+  const [confirmDel, setConfirmDel] = useState(false);
+
   const tone =
     w.type === "magnetic"
       ? active
@@ -518,14 +665,90 @@ function WorkloadItem({ w, active, onClick }: { w: Workload; active: boolean; on
       : active
         ? "bg-[var(--fem)] text-white border-[var(--fem)]"
         : "border-border hover:border-[var(--fem)]/40 hover:bg-[var(--fem-bg)]";
+
+  const commitRename = () => {
+    const v = draft.trim();
+    if (v) onRename(v);
+    else setDraft(w.name);
+    setEditing(false);
+  };
+
   return (
-    <button
-      onClick={onClick}
-      className={`group flex w-full items-center justify-between rounded border px-3 py-2 text-left text-[12px] transition-all ${tone}`}
-    >
-      <span className="truncate">{w.name}</span>
-      <MoreHorizontal className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
-    </button>
+    <div className={`group relative flex items-center justify-between rounded border px-3 py-2 text-[12px] transition-all ${tone}`}>
+      {editing ? (
+        <>
+          <input
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commitRename();
+              if (e.key === "Escape") { setDraft(w.name); setEditing(false); }
+            }}
+            className="mr-1 min-w-0 flex-1 rounded border border-input bg-background px-1.5 py-0.5 text-[12px] text-foreground focus:border-primary focus:outline-none"
+          />
+          <button onMouseDown={(e) => e.preventDefault()} onClick={commitRename} className="rounded p-0.5 hover:bg-black/10">
+            <Check className="h-3.5 w-3.5" />
+          </button>
+        </>
+      ) : (
+        <>
+          <button onClick={onClick} className="min-w-0 flex-1 truncate text-left">
+            {w.name}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
+            className="ml-1 rounded p-0.5 opacity-70 hover:bg-black/10 hover:opacity-100"
+            title="更多"
+          >
+            <MoreHorizontal className="h-3.5 w-3.5" />
+          </button>
+        </>
+      )}
+
+      {menuOpen && !editing && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => { setMenuOpen(false); setConfirmDel(false); }} />
+          <div className="absolute right-1 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-lg">
+            {confirmDel ? (
+              <div className="p-2">
+                <div className="mb-2 text-[11px] text-muted-foreground">确认删除该工况？</div>
+                <div className="flex items-center justify-end gap-1">
+                  <button
+                    onClick={() => { setConfirmDel(false); setMenuOpen(false); }}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-[11px] hover:bg-accent"
+                  >
+                    <X className="h-3 w-3" /> 取消
+                  </button>
+                  <button
+                    onClick={() => { onDelete(); setMenuOpen(false); setConfirmDel(false); }}
+                    className="rounded bg-destructive px-2 py-1 text-[11px] text-destructive-foreground hover:opacity-90"
+                  >
+                    删除
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => { setEditing(true); setDraft(w.name); setMenuOpen(false); }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-accent"
+                >
+                  <Pencil className="h-3.5 w-3.5" /> 重命名
+                </button>
+                <button
+                  onClick={() => setConfirmDel(true)}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12px] text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> 删除
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -550,43 +773,128 @@ function StatusBar() {
   );
 }
 
-function GroupedParams({ search }: { search: string }) {
+/* ---------- available-params ---------- */
+
+function ParamRow({
+  desc, itemid, selected, onAdd,
+}: { desc: string; itemid: string; selected: boolean; onAdd: () => void }) {
+  return (
+    <div
+      className={`flex items-center justify-between rounded border px-2.5 py-1.5 text-[12px] transition-colors ${
+        selected
+          ? "border-primary/40 bg-accent text-muted-foreground"
+          : "border-border bg-background hover:border-primary hover:bg-accent"
+      }`}
+      title={itemid}
+    >
+      <div className="min-w-0 flex-1">
+        <div className="truncate">{desc}</div>
+        <div className="truncate font-mono text-[10px] text-muted-foreground">{itemid}</div>
+      </div>
+      <button
+        disabled={selected}
+        onClick={onAdd}
+        className="ml-2 shrink-0 rounded p-1 text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:bg-transparent"
+        title={selected ? "已添加" : "添加到目标参数列表"}
+      >
+        <ChevronsRight className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function FemParamList({
+  params, search, selected, onAdd,
+}: {
+  params: FemParam[];
+  search: string;
+  selected: string[];
+  onAdd: (it: FemParam) => void;
+}) {
+  const [open, setOpen] = useState(true);
+  const q = search.trim().toLowerCase();
+  const filtered = params.filter(
+    (it) => !q || it.desc.toLowerCase().includes(q) || it.itemid.toLowerCase().includes(q),
+  );
+  const isOpen = open || !!q;
+
+  return (
+    <div className="rounded border border-border bg-background">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-accent"
+      >
+        <span className="flex items-center gap-1.5">
+          {isOpen ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--fem)]" />
+          计算参数
+        </span>
+        <span className="text-[11px] font-normal text-muted-foreground">{filtered.length}</span>
+      </button>
+      {isOpen && (
+        <div className="space-y-1 border-t border-border p-1.5">
+          {filtered.length === 0 ? (
+            <div className="px-2 py-3 text-center text-[11px] text-muted-foreground">未找到匹配的参数</div>
+          ) : (
+            filtered.map((it) => (
+              <ParamRow
+                key={it.itemid}
+                desc={it.desc}
+                itemid={it.itemid}
+                selected={selected.includes(it.itemid)}
+                onAdd={() => onAdd(it)}
+              />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GroupedParams({
+  search, selected, onAdd,
+}: {
+  search: string;
+  selected: string[];
+  onAdd: (it: { desc: string; itemid: string }) => void;
+}) {
   const q = search.trim().toLowerCase();
   const filtered = magneticParamGroups
     .map((g) => ({
       ...g,
       itemlist: g.itemlist.filter(
-        (it) =>
-          !q ||
-          it.desc.toLowerCase().includes(q) ||
-          it.itemid.toLowerCase().includes(q),
+        (it) => !q || it.desc.toLowerCase().includes(q) || it.itemid.toLowerCase().includes(q),
       ),
     }))
     .filter((g) => g.itemlist.length > 0);
 
   if (filtered.length === 0) {
-    return (
-      <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">
-        未找到匹配的参数
-      </div>
-    );
+    return <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">未找到匹配的参数</div>;
   }
 
   return (
     <>
       {filtered.map((g) => (
-        <ParamGroupBlock key={g.groupdesc} group={g} forceOpen={!!q} />
+        <ParamGroupBlock
+          key={g.groupdesc}
+          group={g}
+          forceOpen={!!q}
+          selected={selected}
+          onAdd={onAdd}
+        />
       ))}
     </>
   );
 }
 
 function ParamGroupBlock({
-  group,
-  forceOpen,
+  group, forceOpen, selected, onAdd,
 }: {
   group: { groupdesc: string; itemlist: { desc: string; itemid: string }[] };
   forceOpen: boolean;
+  selected: string[];
+  onAdd: (it: { desc: string; itemid: string }) => void;
 }) {
   const [open, setOpen] = useState(false);
   const isOpen = forceOpen || open;
@@ -597,31 +905,22 @@ function ParamGroupBlock({
         className="flex w-full items-center justify-between px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors hover:bg-accent"
       >
         <span className="flex items-center gap-1.5">
-          {isOpen ? (
-            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-3 w-3 text-muted-foreground" />
-          )}
+          {isOpen ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           {group.groupdesc}
         </span>
-        <span className="text-[11px] font-normal text-muted-foreground">
-          {group.itemlist.length}
-        </span>
+        <span className="text-[11px] font-normal text-muted-foreground">{group.itemlist.length}</span>
       </button>
       {isOpen && (
-        <div className="space-y-0.5 border-t border-border p-1.5">
+        <div className="space-y-1 border-t border-border p-1.5">
           {group.itemlist.map((it) => (
-            <button
+            <ParamRow
               key={it.itemid}
-              className="flex w-full items-center justify-between rounded px-2 py-1 text-left text-[12px] transition-colors hover:bg-accent hover:text-accent-foreground"
-              title={it.itemid}
-            >
-              <span className="truncate">{it.desc}</span>
-              <span className="ml-2 shrink-0 font-mono text-[10px] text-muted-foreground">
-                {it.itemid}
-              </span>
-            </button>
+              desc={it.desc}
+              itemid={it.itemid}
+              selected={selected.includes(it.itemid)}
+              onAdd={() => onAdd(it)}
+            />
           ))}
         </div>
       )}
