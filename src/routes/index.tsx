@@ -417,15 +417,7 @@ function Index() {
                               <Row key={t.p}>
                                 <Cell>{t.v}</Cell>
                                 <Cell mono>{t.p}</Cell>
-                                {t.isPr ? (
-                                  <PrExprCell
-                                    order={t.prOrder ?? 2}
-                                    freq={t.prFreq ?? 450}
-                                    onChange={(o, f) => updatePrTarget(t.p, o, f)}
-                                  />
-                                ) : (
-                                  <Cell mono>{t.expr}</Cell>
-                                )}
+                                <Cell mono>{t.expr}</Cell>
                                 <Cell mono>{t.c}</Cell>
                                 <SelectCell value={t.dir} />
                                 <div className="flex items-center justify-center border-r border-border last:border-r-0">
