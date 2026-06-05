@@ -516,12 +516,12 @@ function ToolButton({ label }: { label: string }) {
   );
 }
 
-function LeftPane() {
+function LeftPane({ onOpenShaft }: { onOpenShaft: () => void }) {
   return (
     <aside className="flex w-[280px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
       <div className="flex-1 overflow-auto py-1 text-[12px]">
-        <Tree node={projectTree} />
+        <Tree node={projectTree} onShaftClick={onOpenShaft} />
       </div>
       <div className="border-t border-sidebar-border">
         <div className="px-3 py-2 font-medium">属性</div>
