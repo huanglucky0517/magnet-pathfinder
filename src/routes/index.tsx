@@ -498,7 +498,10 @@ function Index() {
           </div>
           <StatusBar />
         </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
+
     </div>
   );
 }
