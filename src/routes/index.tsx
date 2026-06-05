@@ -29,6 +29,7 @@ import {
 import { type DimKey } from "./shaft-vent";
 import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
 import ventRingAsset from "@/assets/vent-ring.png.asset.json";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -239,58 +240,64 @@ function Index() {
       <TopBar />
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
-        <LeftPane
-          selectedNode={selectedNode}
-          onSelectNode={setSelectedNode}
-          shaft={shaft}
-          setShaft={setShaft}
-          onFocusVentParam={setDiagramHot}
-        />
-        <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
-          <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
-            </div>
-            {showDiagram && (
-              <button
-                onClick={() => setDiagramHot(null)}
-                className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
-              >
-                返回 优化设计
-              </button>
-            )}
-          </div>
-          <div className="flex-1 overflow-auto">
-            {showDiagram ? (
-              <div className="flex h-full items-center justify-center bg-white p-6">
-                <img
-                  src={ventAsset.url}
-                  alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
-                  className="max-h-full max-w-[720px] object-contain"
-                />
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          <ResizablePanel defaultSize={20} minSize={14} maxSize={40}>
+            <LeftPane
+              selectedNode={selectedNode}
+              onSelectNode={setSelectedNode}
+              shaft={shaft}
+              setShaft={setShaft}
+              onFocusVentParam={setDiagramHot}
+            />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={80} minSize={40}>
+            <main className="flex h-full flex-col overflow-hidden border-l border-border">
+              <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+                </div>
+                {showDiagram && (
+                  <button
+                    onClick={() => setDiagramHot(null)}
+                    className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    返回 优化设计
+                  </button>
+                )}
               </div>
-            ) : (
-            <>
-            {/* Section 1: 变量 */}
-            <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
-              <Table
-                head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
-                widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
-              >
-                {variables.map((v) => (
-                  <Row key={v.name}>
-                    <SelectCell value={v.name} />
-                    <Cell>{v.def}</Cell>
-                    <Cell>{v.lo}</Cell>
-                    <Cell>{v.hi}</Cell>
-                    <Cell>{v.prec}</Cell>
-                    <SelectCell value="无" />
-                    <DeleteCell />
-                  </Row>
-                ))}
-              </Table>
-            </Section>
+              <div className="flex-1 overflow-auto">
+                {showDiagram ? (
+                  <div className="flex h-full items-center justify-center bg-white p-6">
+                    <img
+                      src={ventAsset.url}
+                      alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
+                      className="max-h-full max-w-[720px] object-contain"
+                    />
+                  </div>
+                ) : (
+                <>
+                {/* Section 1: 变量 */}
+                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
+                  <Table
+                    head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
+                    widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
+                  >
+                    {variables.map((v) => (
+                      <Row key={v.name}>
+                        <SelectCell value={v.name} />
+                        <Cell>{v.def}</Cell>
+                        <Cell>{v.lo}</Cell>
+                        <Cell>{v.hi}</Cell>
+                        <Cell>{v.prec}</Cell>
+                        <SelectCell value="无" />
+                        <DeleteCell />
+                      </Row>
+                    ))}
+                  </Table>
+                </Section>
+
 
             {/* Section 2: 工况与优化目标 */}
             <Section step="2" title="工况与优化目标">
@@ -491,7 +498,10 @@ function Index() {
           </div>
           <StatusBar />
         </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
+
     </div>
   );
 }
@@ -564,25 +574,37 @@ function LeftPane({
   onFocusVentParam: (k: DimKey) => void;
 }) {
   return (
-    <aside className="flex w-[320px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
-      <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
-      <div className="max-h-[40%] overflow-auto py-1 text-[12px]">
-        <Tree
-          node={projectTree}
-          selectedNode={selectedNode}
-          onSelectNode={onSelectNode}
-        />
-      </div>
-      <div className="flex-1 overflow-auto border-t border-sidebar-border">
-        <div className="px-3 py-2 font-medium">属性</div>
-        {selectedNode === "转轴" ? (
-          <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
-        ) : (
-          <DefaultPropertiesPanel />
-        )}
-      </div>
+    <aside className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+      <ResizablePanelGroup direction="vertical" className="flex-1">
+        <ResizablePanel defaultSize={40} minSize={15}>
+          <div className="flex h-full flex-col">
+            <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
+            <div className="flex-1 overflow-auto py-1 text-[12px]">
+              <Tree
+                node={projectTree}
+                selectedNode={selectedNode}
+                onSelectNode={onSelectNode}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={60} minSize={20}>
+          <div className="flex h-full flex-col border-t border-sidebar-border">
+            <div className="sticky top-0 z-10 border-b border-sidebar-border bg-sidebar px-3 py-2 font-medium">属性</div>
+            <div className="flex-1 overflow-auto">
+              {selectedNode === "转轴" ? (
+                <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
+              ) : (
+                <DefaultPropertiesPanel />
+              )}
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </aside>
   );
+
 }
 
 function dimLabel(k: DimKey | null, shape: VentShape): string {
