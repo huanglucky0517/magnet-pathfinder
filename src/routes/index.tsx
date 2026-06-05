@@ -793,6 +793,8 @@ function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: num
       className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
     />
   );
+}
+
 
 function VentRowBlock({
   idx,
