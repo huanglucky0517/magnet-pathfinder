@@ -263,12 +263,12 @@ function Index() {
           </div>
           <div className="flex-1 overflow-auto">
             {showDiagram ? (
-              <div className="p-6">
-                <VentDiagram style={shaft.ventShape} p={ventParams} hot={diagramHot} />
-                <VentLegend style={shaft.ventShape} hot={diagramHot} onHover={(k) => k && setDiagramHot(k)} />
-                <p className="mx-auto mt-4 max-w-[720px] text-center text-[11px] text-muted-foreground">
-                  当前高亮：{dimLabel(diagramHot, shaft.ventShape)} · 点击参数输入框可切换高亮，点右上角可返回优化设计
-                </p>
+              <div className="flex h-full items-center justify-center bg-[hsl(var(--muted))]/30 p-6">
+                <img
+                  src={ventAsset.url}
+                  alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
+                  className="max-h-full max-w-[720px] object-contain"
+                />
               </div>
             ) : (
             <>
