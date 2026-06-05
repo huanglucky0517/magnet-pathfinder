@@ -241,7 +241,7 @@ function Index() {
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize={20} minSize={14} maxSize={40}>
+          <ResizablePanel defaultSize="320px" minSize="280px" maxSize="600px">
             <LeftPane
               selectedNode={selectedNode}
               onSelectNode={setSelectedNode}
@@ -251,7 +251,8 @@ function Index() {
             />
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={80} minSize={40}>
+          <ResizablePanel minSize="400px">
+
             <main className="flex h-full flex-col overflow-hidden border-l border-border">
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
                 <div className="flex items-center gap-2">
