@@ -26,7 +26,9 @@ import {
   femVoltageSourceParams,
   type FemParam,
 } from "./fem-params";
-import { VentDiagram, Legend as VentLegend, type DimKey, type Params as VentParams } from "./shaft-vent";
+import { type DimKey } from "./shaft-vent";
+import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
+import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
