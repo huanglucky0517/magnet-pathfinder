@@ -26,6 +26,7 @@ import {
   femVoltageSourceParams,
   type FemParam,
 } from "./fem-params";
+import { ShaftVentDrawer } from "./shaft-vent";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -224,12 +225,15 @@ function Index() {
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
 
+  const [shaftOpen, setShaftOpen] = useState(false);
+
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
       <Toolbar />
+      <ShaftVentDrawer open={shaftOpen} onOpenChange={setShaftOpen} />
       <div className="flex flex-1 overflow-hidden">
-        <LeftPane />
+        <LeftPane onOpenShaft={() => setShaftOpen(true)} />
         <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
           <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -512,12 +516,12 @@ function ToolButton({ label }: { label: string }) {
   );
 }
 
-function LeftPane() {
+function LeftPane({ onOpenShaft }: { onOpenShaft: () => void }) {
   return (
     <aside className="flex w-[280px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
       <div className="flex-1 overflow-auto py-1 text-[12px]">
-        <Tree node={projectTree} />
+        <Tree node={projectTree} onShaftClick={onOpenShaft} />
       </div>
       <div className="border-t border-sidebar-border">
         <div className="px-3 py-2 font-medium">属性</div>
@@ -580,19 +584,23 @@ const projectTree: TreeNode = {
   ],
 };
 
-function Tree({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
+function Tree({ node, depth = 0, onShaftClick }: { node: TreeNode; depth?: number; onShaftClick?: () => void }) {
   const [open, setOpen] = useState(true);
   if (node.label === "root")
-    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} />)}</>;
+    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} onShaftClick={onShaftClick} />)}</>;
   const hasChildren = !!node.children?.length;
+  const isShaft = node.label === "转轴";
   return (
     <div>
       <div
         className={`flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors hover:bg-sidebar-accent ${
           node.active ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
-        }`}
+        } ${isShaft ? "hover:text-[var(--fem)]" : ""}`}
         style={{ paddingLeft: 6 + depth * 14 }}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (isShaft && onShaftClick) onShaftClick();
+          else setOpen(!open);
+        }}
       >
         {hasChildren ? (
           open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />
@@ -604,7 +612,7 @@ function Tree({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
           <ChevronRight className="ml-1 h-3 w-3 shrink-0 rounded-full bg-primary text-primary-foreground" />
         )}
       </div>
-      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} />)}
+      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} onShaftClick={onShaftClick} />)}
     </div>
   );
 }
