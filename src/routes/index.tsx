@@ -521,31 +521,261 @@ function ToolButton({ label }: { label: string }) {
   );
 }
 
-function LeftPane({ onOpenShaft }: { onOpenShaft: () => void }) {
+function LeftPane({
+  selectedNode,
+  onSelectNode,
+  onOpenShaft,
+}: {
+  selectedNode: string;
+  onSelectNode: (n: string) => void;
+  onOpenShaft: () => void;
+}) {
   return (
-    <aside className="flex w-[280px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
+    <aside className="flex w-[320px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
-      <div className="flex-1 overflow-auto py-1 text-[12px]">
-        <Tree node={projectTree} onShaftClick={onOpenShaft} />
+      <div className="max-h-[40%] overflow-auto py-1 text-[12px]">
+        <Tree
+          node={projectTree}
+          selectedNode={selectedNode}
+          onSelectNode={onSelectNode}
+        />
       </div>
-      <div className="border-t border-sidebar-border">
-        <div className="px-3 py-2 font-medium">属性</div>
-        <div className="grid grid-cols-[1fr_1fr_60px_60px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
-          <div>名称</div><div>值</div><div>单位</div><div>结果</div>
+      <div className="flex-1 overflow-auto border-t border-sidebar-border">
+        <div className="flex items-center justify-between px-3 py-2 font-medium">
+          <span>属性</span>
+          {selectedNode === "转轴" && (
+            <button
+              onClick={onOpenShaft}
+              className="rounded border border-sidebar-border px-2 py-0.5 text-[11px] font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+            >
+              通风道示意图
+            </button>
+          )}
         </div>
-        <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-          <div>名称</div><div>新设计</div><div></div><div></div>
-        </div>
-        <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-          <div>相关工况</div><div>工况</div><div></div><div></div>
-        </div>
-        <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-          <div>保存算例详细结果</div>
-          <div><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> 是</div>
-          <div></div><div></div>
-        </div>
+        {selectedNode === "转轴" ? (
+          <ShaftPropertiesPanel onOpenShaft={onOpenShaft} />
+        ) : (
+          <DefaultPropertiesPanel />
+        )}
       </div>
     </aside>
+  );
+}
+
+function DefaultPropertiesPanel() {
+  return (
+    <>
+      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
+        <div>名称</div><div>值</div><div>单位</div><div>结果</div>
+      </div>
+      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
+        <div>名称</div><div>新设计</div><div></div><div></div>
+      </div>
+      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
+        <div>相关工况</div><div>工况</div><div></div><div></div>
+      </div>
+      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
+        <div>保存算例详细结果</div>
+        <div><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> 是</div>
+        <div></div><div></div>
+      </div>
+    </>
+  );
+}
+
+type VentShape = "circle" | "ring";
+interface ShaftState {
+  material: string;
+  neckDia: number;
+  length: number;
+  neckLen: number;
+  fanInertia: number;
+  coreOnShaft: boolean;
+  radialVent: boolean;
+  ventCount: number;
+  ventWidth: number;
+  ventGap: number;
+  ventShape: VentShape;
+  // circle hole
+  holeCount: number;
+  holeDia: number;
+  holePitchDia: number;
+  holeOffset: number;
+  // ring
+  ringInnerDia: number;
+  ringHeight: number;
+  ringToothW: number;
+}
+
+function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
+  const [s, setS] = useState<ShaftState>({
+    material: "圆钢45",
+    neckDia: 0,
+    length: 0,
+    neckLen: 0,
+    fanInertia: 0,
+    coreOnShaft: true,
+    radialVent: false,
+    ventCount: 1,
+    ventWidth: 10,
+    ventGap: 20,
+    ventShape: "circle",
+    holeCount: 6,
+    holeDia: 14,
+    holePitchDia: 80,
+    holeOffset: 0,
+    ringInnerDia: 60,
+    ringHeight: 14,
+    ringToothW: 8,
+  });
+  const set = <K extends keyof ShaftState>(k: K, v: ShaftState[K]) =>
+    setS((p) => ({ ...p, [k]: v }));
+
+  return (
+    <>
+      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
+        <div>名称</div><div>值</div><div>单位</div><div>结果</div>
+      </div>
+      <PRow2 label="材料">
+        <input value={s.material} onChange={(e) => set("material", e.target.value)} className="w-full bg-transparent outline-none" />
+      </PRow2>
+      <PRow2 label="轴颈直径" unit="毫米" result="0">
+        <NumIn v={s.neckDia} onChange={(v) => set("neckDia", v)} />
+      </PRow2>
+      <PRow2 label="转轴长度" unit="毫米" result="0">
+        <NumIn v={s.length} onChange={(v) => set("length", v)} />
+      </PRow2>
+      <PRow2 label="轴颈长度" unit="毫米" result="0">
+        <NumIn v={s.neckLen} onChange={(v) => set("neckLen", v)} />
+      </PRow2>
+      <PRow2 label="外风扇的转动惯量" unit="千克*米^2" result="0">
+        <NumIn v={s.fanInertia} onChange={(v) => set("fanInertia", v)} />
+      </PRow2>
+      <PRow2 label="铁芯直接套在轴上">
+        <label className="flex items-center gap-1">
+          <input type="checkbox" checked={s.coreOnShaft} onChange={(e) => set("coreOnShaft", e.target.checked)} className="accent-[var(--primary)]" />
+          是
+        </label>
+      </PRow2>
+
+      {/* 径向通风孔 */}
+      <PRow2 label="径向通风孔">
+        <label className="flex items-center gap-1">
+          <input
+            type="checkbox"
+            checked={s.radialVent}
+            onChange={(e) => set("radialVent", e.target.checked)}
+            className="accent-[var(--primary)]"
+          />
+          是
+        </label>
+      </PRow2>
+
+      {s.radialVent && (
+        <div className="border-b border-sidebar-border bg-[var(--fem-bg)]/40">
+          <PRow2 label="　径向通风孔道数" unit="个" result="0">
+            <NumIn v={s.ventCount} onChange={(v) => set("ventCount", v)} integer />
+          </PRow2>
+          <PRow2 label="　通风道宽" unit="毫米" result="0">
+            <NumIn v={s.ventWidth} onChange={(v) => set("ventWidth", v)} />
+          </PRow2>
+          <PRow2 label="　通风道间距" unit="毫米" result="0">
+            <NumIn v={s.ventGap} onChange={(v) => set("ventGap", v)} />
+          </PRow2>
+          <PRow2 label="　通风孔形状">
+            <select
+              value={s.ventShape}
+              onChange={(e) => set("ventShape", e.target.value as VentShape)}
+              className="w-full rounded border border-sidebar-border bg-background px-1 py-0.5 text-[12px]"
+            >
+              <option value="circle">圆形通风孔</option>
+              <option value="ring">环形通风孔</option>
+            </select>
+          </PRow2>
+
+          {s.ventShape === "circle" ? (
+            <>
+              <PRow2 label="　　通风孔数目" unit="个" result="0">
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+              </PRow2>
+              <PRow2 label="　　通风孔直径" unit="毫米" result="0">
+                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} />
+              </PRow2>
+              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
+                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} />
+              </PRow2>
+              <PRow2 label="　　偏移角度" unit="°" result="0">
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+              </PRow2>
+            </>
+          ) : (
+            <>
+              <PRow2 label="　　通风孔数目" unit="个" result="0">
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+              </PRow2>
+              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
+                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} />
+              </PRow2>
+              <PRow2 label="　　通风孔高度" unit="毫米" result="0">
+                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} />
+              </PRow2>
+              <PRow2 label="　　齿宽" unit="°" result="0">
+                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} />
+              </PRow2>
+              <PRow2 label="　　偏移角度" unit="°" result="0">
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+              </PRow2>
+            </>
+          )}
+
+          <div className="px-3 py-2">
+            <button
+              onClick={onOpenShaft}
+              className="w-full rounded border border-[var(--fem)] bg-[var(--fem-bg)] py-1 text-[11px] text-[var(--fem)] hover:bg-[var(--fem-bg)]/70"
+            >
+              打开通风道尺寸示意图
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function PRow2({
+  label,
+  unit,
+  result,
+  children,
+}: {
+  label: string;
+  unit?: string;
+  result?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border px-2 py-1.5 text-[12px]">
+      <div className="truncate" title={label.replace(/　/g, "")}>{label}</div>
+      <div className="pr-1">{children}</div>
+      <div className="text-[11px] text-muted-foreground">{unit ?? ""}</div>
+      <div className="text-[11px] text-muted-foreground">{result ?? ""}</div>
+    </div>
+  );
+}
+
+function NumIn({ v, onChange, integer }: { v: number; onChange: (n: number) => void; integer?: boolean }) {
+  return (
+    <input
+      type="number"
+      value={v}
+      onChange={(e) => {
+        let n = Number(e.target.value);
+        if (Number.isNaN(n)) n = 0;
+        if (integer) n = Math.trunc(n);
+        onChange(n);
+      }}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    />
   );
 }
 
