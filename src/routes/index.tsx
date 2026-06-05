@@ -802,11 +802,12 @@ function PRow2({
   );
 }
 
-function NumIn({ v, onChange, integer }: { v: number; onChange: (n: number) => void; integer?: boolean }) {
+function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: number) => void; integer?: boolean; onFocus?: () => void }) {
   return (
     <input
       type="number"
       value={v}
+      onFocus={onFocus}
       onChange={(e) => {
         let n = Number(e.target.value);
         if (Number.isNaN(n)) n = 0;
