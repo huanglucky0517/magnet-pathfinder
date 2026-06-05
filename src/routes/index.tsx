@@ -617,6 +617,16 @@ function DefaultPropertiesPanel() {
 }
 
 type VentShape = "circle" | "ring";
+interface VentRow {
+  holeCount: number;
+  shape: VentShape;
+  holeDia: number;
+  holePitchDia: number;
+  holeOffset: number;
+  ringInnerDia: number;
+  ringHeight: number;
+  ringToothW: number;
+}
 interface ShaftState {
   material: string;
   neckDia: number;
@@ -624,21 +634,22 @@ interface ShaftState {
   neckLen: number;
   fanInertia: number;
   coreOnShaft: boolean;
-  radialVent: boolean;
-  ventCount: number;
-  ventWidth: number;
-  ventGap: number;
-  ventShape: VentShape;
-  // circle hole
-  holeCount: number;
-  holeDia: number;
-  holePitchDia: number;
-  holeOffset: number;
-  // ring
-  ringInnerDia: number;
-  ringHeight: number;
-  ringToothW: number;
+  axialVent: boolean;
+  ventRowCount: number;
+  ventRows: VentRow[];
+  ventShape: VentShape; // used by diagram preview
 }
+
+const defaultVentRow: VentRow = {
+  holeCount: 4,
+  shape: "circle",
+  holeDia: 0,
+  holePitchDia: 0,
+  holeOffset: 0,
+  ringInnerDia: 60,
+  ringHeight: 14,
+  ringToothW: 8,
+};
 
 const defaultShaftState: ShaftState = {
   material: "圆钢45",
@@ -647,18 +658,10 @@ const defaultShaftState: ShaftState = {
   neckLen: 0,
   fanInertia: 0,
   coreOnShaft: true,
-  radialVent: false,
-  ventCount: 1,
-  ventWidth: 10,
-  ventGap: 20,
+  axialVent: false,
+  ventRowCount: 3,
+  ventRows: [{ ...defaultVentRow }, { ...defaultVentRow }, { ...defaultVentRow }],
   ventShape: "circle",
-  holeCount: 6,
-  holeDia: 14,
-  holePitchDia: 80,
-  holeOffset: 0,
-  ringInnerDia: 60,
-  ringHeight: 14,
-  ringToothW: 8,
 };
 
 function ShaftPropertiesPanel({
@@ -700,74 +703,54 @@ function ShaftPropertiesPanel({
         </label>
       </PRow2>
 
-      <PRow2 label="径向通风孔">
+      <PRow2 label="轴向通风孔">
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
-            checked={s.radialVent}
-            onChange={(e) => set("radialVent", e.target.checked)}
+            checked={s.axialVent}
+            onChange={(e) => set("axialVent", e.target.checked)}
             className="accent-[var(--primary)]"
           />
-          是
+          {s.axialVent ? "是" : "否"}
         </label>
       </PRow2>
 
-      {s.radialVent && (
+      {s.axialVent && (
         <div className="border-b border-emerald-300/60 bg-emerald-100/50">
-          <PRow2 label="　径向通风孔道数" unit="个" result="0">
-            <NumIn v={s.ventCount} onChange={(v) => set("ventCount", v)} integer />
-          </PRow2>
-          <PRow2 label="　通风道宽" unit="毫米" result="0">
-            <NumIn v={s.ventWidth} onChange={(v) => set("ventWidth", v)} />
-          </PRow2>
-          <PRow2 label="　通风道间距" unit="毫米" result="0">
-            <NumIn v={s.ventGap} onChange={(v) => set("ventGap", v)} />
-          </PRow2>
-          <PRow2 label="　通风孔形状">
-            <select
-              value={s.ventShape}
-              onChange={(e) => set("ventShape", e.target.value as VentShape)}
-              className="w-full rounded border border-sidebar-border bg-background px-1 py-0.5 text-[12px]"
-            >
-              <option value="circle">圆形通风孔</option>
-              <option value="ring">环形通风孔</option>
-            </select>
+          <PRow2 label="　通风孔排数" unit="排" result="0">
+            <NumIn
+              v={s.ventRowCount}
+              integer
+              onChange={(v) => {
+                const n = Math.max(1, Math.min(20, Math.trunc(v) || 0));
+                const rows = [...s.ventRows];
+                if (n > rows.length) {
+                  while (rows.length < n) rows.push({ ...defaultVentRow });
+                } else if (n < rows.length) {
+                  rows.length = n;
+                }
+                setS((p) => ({ ...p, ventRowCount: n, ventRows: rows }));
+              }}
+            />
           </PRow2>
 
-          {s.ventShape === "circle" ? (
-            <>
-              <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
-              </PRow2>
-              <PRow2 label="　　通风孔直径" unit="毫米" result="0">
-                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} onFocus={() => onFocusVentParam("holeDia")} />
-              </PRow2>
-              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
-                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} onFocus={() => onFocusVentParam("pitchDia")} />
-              </PRow2>
-              <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
-              </PRow2>
-            </>
-          ) : (
-            <>
-              <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
-              </PRow2>
-              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
-                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} onFocus={() => onFocusVentParam("innerDia")} />
-              </PRow2>
-              <PRow2 label="　　通风孔高度" unit="毫米" result="0">
-                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} onFocus={() => onFocusVentParam("archH")} />
-              </PRow2>
-              <PRow2 label="　　齿宽" unit="°" result="0">
-                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} onFocus={() => onFocusVentParam("toothW")} />
-              </PRow2>
-              <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
-              </PRow2>
-            </>
-          )}
+          {s.ventRows.slice(0, s.ventRowCount).map((row, idx) => (
+            <VentRowBlock
+              key={idx}
+              idx={idx}
+              row={row}
+              onChange={(patch) => {
+                const rows = s.ventRows.map((r, i) => (i === idx ? { ...r, ...patch } : r));
+                const next: Partial<ShaftState> = { ventRows: rows };
+                if (patch.shape) next.ventShape = patch.shape;
+                setS((p) => ({ ...p, ...next }));
+              }}
+              onFocusVentParam={(k) => {
+                setS((p) => ({ ...p, ventShape: row.shape }));
+                onFocusVentParam(k);
+              }}
+            />
+          ))}
         </div>
       )}
     </>
@@ -811,6 +794,86 @@ function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: num
     />
   );
 }
+
+
+function VentRowBlock({
+  idx,
+  row,
+  onChange,
+  onFocusVentParam,
+}: {
+  idx: number;
+  row: VentRow;
+  onChange: (patch: Partial<VentRow>) => void;
+  onFocusVentParam: (k: DimKey) => void;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <>
+      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-emerald-300/60 bg-emerald-200/40 px-2 py-1.5 text-[12px] font-medium">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-1 text-left text-emerald-900"
+        >
+          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          第{idx + 1}行
+        </button>
+        <div /><div /><div />
+      </div>
+      {open && (
+        <>
+          <PRow2 label="　　通风孔数目" unit="个" result="0">
+            <NumIn
+              v={row.holeCount}
+              integer
+              onChange={(v) => onChange({ holeCount: v })}
+              onFocus={() => onFocusVentParam("count")}
+            />
+          </PRow2>
+          <PRow2 label="　　通风孔形状">
+            <select
+              value={row.shape}
+              onChange={(e) => onChange({ shape: e.target.value as VentShape })}
+              className="w-full rounded border border-sidebar-border bg-background px-1 py-0.5 text-[12px]"
+            >
+              <option value="circle">圆形轴向通风孔</option>
+              <option value="ring">环形轴向通风孔</option>
+            </select>
+          </PRow2>
+          {row.shape === "circle" ? (
+            <>
+              <PRow2 label="　　通风孔直径" unit="毫米" result="0">
+                <NumIn v={row.holeDia} onChange={(v) => onChange({ holeDia: v })} onFocus={() => onFocusVentParam("holeDia")} />
+              </PRow2>
+              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
+                <NumIn v={row.holePitchDia} onChange={(v) => onChange({ holePitchDia: v })} onFocus={() => onFocusVentParam("pitchDia")} />
+              </PRow2>
+              <PRow2 label="　　偏移角度" unit="度" result="0">
+                <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
+              </PRow2>
+            </>
+          ) : (
+            <>
+              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
+                <NumIn v={row.ringInnerDia} onChange={(v) => onChange({ ringInnerDia: v })} onFocus={() => onFocusVentParam("innerDia")} />
+              </PRow2>
+              <PRow2 label="　　通风孔高度" unit="毫米" result="0">
+                <NumIn v={row.ringHeight} onChange={(v) => onChange({ ringHeight: v })} onFocus={() => onFocusVentParam("archH")} />
+              </PRow2>
+              <PRow2 label="　　齿宽" unit="度" result="0">
+                <NumIn v={row.ringToothW} onChange={(v) => onChange({ ringToothW: v })} onFocus={() => onFocusVentParam("toothW")} />
+              </PRow2>
+              <PRow2 label="　　偏移角度" unit="度" result="0">
+                <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
+              </PRow2>
+            </>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
 
 type TreeNode = { label: string; children?: TreeNode[]; active?: boolean; badge?: boolean };
 const projectTree: TreeNode = {
