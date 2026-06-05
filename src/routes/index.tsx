@@ -29,6 +29,7 @@ import {
 import { type DimKey } from "./shaft-vent";
 import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
 import ventRingAsset from "@/assets/vent-ring.png.asset.json";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
   head: () => ({
