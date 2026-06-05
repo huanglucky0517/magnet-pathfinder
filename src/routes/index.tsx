@@ -617,6 +617,16 @@ function DefaultPropertiesPanel() {
 }
 
 type VentShape = "circle" | "ring";
+interface VentRow {
+  holeCount: number;
+  shape: VentShape;
+  holeDia: number;
+  holePitchDia: number;
+  holeOffset: number;
+  ringInnerDia: number;
+  ringHeight: number;
+  ringToothW: number;
+}
 interface ShaftState {
   material: string;
   neckDia: number;
@@ -624,21 +634,22 @@ interface ShaftState {
   neckLen: number;
   fanInertia: number;
   coreOnShaft: boolean;
-  radialVent: boolean;
-  ventCount: number;
-  ventWidth: number;
-  ventGap: number;
-  ventShape: VentShape;
-  // circle hole
-  holeCount: number;
-  holeDia: number;
-  holePitchDia: number;
-  holeOffset: number;
-  // ring
-  ringInnerDia: number;
-  ringHeight: number;
-  ringToothW: number;
+  axialVent: boolean;
+  ventRowCount: number;
+  ventRows: VentRow[];
+  ventShape: VentShape; // used by diagram preview
 }
+
+const defaultVentRow: VentRow = {
+  holeCount: 4,
+  shape: "circle",
+  holeDia: 0,
+  holePitchDia: 0,
+  holeOffset: 0,
+  ringInnerDia: 60,
+  ringHeight: 14,
+  ringToothW: 8,
+};
 
 const defaultShaftState: ShaftState = {
   material: "圆钢45",
@@ -647,18 +658,10 @@ const defaultShaftState: ShaftState = {
   neckLen: 0,
   fanInertia: 0,
   coreOnShaft: true,
-  radialVent: false,
-  ventCount: 1,
-  ventWidth: 10,
-  ventGap: 20,
+  axialVent: false,
+  ventRowCount: 3,
+  ventRows: [{ ...defaultVentRow }, { ...defaultVentRow }, { ...defaultVentRow }],
   ventShape: "circle",
-  holeCount: 6,
-  holeDia: 14,
-  holePitchDia: 80,
-  holeOffset: 0,
-  ringInnerDia: 60,
-  ringHeight: 14,
-  ringToothW: 8,
 };
 
 function ShaftPropertiesPanel({
