@@ -232,16 +232,7 @@ function Index() {
   const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
   const showDiagram = diagramHot !== null;
 
-  const ventParams: VentParams = {
-    shaftDia: Math.max(shaft.neckDia || 0, 60),
-    count: Math.max(1, shaft.holeCount),
-    offsetDeg: shaft.holeOffset,
-    holeDia: shaft.holeDia,
-    pitchDia: shaft.holePitchDia,
-    innerDia: shaft.ringInnerDia,
-    archH: shaft.ringHeight,
-    toothW: shaft.ringToothW,
-  };
+  const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
