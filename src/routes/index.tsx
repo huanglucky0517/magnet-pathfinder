@@ -819,22 +819,33 @@ const projectTree: TreeNode = {
   ],
 };
 
-function Tree({ node, depth = 0, onShaftClick }: { node: TreeNode; depth?: number; onShaftClick?: () => void }) {
+function Tree({
+  node,
+  depth = 0,
+  selectedNode,
+  onSelectNode,
+}: {
+  node: TreeNode;
+  depth?: number;
+  selectedNode?: string;
+  onSelectNode?: (n: string) => void;
+}) {
   const [open, setOpen] = useState(true);
   if (node.label === "root")
-    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} onShaftClick={onShaftClick} />)}</>;
+    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} selectedNode={selectedNode} onSelectNode={onSelectNode} />)}</>;
   const hasChildren = !!node.children?.length;
   const isShaft = node.label === "转轴";
+  const isSelected = selectedNode === node.label;
   return (
     <div>
       <div
         className={`flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors hover:bg-sidebar-accent ${
-          node.active ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
+          node.active || isSelected ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
         } ${isShaft ? "hover:text-[var(--fem)]" : ""}`}
         style={{ paddingLeft: 6 + depth * 14 }}
         onClick={() => {
-          if (isShaft && onShaftClick) onShaftClick();
-          else setOpen(!open);
+          if (hasChildren) setOpen(!open);
+          onSelectNode?.(node.label);
         }}
       >
         {hasChildren ? (
@@ -847,7 +858,7 @@ function Tree({ node, depth = 0, onShaftClick }: { node: TreeNode; depth?: numbe
           <ChevronRight className="ml-1 h-3 w-3 shrink-0 rounded-full bg-primary text-primary-foreground" />
         )}
       </div>
-      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} onShaftClick={onShaftClick} />)}
+      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} selectedNode={selectedNode} onSelectNode={onSelectNode} />)}
     </div>
   );
 }
