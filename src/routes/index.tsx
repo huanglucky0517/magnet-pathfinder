@@ -26,7 +26,9 @@ import {
   femVoltageSourceParams,
   type FemParam,
 } from "./fem-params";
-import { VentDiagram, Legend as VentLegend, type DimKey, type Params as VentParams } from "./shaft-vent";
+import { type DimKey } from "./shaft-vent";
+import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
+import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -230,16 +232,7 @@ function Index() {
   const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
   const showDiagram = diagramHot !== null;
 
-  const ventParams: VentParams = {
-    shaftDia: Math.max(shaft.neckDia || 0, 60),
-    count: Math.max(1, shaft.holeCount),
-    offsetDeg: shaft.holeOffset,
-    holeDia: shaft.holeDia,
-    pitchDia: shaft.holePitchDia,
-    innerDia: shaft.ringInnerDia,
-    archH: shaft.ringHeight,
-    toothW: shaft.ringToothW,
-  };
+  const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
@@ -270,12 +263,12 @@ function Index() {
           </div>
           <div className="flex-1 overflow-auto">
             {showDiagram ? (
-              <div className="p-6">
-                <VentDiagram style={shaft.ventShape} p={ventParams} hot={diagramHot} />
-                <VentLegend style={shaft.ventShape} hot={diagramHot} onHover={(k) => k && setDiagramHot(k)} />
-                <p className="mx-auto mt-4 max-w-[720px] text-center text-[11px] text-muted-foreground">
-                  当前高亮：{dimLabel(diagramHot, shaft.ventShape)} · 点击参数输入框可切换高亮，点右上角可返回优化设计
-                </p>
+              <div className="flex h-full items-center justify-center bg-[hsl(var(--muted))]/30 p-6">
+                <img
+                  src={ventAsset.url}
+                  alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
+                  className="max-h-full max-w-[720px] object-contain"
+                />
               </div>
             ) : (
             <>
