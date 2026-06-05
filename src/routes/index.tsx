@@ -574,25 +574,37 @@ function LeftPane({
   onFocusVentParam: (k: DimKey) => void;
 }) {
   return (
-    <aside className="flex w-[320px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
-      <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
-      <div className="max-h-[40%] overflow-auto py-1 text-[12px]">
-        <Tree
-          node={projectTree}
-          selectedNode={selectedNode}
-          onSelectNode={onSelectNode}
-        />
-      </div>
-      <div className="flex-1 overflow-auto border-t border-sidebar-border">
-        <div className="px-3 py-2 font-medium">属性</div>
-        {selectedNode === "转轴" ? (
-          <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
-        ) : (
-          <DefaultPropertiesPanel />
-        )}
-      </div>
+    <aside className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+      <ResizablePanelGroup direction="vertical" className="flex-1">
+        <ResizablePanel defaultSize={40} minSize={15}>
+          <div className="flex h-full flex-col">
+            <div className="border-b border-sidebar-border px-3 py-2 font-medium">项目</div>
+            <div className="flex-1 overflow-auto py-1 text-[12px]">
+              <Tree
+                node={projectTree}
+                selectedNode={selectedNode}
+                onSelectNode={onSelectNode}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={60} minSize={20}>
+          <div className="flex h-full flex-col border-t border-sidebar-border">
+            <div className="sticky top-0 z-10 border-b border-sidebar-border bg-sidebar px-3 py-2 font-medium">属性</div>
+            <div className="flex-1 overflow-auto">
+              {selectedNode === "转轴" ? (
+                <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
+              ) : (
+                <DefaultPropertiesPanel />
+              )}
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </aside>
   );
+
 }
 
 function dimLabel(k: DimKey | null, shape: VentShape): string {
