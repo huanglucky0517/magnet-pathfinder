@@ -278,6 +278,7 @@ function Index() {
                 </p>
               </div>
             ) : (
+            <>
             {/* Section 1: 变量 */}
             <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
               <Table
