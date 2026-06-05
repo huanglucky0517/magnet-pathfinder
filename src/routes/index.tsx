@@ -560,11 +560,15 @@ function ToolButton({ label }: { label: string }) {
 function LeftPane({
   selectedNode,
   onSelectNode,
-  onOpenShaft,
+  shaft,
+  setShaft,
+  onFocusVentParam,
 }: {
   selectedNode: string;
   onSelectNode: (n: string) => void;
-  onOpenShaft: () => void;
+  shaft: ShaftState;
+  setShaft: React.Dispatch<React.SetStateAction<ShaftState>>;
+  onFocusVentParam: (k: DimKey) => void;
 }) {
   return (
     <aside className="flex w-[320px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
@@ -577,19 +581,9 @@ function LeftPane({
         />
       </div>
       <div className="flex-1 overflow-auto border-t border-sidebar-border">
-        <div className="flex items-center justify-between px-3 py-2 font-medium">
-          <span>属性</span>
-          {selectedNode === "转轴" && (
-            <button
-              onClick={onOpenShaft}
-              className="rounded border border-sidebar-border px-2 py-0.5 text-[11px] font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-            >
-              通风道示意图
-            </button>
-          )}
-        </div>
+        <div className="px-3 py-2 font-medium">属性</div>
         {selectedNode === "转轴" ? (
-          <ShaftPropertiesPanel onOpenShaft={onOpenShaft} />
+          <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
         ) : (
           <DefaultPropertiesPanel />
         )}
@@ -597,6 +591,16 @@ function LeftPane({
     </aside>
   );
 }
+
+function dimLabel(k: DimKey | null, shape: VentShape): string {
+  if (!k) return "—";
+  const m: Record<string, string> =
+    shape === "circle"
+      ? { holeCount: "通风孔数目", holeDia: "通风孔直径", pitchDia: "通风孔位置直径", offsetDeg: "偏移角度", shaftDia: "转轴外径", count: "通风孔数目" }
+      : { holeCount: "通风孔数目", innerDia: "通风孔内圆直径", archH: "通风孔高度", toothW: "齿宽", offsetDeg: "偏移角度", count: "通风孔数目" };
+  return m[k] ?? k;
+}
+
 
 function DefaultPropertiesPanel() {
   return (
