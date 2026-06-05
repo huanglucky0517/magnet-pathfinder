@@ -240,58 +240,64 @@ function Index() {
       <TopBar />
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
-        <LeftPane
-          selectedNode={selectedNode}
-          onSelectNode={setSelectedNode}
-          shaft={shaft}
-          setShaft={setShaft}
-          onFocusVentParam={setDiagramHot}
-        />
-        <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
-          <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
-            </div>
-            {showDiagram && (
-              <button
-                onClick={() => setDiagramHot(null)}
-                className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
-              >
-                返回 优化设计
-              </button>
-            )}
-          </div>
-          <div className="flex-1 overflow-auto">
-            {showDiagram ? (
-              <div className="flex h-full items-center justify-center bg-white p-6">
-                <img
-                  src={ventAsset.url}
-                  alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
-                  className="max-h-full max-w-[720px] object-contain"
-                />
+        <ResizablePanelGroup direction="horizontal" className="flex-1">
+          <ResizablePanel defaultSize={20} minSize={14} maxSize={40}>
+            <LeftPane
+              selectedNode={selectedNode}
+              onSelectNode={setSelectedNode}
+              shaft={shaft}
+              setShaft={setShaft}
+              onFocusVentParam={setDiagramHot}
+            />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={80} minSize={40}>
+            <main className="flex h-full flex-col overflow-hidden border-l border-border">
+              <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+                </div>
+                {showDiagram && (
+                  <button
+                    onClick={() => setDiagramHot(null)}
+                    className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
+                  >
+                    返回 优化设计
+                  </button>
+                )}
               </div>
-            ) : (
-            <>
-            {/* Section 1: 变量 */}
-            <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
-              <Table
-                head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
-                widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
-              >
-                {variables.map((v) => (
-                  <Row key={v.name}>
-                    <SelectCell value={v.name} />
-                    <Cell>{v.def}</Cell>
-                    <Cell>{v.lo}</Cell>
-                    <Cell>{v.hi}</Cell>
-                    <Cell>{v.prec}</Cell>
-                    <SelectCell value="无" />
-                    <DeleteCell />
-                  </Row>
-                ))}
-              </Table>
-            </Section>
+              <div className="flex-1 overflow-auto">
+                {showDiagram ? (
+                  <div className="flex h-full items-center justify-center bg-white p-6">
+                    <img
+                      src={ventAsset.url}
+                      alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
+                      className="max-h-full max-w-[720px] object-contain"
+                    />
+                  </div>
+                ) : (
+                <>
+                {/* Section 1: 变量 */}
+                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
+                  <Table
+                    head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
+                    widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
+                  >
+                    {variables.map((v) => (
+                      <Row key={v.name}>
+                        <SelectCell value={v.name} />
+                        <Cell>{v.def}</Cell>
+                        <Cell>{v.lo}</Cell>
+                        <Cell>{v.hi}</Cell>
+                        <Cell>{v.prec}</Cell>
+                        <SelectCell value="无" />
+                        <DeleteCell />
+                      </Row>
+                    ))}
+                  </Table>
+                </Section>
+
 
             {/* Section 2: 工况与优化目标 */}
             <Section step="2" title="工况与优化目标">
