@@ -839,7 +839,7 @@ const projectTree: TreeNode = {
                 {
                   label: "优化设计",
                   children: [
-                    { label: "新设计(优化分析)", active: true, badge: true, children: [{ label: "结果" }] },
+                    { label: "新设计(优化分析)", badge: true, children: [{ label: "结果" }] },
                     { label: "蒙特卡罗分析" },
                     { label: "附件" },
                   ],
