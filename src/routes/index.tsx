@@ -713,7 +713,7 @@ function ShaftPropertiesPanel({
       </PRow2>
 
       {s.radialVent && (
-        <div className="border-b border-emerald-300/60 bg-emerald-100/60">
+        <div className="border-b border-emerald-300/60 bg-emerald-100/50">
           <PRow2 label="　径向通风孔道数" unit="个" result="0">
             <NumIn v={s.ventCount} onChange={(v) => set("ventCount", v)} integer />
           </PRow2>
