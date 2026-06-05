@@ -492,6 +492,8 @@ function Index() {
                 </button>
               </div>
             </Section>
+            </>
+            )}
           </div>
           <StatusBar />
         </main>
