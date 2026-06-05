@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-type VentStyle = "ring" | "circle";
+export type VentStyle = "ring" | "circle";
 
-interface Params {
+export interface Params {
   // 共用
   shaftDia: number; // 转轴外径
   count: number; // 通风孔数目
@@ -32,7 +32,7 @@ const defaultParams: Params = {
   toothW: 8,
 };
 
-type DimKey =
+export type DimKey =
   | "shaftDia"
   | "count"
   | "offsetDeg"
@@ -322,7 +322,7 @@ function PRow({
 }
 
 /** 示意图 */
-function VentDiagram({ style, p, hot }: { style: VentStyle; p: Params; hot: DimKey | null }) {
+export function VentDiagram({ style, p, hot }: { style: VentStyle; p: Params; hot: DimKey | null }) {
   // 自适应 viewBox：以最大几何为基准 + 边距
   const Rshaft = p.shaftDia / 2;
   const Rmax = useMemo(() => {
@@ -522,7 +522,7 @@ function describeArc(cx: number, cy: number, r: number, startDeg: number, endDeg
   return `M ${sx} ${sy} A ${r} ${r} 0 ${large} ${sweep} ${ex} ${ey}`;
 }
 
-function Legend({ style, hot, onHover }: { style: VentStyle; hot: DimKey | null; onHover: (k: DimKey | null) => void }) {
+export function Legend({ style, hot, onHover }: { style: VentStyle; hot: DimKey | null; onHover: (k: DimKey | null) => void }) {
   const items: { k: DimKey; mark: string; label: string }[] =
     style === "circle"
       ? [

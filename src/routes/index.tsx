@@ -26,7 +26,7 @@ import {
   femVoltageSourceParams,
   type FemParam,
 } from "./fem-params";
-import { ShaftVentDrawer } from "./shaft-vent";
+import { VentDiagram, Legend as VentLegend, type DimKey, type Params as VentParams } from "./shaft-vent";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -225,26 +225,60 @@ function Index() {
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
 
-  const [shaftOpen, setShaftOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<string>("");
+  const [selectedNode, setSelectedNode] = useState<string>("新设计(优化分析)");
+  const [shaft, setShaft] = useState<ShaftState>(defaultShaftState);
+  const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
+  const showDiagram = diagramHot !== null;
+
+  const ventParams: VentParams = {
+    shaftDia: Math.max(shaft.neckDia || 0, 60),
+    count: Math.max(1, shaft.holeCount),
+    offsetDeg: shaft.holeOffset,
+    holeDia: shaft.holeDia,
+    pitchDia: shaft.holePitchDia,
+    innerDia: shaft.ringInnerDia,
+    archH: shaft.ringHeight,
+    toothW: shaft.ringToothW,
+  };
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
       <Toolbar />
-      <ShaftVentDrawer open={shaftOpen} onOpenChange={setShaftOpen} />
       <div className="flex flex-1 overflow-hidden">
         <LeftPane
           selectedNode={selectedNode}
           onSelectNode={setSelectedNode}
-          onOpenShaft={() => setShaftOpen(true)}
+          shaft={shaft}
+          setShaft={setShaft}
+          onFocusVentParam={setDiagramHot}
         />
         <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
-          <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-medium">优化设计</span>
+          <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+            </div>
+            {showDiagram && (
+              <button
+                onClick={() => setDiagramHot(null)}
+                className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                返回 优化设计
+              </button>
+            )}
           </div>
           <div className="flex-1 overflow-auto">
+            {showDiagram ? (
+              <div className="p-6">
+                <VentDiagram style={shaft.ventShape} p={ventParams} hot={diagramHot} />
+                <VentLegend style={shaft.ventShape} hot={diagramHot} onHover={(k) => k && setDiagramHot(k)} />
+                <p className="mx-auto mt-4 max-w-[720px] text-center text-[11px] text-muted-foreground">
+                  当前高亮：{dimLabel(diagramHot, shaft.ventShape)} · 点击参数输入框可切换高亮，点右上角可返回优化设计
+                </p>
+              </div>
+            ) : (
+            <>
             {/* Section 1: 变量 */}
             <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
               <Table
@@ -459,6 +493,8 @@ function Index() {
                 </button>
               </div>
             </Section>
+            </>
+            )}
           </div>
           <StatusBar />
         </main>
@@ -524,11 +560,15 @@ function ToolButton({ label }: { label: string }) {
 function LeftPane({
   selectedNode,
   onSelectNode,
-  onOpenShaft,
+  shaft,
+  setShaft,
+  onFocusVentParam,
 }: {
   selectedNode: string;
   onSelectNode: (n: string) => void;
-  onOpenShaft: () => void;
+  shaft: ShaftState;
+  setShaft: React.Dispatch<React.SetStateAction<ShaftState>>;
+  onFocusVentParam: (k: DimKey) => void;
 }) {
   return (
     <aside className="flex w-[320px] shrink-0 flex-col bg-sidebar text-sidebar-foreground">
@@ -541,19 +581,9 @@ function LeftPane({
         />
       </div>
       <div className="flex-1 overflow-auto border-t border-sidebar-border">
-        <div className="flex items-center justify-between px-3 py-2 font-medium">
-          <span>属性</span>
-          {selectedNode === "转轴" && (
-            <button
-              onClick={onOpenShaft}
-              className="rounded border border-sidebar-border px-2 py-0.5 text-[11px] font-normal text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-            >
-              通风道示意图
-            </button>
-          )}
-        </div>
+        <div className="px-3 py-2 font-medium">属性</div>
         {selectedNode === "转轴" ? (
-          <ShaftPropertiesPanel onOpenShaft={onOpenShaft} />
+          <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
         ) : (
           <DefaultPropertiesPanel />
         )}
@@ -561,6 +591,16 @@ function LeftPane({
     </aside>
   );
 }
+
+function dimLabel(k: DimKey | null, shape: VentShape): string {
+  if (!k) return "—";
+  const m: Record<string, string> =
+    shape === "circle"
+      ? { holeCount: "通风孔数目", holeDia: "通风孔直径", pitchDia: "通风孔位置直径", offsetDeg: "偏移角度", shaftDia: "转轴外径", count: "通风孔数目" }
+      : { holeCount: "通风孔数目", innerDia: "通风孔内圆直径", archH: "通风孔高度", toothW: "齿宽", offsetDeg: "偏移角度", count: "通风孔数目" };
+  return m[k] ?? k;
+}
+
 
 function DefaultPropertiesPanel() {
   return (
@@ -607,27 +647,36 @@ interface ShaftState {
   ringToothW: number;
 }
 
-function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
-  const [s, setS] = useState<ShaftState>({
-    material: "圆钢45",
-    neckDia: 0,
-    length: 0,
-    neckLen: 0,
-    fanInertia: 0,
-    coreOnShaft: true,
-    radialVent: false,
-    ventCount: 1,
-    ventWidth: 10,
-    ventGap: 20,
-    ventShape: "circle",
-    holeCount: 6,
-    holeDia: 14,
-    holePitchDia: 80,
-    holeOffset: 0,
-    ringInnerDia: 60,
-    ringHeight: 14,
-    ringToothW: 8,
-  });
+const defaultShaftState: ShaftState = {
+  material: "圆钢45",
+  neckDia: 0,
+  length: 0,
+  neckLen: 0,
+  fanInertia: 0,
+  coreOnShaft: true,
+  radialVent: false,
+  ventCount: 1,
+  ventWidth: 10,
+  ventGap: 20,
+  ventShape: "circle",
+  holeCount: 6,
+  holeDia: 14,
+  holePitchDia: 80,
+  holeOffset: 0,
+  ringInnerDia: 60,
+  ringHeight: 14,
+  ringToothW: 8,
+};
+
+function ShaftPropertiesPanel({
+  s,
+  setS,
+  onFocusVentParam,
+}: {
+  s: ShaftState;
+  setS: React.Dispatch<React.SetStateAction<ShaftState>>;
+  onFocusVentParam: (k: DimKey) => void;
+}) {
   const set = <K extends keyof ShaftState>(k: K, v: ShaftState[K]) =>
     setS((p) => ({ ...p, [k]: v }));
 
@@ -658,7 +707,6 @@ function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
         </label>
       </PRow2>
 
-      {/* 径向通风孔 */}
       <PRow2 label="径向通风孔">
         <label className="flex items-center gap-1">
           <input
@@ -696,46 +744,37 @@ function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
           {s.ventShape === "circle" ? (
             <>
               <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
               </PRow2>
               <PRow2 label="　　通风孔直径" unit="毫米" result="0">
-                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} />
+                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} onFocus={() => onFocusVentParam("holeDia")} />
               </PRow2>
               <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
-                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} />
+                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} onFocus={() => onFocusVentParam("pitchDia")} />
               </PRow2>
               <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           ) : (
             <>
               <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
               </PRow2>
               <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
-                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} />
+                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} onFocus={() => onFocusVentParam("innerDia")} />
               </PRow2>
               <PRow2 label="　　通风孔高度" unit="毫米" result="0">
-                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} />
+                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} onFocus={() => onFocusVentParam("archH")} />
               </PRow2>
               <PRow2 label="　　齿宽" unit="°" result="0">
-                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} />
+                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} onFocus={() => onFocusVentParam("toothW")} />
               </PRow2>
               <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           )}
-
-          <div className="px-3 py-2">
-            <button
-              onClick={onOpenShaft}
-              className="w-full rounded border border-[var(--fem)] bg-[var(--fem-bg)] py-1 text-[11px] text-[var(--fem)] hover:bg-[var(--fem-bg)]/70"
-            >
-              打开通风道尺寸示意图
-            </button>
-          </div>
         </div>
       )}
     </>
@@ -763,11 +802,12 @@ function PRow2({
   );
 }
 
-function NumIn({ v, onChange, integer }: { v: number; onChange: (n: number) => void; integer?: boolean }) {
+function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: number) => void; integer?: boolean; onFocus?: () => void }) {
   return (
     <input
       type="number"
       value={v}
+      onFocus={onFocus}
       onChange={(e) => {
         let n = Number(e.target.value);
         if (Number.isNaN(n)) n = 0;
@@ -799,7 +839,7 @@ const projectTree: TreeNode = {
                 {
                   label: "优化设计",
                   children: [
-                    { label: "新设计(优化分析)", active: true, badge: true, children: [{ label: "结果" }] },
+                    { label: "新设计(优化分析)", badge: true, children: [{ label: "结果" }] },
                     { label: "蒙特卡罗分析" },
                     { label: "附件" },
                   ],
