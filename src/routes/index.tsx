@@ -26,7 +26,7 @@ import {
   femVoltageSourceParams,
   type FemParam,
 } from "./fem-params";
-import { ShaftVentDrawer } from "./shaft-vent";
+import { VentDiagram, Legend as VentLegend, type DimKey, type Params as VentParams } from "./shaft-vent";
 
 export const Route = createFileRoute("/")({
   head: () => ({
