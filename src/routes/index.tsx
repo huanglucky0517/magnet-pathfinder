@@ -263,7 +263,7 @@ function Index() {
           </div>
           <div className="flex-1 overflow-auto">
             {showDiagram ? (
-              <div className="flex h-full items-center justify-center bg-[hsl(var(--muted))]/30 p-6">
+              <div className="flex h-full items-center justify-center bg-white p-6">
                 <img
                   src={ventAsset.url}
                   alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
