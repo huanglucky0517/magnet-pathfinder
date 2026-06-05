@@ -225,26 +225,59 @@ function Index() {
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
 
-  const [shaftOpen, setShaftOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<string>("");
+  const [selectedNode, setSelectedNode] = useState<string>("新设计(优化分析)");
+  const [shaft, setShaft] = useState<ShaftState>(defaultShaftState);
+  const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
+  const showDiagram = diagramHot !== null;
+
+  const ventParams: VentParams = {
+    shaftDia: Math.max(shaft.neckDia || 0, 60),
+    count: Math.max(1, shaft.holeCount),
+    offsetDeg: shaft.holeOffset,
+    holeDia: shaft.holeDia,
+    pitchDia: shaft.holePitchDia,
+    innerDia: shaft.ringInnerDia,
+    archH: shaft.ringHeight,
+    toothW: shaft.ringToothW,
+  };
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
       <Toolbar />
-      <ShaftVentDrawer open={shaftOpen} onOpenChange={setShaftOpen} />
       <div className="flex flex-1 overflow-hidden">
         <LeftPane
           selectedNode={selectedNode}
           onSelectNode={setSelectedNode}
-          onOpenShaft={() => setShaftOpen(true)}
+          shaft={shaft}
+          setShaft={setShaft}
+          onFocusVentParam={setDiagramHot}
         />
         <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
-          <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="font-medium">优化设计</span>
+          <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+            </div>
+            {showDiagram && (
+              <button
+                onClick={() => setDiagramHot(null)}
+                className="rounded border border-border px-2 py-0.5 text-[12px] text-muted-foreground hover:bg-accent hover:text-foreground"
+              >
+                返回 优化设计
+              </button>
+            )}
           </div>
           <div className="flex-1 overflow-auto">
+            {showDiagram ? (
+              <div className="p-6">
+                <VentDiagram style={shaft.ventShape} p={ventParams} hot={diagramHot} />
+                <VentLegend style={shaft.ventShape} hot={diagramHot} onHover={(k) => k && setDiagramHot(k)} />
+                <p className="mx-auto mt-4 max-w-[720px] text-center text-[11px] text-muted-foreground">
+                  当前高亮：{dimLabel(diagramHot, shaft.ventShape)} · 点击参数输入框可切换高亮，点右上角可返回优化设计
+                </p>
+              </div>
+            ) : (
             {/* Section 1: 变量 */}
             <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
               <Table
