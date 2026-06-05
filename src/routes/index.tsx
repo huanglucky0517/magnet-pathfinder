@@ -226,6 +226,7 @@ function Index() {
   const fem = workloads.filter((w) => w.type === "fem");
 
   const [shaftOpen, setShaftOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<string>("");
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
@@ -233,7 +234,11 @@ function Index() {
       <Toolbar />
       <ShaftVentDrawer open={shaftOpen} onOpenChange={setShaftOpen} />
       <div className="flex flex-1 overflow-hidden">
-        <LeftPane onOpenShaft={() => setShaftOpen(true)} />
+        <LeftPane
+          selectedNode={selectedNode}
+          onSelectNode={setSelectedNode}
+          onOpenShaft={() => setShaftOpen(true)}
+        />
         <main className="flex flex-1 flex-col overflow-hidden border-l border-border">
           <div className="flex items-center gap-2 border-b border-border bg-card px-4 py-2">
             <Sparkles className="h-4 w-4 text-primary" />
