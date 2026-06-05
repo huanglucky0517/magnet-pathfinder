@@ -584,19 +584,23 @@ const projectTree: TreeNode = {
   ],
 };
 
-function Tree({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
+function Tree({ node, depth = 0, onShaftClick }: { node: TreeNode; depth?: number; onShaftClick?: () => void }) {
   const [open, setOpen] = useState(true);
   if (node.label === "root")
-    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} />)}</>;
+    return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} onShaftClick={onShaftClick} />)}</>;
   const hasChildren = !!node.children?.length;
+  const isShaft = node.label === "转轴";
   return (
     <div>
       <div
         className={`flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors hover:bg-sidebar-accent ${
           node.active ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
-        }`}
+        } ${isShaft ? "hover:text-[var(--fem)]" : ""}`}
         style={{ paddingLeft: 6 + depth * 14 }}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          if (isShaft && onShaftClick) onShaftClick();
+          else setOpen(!open);
+        }}
       >
         {hasChildren ? (
           open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />
@@ -608,7 +612,7 @@ function Tree({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
           <ChevronRight className="ml-1 h-3 w-3 shrink-0 rounded-full bg-primary text-primary-foreground" />
         )}
       </div>
-      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} />)}
+      {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} onShaftClick={onShaftClick} />)}
     </div>
   );
 }
