@@ -647,27 +647,36 @@ interface ShaftState {
   ringToothW: number;
 }
 
-function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
-  const [s, setS] = useState<ShaftState>({
-    material: "圆钢45",
-    neckDia: 0,
-    length: 0,
-    neckLen: 0,
-    fanInertia: 0,
-    coreOnShaft: true,
-    radialVent: false,
-    ventCount: 1,
-    ventWidth: 10,
-    ventGap: 20,
-    ventShape: "circle",
-    holeCount: 6,
-    holeDia: 14,
-    holePitchDia: 80,
-    holeOffset: 0,
-    ringInnerDia: 60,
-    ringHeight: 14,
-    ringToothW: 8,
-  });
+const defaultShaftState: ShaftState = {
+  material: "圆钢45",
+  neckDia: 0,
+  length: 0,
+  neckLen: 0,
+  fanInertia: 0,
+  coreOnShaft: true,
+  radialVent: false,
+  ventCount: 1,
+  ventWidth: 10,
+  ventGap: 20,
+  ventShape: "circle",
+  holeCount: 6,
+  holeDia: 14,
+  holePitchDia: 80,
+  holeOffset: 0,
+  ringInnerDia: 60,
+  ringHeight: 14,
+  ringToothW: 8,
+};
+
+function ShaftPropertiesPanel({
+  s,
+  setS,
+  onFocusVentParam,
+}: {
+  s: ShaftState;
+  setS: React.Dispatch<React.SetStateAction<ShaftState>>;
+  onFocusVentParam: (k: DimKey) => void;
+}) {
   const set = <K extends keyof ShaftState>(k: K, v: ShaftState[K]) =>
     setS((p) => ({ ...p, [k]: v }));
 
@@ -698,7 +707,6 @@ function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
         </label>
       </PRow2>
 
-      {/* 径向通风孔 */}
       <PRow2 label="径向通风孔">
         <label className="flex items-center gap-1">
           <input
@@ -736,46 +744,37 @@ function ShaftPropertiesPanel({ onOpenShaft }: { onOpenShaft: () => void }) {
           {s.ventShape === "circle" ? (
             <>
               <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
               </PRow2>
               <PRow2 label="　　通风孔直径" unit="毫米" result="0">
-                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} />
+                <NumIn v={s.holeDia} onChange={(v) => set("holeDia", v)} onFocus={() => onFocusVentParam("holeDia")} />
               </PRow2>
               <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
-                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} />
+                <NumIn v={s.holePitchDia} onChange={(v) => set("holePitchDia", v)} onFocus={() => onFocusVentParam("pitchDia")} />
               </PRow2>
               <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           ) : (
             <>
               <PRow2 label="　　通风孔数目" unit="个" result="0">
-                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer />
+                <NumIn v={s.holeCount} onChange={(v) => set("holeCount", v)} integer onFocus={() => onFocusVentParam("count")} />
               </PRow2>
               <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
-                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} />
+                <NumIn v={s.ringInnerDia} onChange={(v) => set("ringInnerDia", v)} onFocus={() => onFocusVentParam("innerDia")} />
               </PRow2>
               <PRow2 label="　　通风孔高度" unit="毫米" result="0">
-                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} />
+                <NumIn v={s.ringHeight} onChange={(v) => set("ringHeight", v)} onFocus={() => onFocusVentParam("archH")} />
               </PRow2>
               <PRow2 label="　　齿宽" unit="°" result="0">
-                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} />
+                <NumIn v={s.ringToothW} onChange={(v) => set("ringToothW", v)} onFocus={() => onFocusVentParam("toothW")} />
               </PRow2>
               <PRow2 label="　　偏移角度" unit="°" result="0">
-                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} />
+                <NumIn v={s.holeOffset} onChange={(v) => set("holeOffset", v)} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           )}
-
-          <div className="px-3 py-2">
-            <button
-              onClick={onOpenShaft}
-              className="w-full rounded border border-[var(--fem)] bg-[var(--fem-bg)] py-1 text-[11px] text-[var(--fem)] hover:bg-[var(--fem-bg)]/70"
-            >
-              打开通风道尺寸示意图
-            </button>
-          </div>
         </div>
       )}
     </>
