@@ -263,7 +263,7 @@ function Index() {
           </div>
           <div className="flex-1 overflow-auto">
             {showDiagram ? (
-              <div className="flex h-full items-center justify-center bg-[hsl(var(--muted))]/30 p-6">
+              <div className="flex h-full items-center justify-center bg-white p-6">
                 <img
                   src={ventAsset.url}
                   alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
@@ -713,7 +713,7 @@ function ShaftPropertiesPanel({
       </PRow2>
 
       {s.radialVent && (
-        <div className="border-b border-sidebar-border bg-[var(--fem-bg)]/40">
+        <div className="border-b border-emerald-300/60 bg-emerald-100/60">
           <PRow2 label="　径向通风孔道数" unit="个" result="0">
             <NumIn v={s.ventCount} onChange={(v) => set("ventCount", v)} integer />
           </PRow2>
