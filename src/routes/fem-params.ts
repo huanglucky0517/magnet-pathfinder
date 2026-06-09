@@ -45,7 +45,6 @@ export const femCurrentSourceParams: FemParam[] = [
 ];
 
 export const femVoltageSourceParams: FemParam[] = [
-  { desc: "电磁力幅值", itemid: "pr", kind: "pr" },
   { desc: "电磁转矩平均值", itemid: "Tav" },
   { desc: "转矩波动率", itemid: "Tripple" },
   { desc: "定子铁耗", itemid: "PfeSAvg" },
