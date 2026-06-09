@@ -1707,11 +1707,11 @@ function SelectEditCell({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="border-r border-border last:border-r-0">
+    <div className="relative border-r border-border last:border-r-0">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="block h-full w-full appearance-none border-0 bg-transparent bg-[url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-7 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary"
+        className="block h-full w-full appearance-none border-0 bg-transparent px-3 py-2 pr-7 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary"
       >
         {options.map((opt) => (
           <option key={opt} value={opt}>
@@ -1719,6 +1719,7 @@ function SelectEditCell({
           </option>
         ))}
       </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
     </div>
   );
 }
