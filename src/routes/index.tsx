@@ -237,7 +237,7 @@ function Index() {
       p: `o_new_${n}`,
       expr: "",
       c: "",
-      dir: "无",
+      dir: "",
       editable: true,
     };
     updateActive({ targets: [...active.targets, row] });
@@ -309,7 +309,12 @@ function Index() {
                 ) : (
                 <>
                 {/* Section 1: 变量 */}
-                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
+                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={
+                  <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90">
+                    <Plus className="h-3.5 w-3.5" />
+                    添加行
+                  </button>
+                }>
                   <Table
                     head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
                     widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
@@ -502,11 +507,11 @@ function Index() {
                               <Row key={t.p}>
                                 {t.editable ? (
                                   <>
-                                    <EditCell value={t.v} onChange={(v) => updateTargetCell(t.p, "v", v)} placeholder="变量名称" />
-                                    <EditCell value={t.p} onChange={() => {}} mono disabled />
-                                    <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono placeholder="表达式" />
-                                    <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono placeholder=">=0" />
-                                    <SelectCell value={t.dir} />
+                                    <EditCell value={t.v} onChange={(v) => updateTargetCell(t.p, "v", v)} />
+                                    <EditCell value="" onChange={() => {}} mono />
+                                    <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono />
+                                    <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono />
+                                    <EditCell value={t.dir === "无" ? "" : t.dir} onChange={(v) => updateTargetCell(t.p, "dir", v)} />
                                   </>
                                 ) : (
                                   <>
@@ -1631,14 +1636,17 @@ function AddRowButton({
           添加行
         </button>
         <div className="w-px bg-white/30" />
-        <button
-          onClick={onToggleMenu}
-          onMouseEnter={() => toast("添加特殊目标参数")}
-          className="flex items-center px-2 transition-opacity hover:opacity-90"
-          title="添加特殊目标参数"
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </button>
+        <div className="group relative flex">
+          <button
+            onClick={onToggleMenu}
+            className="flex items-center px-2 transition-opacity hover:opacity-90"
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+          </button>
+          <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+            添加特殊目标参数
+          </div>
+        </div>
       </div>
       {menuOpen && (
         <>
