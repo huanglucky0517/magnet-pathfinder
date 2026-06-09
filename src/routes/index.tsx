@@ -1802,3 +1802,38 @@ function PrEditDialog({
     </div>
   );
 }
+
+function CursorTooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const handleMove = (e: React.MouseEvent) => {
+    const tipW = 180;
+    const tipH = 32;
+    const pad = 8;
+    let x = e.clientX + 12;
+    let y = e.clientY + 18;
+    if (x + tipW + pad > window.innerWidth) x = window.innerWidth - tipW - pad;
+    if (y + tipH + pad > window.innerHeight) y = e.clientY - tipH - 10;
+    if (x < pad) x = pad;
+    setPos({ x, y });
+  };
+  return (
+    <>
+      <div
+        className="flex"
+        onMouseEnter={handleMove}
+        onMouseMove={handleMove}
+        onMouseLeave={() => setPos(null)}
+      >
+        {children}
+      </div>
+      {pos && (
+        <div
+          className="pointer-events-none fixed z-[200] whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white shadow-lg"
+          style={{ left: pos.x, top: pos.y }}
+        >
+          {label}
+        </div>
+      )}
+    </>
+  );
+}
