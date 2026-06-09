@@ -511,7 +511,11 @@ function Index() {
                                     <EditCell value="" onChange={() => {}} mono />
                                     <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono />
                                     <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono />
-                                    <EditCell value={t.dir === "无" ? "" : t.dir} onChange={(v) => updateTargetCell(t.p, "dir", v)} />
+                                    <SelectEditCell
+                                      value={t.dir || "最小"}
+                                      options={["最小", "最大", "无", "接近于"]}
+                                      onChange={(v) => updateTargetCell(t.p, "dir", v)}
+                                    />
                                   </>
                                 ) : (
                                   <>
