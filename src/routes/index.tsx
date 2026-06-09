@@ -228,6 +228,32 @@ function Index() {
   const removeTarget = (rowKey: string) =>
     updateActive({ targets: active.targets.filter((t) => t.p !== rowKey) });
 
+  const addBlankTarget = () => {
+    let n = 1;
+    const used = new Set(active.targets.map((t) => t.p));
+    while (used.has(`o_new_${n}`)) n++;
+    const row: TargetRow = {
+      v: "",
+      p: `o_new_${n}`,
+      expr: "",
+      c: "",
+      dir: "无",
+      editable: true,
+    };
+    updateActive({ targets: [...active.targets, row] });
+  };
+
+  const updateTargetCell = (rowKey: string, field: keyof TargetRow, value: string) => {
+    updateActive({
+      targets: active.targets.map((t) =>
+        t.p === rowKey ? { ...t, [field]: value } : t,
+      ),
+    });
+  };
+
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [prDialogOpen, setPrDialogOpen] = useState(false);
+
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
 
