@@ -237,7 +237,7 @@ function Index() {
       p: `o_new_${n}`,
       expr: "",
       c: "",
-      dir: "",
+      dir: "最小",
       editable: true,
     };
     updateActive({ targets: [...active.targets, row] });
@@ -511,7 +511,11 @@ function Index() {
                                     <EditCell value="" onChange={() => {}} mono />
                                     <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono />
                                     <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono />
-                                    <EditCell value={t.dir === "无" ? "" : t.dir} onChange={(v) => updateTargetCell(t.p, "dir", v)} />
+                                    <SelectEditCell
+                                      value={t.dir || "最小"}
+                                      options={["最小", "最大", "无", "接近于"]}
+                                      onChange={(v) => updateTargetCell(t.p, "dir", v)}
+                                    />
                                   </>
                                 ) : (
                                   <>
@@ -1643,7 +1647,7 @@ function AddRowButton({
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+          <div className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             添加特殊目标参数
           </div>
         </div>
@@ -1679,16 +1683,43 @@ function EditCell({
   placeholder?: string;
 }) {
   return (
-    <div className="border-r border-border px-1.5 py-1 last:border-r-0">
+    <div className="border-r border-border last:border-r-0">
       <input
         value={value}
         disabled={disabled}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+        className={`block h-full w-full border-0 bg-transparent px-3 py-2 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60 ${
           mono ? "font-mono" : ""
         }`}
       />
+    </div>
+  );
+}
+
+function SelectEditCell({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="relative border-r border-border last:border-r-0">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="block h-full w-full appearance-none border-0 bg-transparent px-3 py-2 pr-7 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
     </div>
   );
 }
