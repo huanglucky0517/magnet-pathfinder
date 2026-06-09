@@ -19,6 +19,7 @@ import {
   ChevronsRight,
   GripVertical,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { magneticParamGroups } from "./magnetic-params";
 import {
