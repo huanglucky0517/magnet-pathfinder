@@ -473,13 +473,25 @@ function Index() {
                       <div className="rounded-md border border-border bg-card">
                         <div className="flex items-center justify-between border-b border-border px-3 py-2">
                           <span className="font-medium">目标参数列表（{active.targets.length}）</span>
-                          <IconBtn><Plus className="h-4 w-4" /></IconBtn>
+                          <AddRowButton
+                            menuOpen={addMenuOpen}
+                            onToggleMenu={() => setAddMenuOpen((v) => !v)}
+                            onCloseMenu={() => setAddMenuOpen(false)}
+                            onAddRow={() => {
+                              addBlankTarget();
+                              setAddMenuOpen(false);
+                            }}
+                            onPickPr={() => {
+                              setAddMenuOpen(false);
+                              setPrDialogOpen(true);
+                            }}
+                          />
                         </div>
                         {active.targets.length === 0 ? (
                           <div className="px-3 py-8 text-center text-[12px] text-muted-foreground">
                             从左侧"可用目标参数"点击{" "}
                             <ChevronsRight className="inline h-3.5 w-3.5 align-text-bottom text-primary" />{" "}
-                            添加到此处
+                            添加到此处，或点击右上角"+ 添加行"
                           </div>
                         ) : (
                           <Table
@@ -488,11 +500,23 @@ function Index() {
                           >
                             {active.targets.map((t) => (
                               <Row key={t.p}>
-                                <Cell>{t.v}</Cell>
-                                <Cell mono>{t.p}</Cell>
-                                <Cell mono>{t.expr}</Cell>
-                                <Cell mono>{t.c}</Cell>
-                                <SelectCell value={t.dir} />
+                                {t.editable ? (
+                                  <>
+                                    <EditCell value={t.v} onChange={(v) => updateTargetCell(t.p, "v", v)} placeholder="变量名称" />
+                                    <EditCell value={t.p} onChange={() => {}} mono disabled />
+                                    <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono placeholder="表达式" />
+                                    <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono placeholder=">=0" />
+                                    <SelectCell value={t.dir} />
+                                  </>
+                                ) : (
+                                  <>
+                                    <Cell>{t.v}</Cell>
+                                    <Cell mono>{t.p}</Cell>
+                                    <Cell mono>{t.expr}</Cell>
+                                    <Cell mono>{t.c}</Cell>
+                                    <SelectCell value={t.dir} />
+                                  </>
+                                )}
                                 <div className="flex items-center justify-center border-r border-border last:border-r-0">
                                   <button
                                     onClick={() => removeTarget(t.p)}
