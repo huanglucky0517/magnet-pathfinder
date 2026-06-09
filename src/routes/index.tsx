@@ -556,6 +556,14 @@ function Index() {
         </ResizablePanelGroup>
       </div>
 
+      <PrEditDialog
+        open={prDialogOpen}
+        onClose={() => setPrDialogOpen(false)}
+        onConfirm={(o, f) => {
+          addPrTarget(o, f);
+          setPrDialogOpen(false);
+        }}
+      />
     </div>
   );
 }
