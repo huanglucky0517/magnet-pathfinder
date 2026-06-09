@@ -55,6 +55,8 @@ interface TargetRow {
   isPr?: boolean;
   prOrder?: number;
   prFreq?: number;
+  /** 通过"添加行"按钮新建的空白可编辑行 */
+  editable?: boolean;
 }
 
 interface Workload {
