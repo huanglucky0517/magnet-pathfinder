@@ -1640,17 +1640,14 @@ function AddRowButton({
           添加行
         </button>
         <div className="w-px bg-white/30" />
-        <div className="group relative flex">
+        <CursorTooltip label="添加特殊目标参数">
           <button
             onClick={onToggleMenu}
             className="flex items-center px-2 transition-opacity hover:opacity-90"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <div className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            添加特殊目标参数
-          </div>
-        </div>
+        </CursorTooltip>
       </div>
       {menuOpen && (
         <>
@@ -1803,5 +1800,40 @@ function PrEditDialog({
         </div>
       </div>
     </div>
+  );
+}
+
+function CursorTooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const handleMove = (e: React.MouseEvent) => {
+    const tipW = 180;
+    const tipH = 32;
+    const pad = 8;
+    let x = e.clientX + 12;
+    let y = e.clientY + 18;
+    if (x + tipW + pad > window.innerWidth) x = window.innerWidth - tipW - pad;
+    if (y + tipH + pad > window.innerHeight) y = e.clientY - tipH - 10;
+    if (x < pad) x = pad;
+    setPos({ x, y });
+  };
+  return (
+    <>
+      <div
+        className="flex"
+        onMouseEnter={handleMove}
+        onMouseMove={handleMove}
+        onMouseLeave={() => setPos(null)}
+      >
+        {children}
+      </div>
+      {pos && (
+        <div
+          className="pointer-events-none fixed z-[200] whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white shadow-lg"
+          style={{ left: pos.x, top: pos.y }}
+        >
+          {label}
+        </div>
+      )}
+    </>
   );
 }
