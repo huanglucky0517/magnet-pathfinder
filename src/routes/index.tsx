@@ -502,11 +502,11 @@ function Index() {
                               <Row key={t.p}>
                                 {t.editable ? (
                                   <>
-                                    <EditCell value={t.v} onChange={(v) => updateTargetCell(t.p, "v", v)} placeholder="变量名称" />
-                                    <EditCell value={t.p} onChange={() => {}} mono disabled />
-                                    <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono placeholder="表达式" />
-                                    <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono placeholder=">=0" />
-                                    <SelectCell value={t.dir} />
+                                    <EditCell value={t.v} onChange={(v) => updateTargetCell(t.p, "v", v)} />
+                                    <EditCell value="" onChange={() => {}} mono />
+                                    <EditCell value={t.expr} onChange={(v) => updateTargetCell(t.p, "expr", v)} mono />
+                                    <EditCell value={t.c} onChange={(v) => updateTargetCell(t.p, "c", v)} mono />
+                                    <EditCell value={t.dir === "无" ? "" : t.dir} onChange={(v) => updateTargetCell(t.p, "dir", v)} />
                                   </>
                                 ) : (
                                   <>
