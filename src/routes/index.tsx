@@ -1647,7 +1647,7 @@ function AddRowButton({
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+          <div className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
             添加特殊目标参数
           </div>
         </div>
