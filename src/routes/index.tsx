@@ -309,7 +309,12 @@ function Index() {
                 ) : (
                 <>
                 {/* Section 1: 变量 */}
-                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={<IconBtn><Plus className="h-4 w-4" /></IconBtn>}>
+                <Section step="1" title="变量" subtitle="选择需要优化的参数" action={
+                  <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90">
+                    <Plus className="h-3.5 w-3.5" />
+                    添加行
+                  </button>
+                }>
                   <Table
                     head={["参数名称", "默认值", "下限", "上限", "精度", "同步", ""]}
                     widths={["minmax(220px,1.6fr)", "1fr", "1fr", "1fr", "1fr", "1fr", "40px"]}
