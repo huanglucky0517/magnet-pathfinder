@@ -1683,16 +1683,42 @@ function EditCell({
   placeholder?: string;
 }) {
   return (
-    <div className="border-r border-border px-1.5 py-1 last:border-r-0">
+    <div className="border-r border-border last:border-r-0">
       <input
         value={value}
         disabled={disabled}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+        className={`block h-full w-full border-0 bg-transparent px-3 py-2 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60 ${
           mono ? "font-mono" : ""
         }`}
       />
+    </div>
+  );
+}
+
+function SelectEditCell({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="border-r border-border last:border-r-0">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="block h-full w-full appearance-none border-0 bg-transparent bg-[url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>\")] bg-[right_0.5rem_center] bg-no-repeat px-3 py-2 pr-7 text-[12px] focus:bg-background focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary"
+      >
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
