@@ -237,7 +237,7 @@ function Index() {
       p: `o_new_${n}`,
       expr: "",
       c: "",
-      dir: "无",
+      dir: "",
       editable: true,
     };
     updateActive({ targets: [...active.targets, row] });
