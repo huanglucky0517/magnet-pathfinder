@@ -1604,3 +1604,165 @@ function ParamGroupBlock({
     </div>
   );
 }
+
+/* ---------- 目标参数列表 — 添加行 按钮 ---------- */
+
+function AddRowButton({
+  menuOpen,
+  onToggleMenu,
+  onCloseMenu,
+  onAddRow,
+  onPickPr,
+}: {
+  menuOpen: boolean;
+  onToggleMenu: () => void;
+  onCloseMenu: () => void;
+  onAddRow: () => void;
+  onPickPr: () => void;
+}) {
+  return (
+    <div className="relative">
+      <div className="inline-flex overflow-hidden rounded-md bg-primary text-primary-foreground shadow-sm">
+        <button
+          onClick={onAddRow}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium transition-opacity hover:opacity-90"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          添加行
+        </button>
+        <div className="w-px bg-white/30" />
+        <button
+          onClick={onToggleMenu}
+          onMouseEnter={() => toast("添加特殊目标参数")}
+          className="flex items-center px-2 transition-opacity hover:opacity-90"
+          title="添加特殊目标参数"
+        >
+          <ChevronDown className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      {menuOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={onCloseMenu} />
+          <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] overflow-hidden rounded-md border border-border bg-popover shadow-md">
+            <button
+              onClick={onPickPr}
+              className="block w-full px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-accent"
+            >
+              电磁力幅值
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function EditCell({
+  value,
+  onChange,
+  mono,
+  disabled,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  mono?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+}) {
+  return (
+    <div className="border-r border-border px-1.5 py-1 last:border-r-0">
+      <input
+        value={value}
+        disabled={disabled}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+          mono ? "font-mono" : ""
+        }`}
+      />
+    </div>
+  );
+}
+
+/* ---------- 电磁力幅值 编辑窗口 (与左侧 PrParamRow 内容相同) ---------- */
+
+function PrEditDialog({
+  open,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (order: number, freq: number) => void;
+}) {
+  const [order, setOrder] = useState("2");
+  const [freq, setFreq] = useState("450");
+
+  if (!open) return null;
+
+  const orderNum = Number(order);
+  const freqNum = Number(freq);
+  const orderValid = order.trim() !== "" && Number.isInteger(orderNum);
+  const freqValid = freq.trim() !== "" && Number.isFinite(freqNum) && freqNum >= 0;
+  const valid = orderValid && freqValid;
+  const preview = `pr(${order || "?"},${freq || "?"})`;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="w-[360px] rounded-md border border-border bg-card shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+          <span className="text-[13px] font-medium">电磁力幅值</span>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="space-y-3 p-4">
+          <div className="font-mono text-[11px] text-muted-foreground">pr(空间阶次, 时间频率)</div>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium">空间阶次</label>
+            <input
+              value={order}
+              onChange={(e) => setOrder(e.target.value)}
+              inputMode="numeric"
+              placeholder="如 2 / -1 / 0"
+              className={`w-full rounded border bg-background px-2 py-1.5 font-mono text-[12px] focus:outline-none ${orderValid ? "border-input focus:border-[var(--fem)]" : "border-destructive focus:border-destructive"}`}
+            />
+            <div className={`mt-0.5 text-[10px] ${orderValid ? "text-muted-foreground" : "text-destructive"}`}>
+              整数，可为正、负或 0
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-[12px] font-medium">时间频率 (Hz)</label>
+            <input
+              value={freq}
+              onChange={(e) => setFreq(e.target.value)}
+              inputMode="decimal"
+              placeholder="如 450"
+              className={`w-full rounded border bg-background px-2 py-1.5 font-mono text-[12px] focus:outline-none ${freqValid ? "border-input focus:border-[var(--fem)]" : "border-destructive focus:border-destructive"}`}
+            />
+            <div className={`mt-0.5 text-[10px] ${freqValid ? "text-muted-foreground" : "text-destructive"}`}>
+              数值，必须 ≥ 0
+            </div>
+          </div>
+          <div className="font-mono text-[11px] text-muted-foreground">预览：{preview}</div>
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+          <button onClick={onClose} className="rounded border border-input bg-background px-3 py-1.5 text-[12px] hover:bg-accent">
+            取消
+          </button>
+          <button
+            disabled={!valid}
+            onClick={() => valid && onConfirm(Math.trunc(orderNum), freqNum)}
+            className="rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            添加
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
