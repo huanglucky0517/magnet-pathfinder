@@ -1640,17 +1640,14 @@ function AddRowButton({
           添加行
         </button>
         <div className="w-px bg-white/30" />
-        <div className="group relative flex">
+        <CursorTooltip label="添加特殊目标参数">
           <button
             onClick={onToggleMenu}
             className="flex items-center px-2 transition-opacity hover:opacity-90"
           >
             <ChevronDown className="h-3.5 w-3.5" />
           </button>
-          <div className="pointer-events-none absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-md bg-black/80 px-3 py-1.5 text-[12px] font-normal text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-            添加特殊目标参数
-          </div>
-        </div>
+        </CursorTooltip>
       </div>
       {menuOpen && (
         <>
