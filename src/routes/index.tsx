@@ -1639,15 +1639,19 @@ function AddRowButton({
           <Plus className="h-3.5 w-3.5" />
           添加行
         </button>
-        <div className="w-px bg-white/30" />
-        <CursorTooltip label="添加特殊目标参数">
-          <button
-            onClick={onToggleMenu}
-            className="flex items-center px-2 transition-opacity hover:opacity-90"
-          >
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
-        </CursorTooltip>
+        {false && (
+          <>
+            <div className="w-px bg-white/30" />
+            <CursorTooltip label="添加特殊目标参数">
+              <button
+                onClick={onToggleMenu}
+                className="flex items-center px-2 transition-opacity hover:opacity-90"
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
+            </CursorTooltip>
+          </>
+        )}
       </div>
       {menuOpen && (
         <>
