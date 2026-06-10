@@ -43,7 +43,7 @@ export const Route = createFileRoute("/")({
 });
 
 type WorkType = "magnetic" | "fem";
-type FemSource = "current" | "voltage";
+type FemSource = "current" | "voltage" | "emforce";
 
 interface TargetRow {
   v: string;
@@ -405,6 +405,7 @@ function Index() {
                           >
                             <option value="current">电流源试验</option>
                             <option value="voltage">电压源试验</option>
+                            <option value="emforce">电磁力</option>
                           </select>
                         </div>
                       )}
