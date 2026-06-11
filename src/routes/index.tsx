@@ -707,22 +707,21 @@ function TopBar() {
 function Toolbar() {
   return (
     <div className="flex shrink-0 items-center gap-1 border-b border-border bg-card px-3 py-2">
-      <ToolButton label="多场耦合自动分析" />
-      <ToolButton label="多场耦合自动分析产品库" />
+      <ToolButton label="多场耦合自动分析" icon={multifieldAnalysisAsset.url} />
+      <ToolButton label="多场耦合自动分析产品库" icon={multifieldLibraryAsset.url} />
     </div>
   );
 }
 
-function ToolButton({ label }: { label: string }) {
+function ToolButton({ label, icon }: { label: string; icon: string }) {
   return (
     <button className="flex flex-col items-center gap-1 rounded px-3 py-1 transition-colors hover:bg-accent">
-      <div className="flex h-7 w-7 items-center justify-center rounded bg-gradient-to-br from-primary/80 to-primary text-primary-foreground">
-        <Settings2 className="h-4 w-4" />
-      </div>
+      <img src={icon} alt={label} className="h-12 w-12 rounded" />
       <span className="text-[11px] text-foreground/80">{label}</span>
     </button>
   );
 }
+
 
 function LeftPane({
   selectedNode,
