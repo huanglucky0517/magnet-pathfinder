@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ChevronDown,
@@ -580,8 +580,73 @@ function Index() {
 
 /* ---------- pieces ---------- */
 
+const projectMenuItems = [
+  { label: "新建", hasArrow: true },
+  { label: "项目列表" },
+  { label: "我分享的项目" },
+  { label: "分享给我的项目" },
+  { label: "导入", hasArrow: true },
+  { label: "导出", hasArrow: true },
+  { label: "创建项目副本", disabled: true },
+  { label: "保存", disabled: true },
+  { label: "关闭", disabled: true },
+  { label: "新建文件夹", disabled: true },
+  { label: "6极2.2kW双馈式三相...", divider: true },
+  { label: "6极2.2kW双馈式三相感..." },
+  { label: "6极2.2kW双馈式三相..." },
+  { label: "4极7.5kW三相感应电动..." },
+  { label: "8极4.5kW内嵌式三相..." },
+  { label: "8极4.5kW内嵌式三相..." },
+];
+
+const caseMenuGroups: { title: string; items: string[] }[] = [
+  { title: "感应电机", items: ["鼠笼式三相感应电机", "变频鼠笼感应电动机", "单相感应电机", "绕线式三相感应电机", "绕线式变频感应电机", "双馈异步电动机", "双馈异步发电机"] },
+  { title: "同步电机", items: ["交流永磁同步电动机", "无刷永磁直流电机", "交流永磁同步发电机", "电励磁同步发电机", "电励磁同步电动机", "隐极同步电动机", "隐极同步发电机", "自起动永磁同步电动机"] },
+  { title: "直流电机", items: ["电励磁直流电动机", "电励磁直流发电机", "永磁直流电动机"] },
+  { title: "空心杯电机", items: ["空心杯永磁同步电动机"] },
+  { title: "直线电机", items: ["动圈式永磁同步直线电机"] },
+  { title: "轴向磁通电机", items: [] },
+  { title: "其他类型", items: [] },
+];
+
+function ProjectMenu() {
+  return (
+    <div className="absolute left-0 top-full z-50 mt-1 w-56 rounded border border-border bg-popover py-1 text-[13px] shadow-lg">
+      {projectMenuItems.map((it, i) => (
+        <div key={i}>
+          {it.divider && <div className="my-1 border-t border-border" />}
+          <button
+            className={`flex w-full items-center justify-between px-3 py-1.5 text-left hover:bg-accent ${it.disabled ? "text-muted-foreground/50 cursor-not-allowed hover:bg-transparent" : "text-foreground"}`}
+            disabled={it.disabled}
+          >
+            <span>{it.label}</span>
+            {it.hasArrow && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CaseMenu() {
+  return (
+    <div className="absolute left-0 top-full z-50 mt-1 max-h-[70vh] w-64 overflow-y-auto rounded border border-border bg-popover py-1 text-[13px] shadow-lg">
+      {caseMenuGroups.map((g) => (
+        <div key={g.title}>
+          <div className="px-3 py-1.5 text-[12px] font-medium text-primary">{g.title}</div>
+          {g.items.map((it) => (
+            <button key={it} className="flex w-full items-center justify-between px-3 py-1.5 text-left text-foreground hover:bg-accent">
+              <span>{it}</span>
+              <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function TopBar() {
-  const primaryMenus = ["项目", "案例", "标准电机库"];
   const menus = ["编辑", "视图", "工具", "帮助", "冲片商店"];
   const right = ["产业链", "电机研习社", "消息", "黄燕"];
   return (
@@ -597,14 +662,28 @@ function TopBar() {
         </div>
         <nav className="flex items-center gap-4 text-[13px]">
           <div className="flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1 py-0.5">
-            {primaryMenus.map((m) => (
-              <button
-                key={m}
-                className="rounded px-2 py-1 text-[13px] font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-              >
-                {m}
+            <div className="group relative">
+              <button className="rounded px-2 py-1 text-[13px] font-medium text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                项目
               </button>
-            ))}
+              <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100">
+                <ProjectMenu />
+              </div>
+            </div>
+            <div className="group relative">
+              <button className="rounded px-2 py-1 text-[13px] font-medium text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                案例
+              </button>
+              <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100">
+                <CaseMenu />
+              </div>
+            </div>
+            <Link
+              to="/motor-library"
+              className="rounded px-2 py-1 text-[13px] font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            >
+              标准电机库
+            </Link>
           </div>
           <div className="mx-1 h-4 w-px bg-border" />
           {menus.map((m) => (
@@ -623,6 +702,7 @@ function TopBar() {
     </header>
   );
 }
+
 
 function Toolbar() {
   return (
