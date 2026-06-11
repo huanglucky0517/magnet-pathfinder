@@ -581,8 +581,9 @@ function Index() {
 /* ---------- pieces ---------- */
 
 function TopBar() {
-  const menus = ["项目", "案例", "编辑", "视图", "工具", "帮助", "冲片商店"];
-  const right = ["购买", "产业链", "电机研习社", "消息", "黄燕", "中文"];
+  const primaryMenus = ["项目", "案例", "标准电机库"];
+  const menus = ["编辑", "视图", "工具", "帮助", "冲片商店"];
+  const right = ["产业链", "电机研习社", "消息", "黄燕"];
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b border-border bg-card px-3">
       <div className="flex items-center gap-6">
@@ -594,7 +595,18 @@ function TopBar() {
             <span className="ml-0.5 text-[9px] text-muted-foreground">Online</span>
           </div>
         </div>
-        <nav className="flex items-center gap-5 text-[13px]">
+        <nav className="flex items-center gap-4 text-[13px]">
+          <div className="flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1 py-0.5">
+            {primaryMenus.map((m) => (
+              <button
+                key={m}
+                className="rounded px-2 py-1 text-[13px] font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+          <div className="mx-1 h-4 w-px bg-border" />
           {menus.map((m) => (
             <button key={m} className="text-foreground/80 transition-colors hover:text-primary">{m}</button>
           ))}
@@ -602,7 +614,7 @@ function TopBar() {
       </div>
       <div className="flex items-center gap-4 text-[12px] text-foreground/80">
         <span className="rounded bg-destructive px-2 py-0.5 text-[11px] text-destructive-foreground">购买</span>
-        {right.slice(1).map((r) => (
+        {right.map((r) => (
           <button key={r} className="flex items-center gap-1 transition-colors hover:text-primary">
             {r}<ChevronDown className="h-3 w-3" />
           </button>
