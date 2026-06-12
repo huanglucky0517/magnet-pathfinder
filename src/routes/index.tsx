@@ -1129,9 +1129,7 @@ function Tree({
     <div>
       <div
         className={`group relative flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors ${
-          node.active || isSelected
-            ? "bg-primary text-primary-foreground font-medium border-b border-primary"
-            : "hover:text-primary"
+          !isSelected && !node.active ? "hover:text-primary" : ""
         } ${isShaft && !isSelected ? "hover:text-[var(--fem)]" : ""}`}
         style={{ paddingLeft: 6 + depth * 14 }}
         onClick={() => {
@@ -1144,7 +1142,16 @@ function Tree({
         ) : (
           <span className="w-3" />
         )}
-        <span className="truncate">{node.label}</span>
+        <span
+          className={`truncate px-1 ${
+            node.active || isSelected
+              ? "bg-primary text-primary-foreground font-medium border-b-2 border-primary rounded-sm"
+              : ""
+          }`}
+        >
+          {node.label}
+        </span>
+
 
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <PopoverTrigger asChild>
