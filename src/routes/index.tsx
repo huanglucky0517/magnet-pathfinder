@@ -32,6 +32,7 @@ import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
 import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json";
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
+import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -656,11 +657,7 @@ function TopBar() {
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
           <ChevronRight className="h-4 w-4 rotate-180 text-muted-foreground" />
-          <div className="flex items-baseline gap-0.5">
-            <span className="text-[15px] font-semibold text-primary">Easi</span>
-            <span className="text-[15px] font-semibold text-foreground">Motor</span>
-            <span className="ml-0.5 text-[9px] text-muted-foreground">Online</span>
-          </div>
+          <img src={easimotorLogoAsset.url} alt="EasiMotor Online" className="h-7 w-auto object-contain" />
         </div>
         <nav className="flex items-center gap-4 text-[13px]">
           <div className="flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1 py-0.5">
