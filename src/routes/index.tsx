@@ -1143,9 +1143,6 @@ function Tree({
           <span className="w-3" />
         )}
         <span className="truncate">{node.label}</span>
-        {node.badge && (
-          <ChevronRight className="ml-1 h-3 w-3 shrink-0 rounded-full bg-primary text-primary-foreground" />
-        )}
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <PopoverTrigger asChild>
             <button
