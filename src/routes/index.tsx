@@ -1151,7 +1151,7 @@ function Tree({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
-              className={`ml-auto flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity ${
+              className={`ml-1 flex h-3 w-3 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity ${
                 menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
               }`}
               aria-label="更多操作"
