@@ -718,7 +718,7 @@ function Toolbar() {
 function ToolButton({ label, icon }: { label: string; icon: string }) {
   return (
     <button className="flex flex-col items-center gap-1 rounded px-3 py-1 transition-colors hover:bg-accent">
-      <img src={icon} alt={label} className="h-12 w-12 rounded" />
+      <img src={icon} alt={label} className="h-8 w-8 rounded" />
       <span className="text-[11px] text-foreground/80">{label}</span>
     </button>
   );
