@@ -20,6 +20,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { magneticParamGroups } from "./magnetic-params";
 import {
@@ -1111,15 +1112,23 @@ function Tree({
   onSelectNode?: (n: string) => void;
 }) {
   const [open, setOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   if (node.label === "root")
     return <>{node.children?.map((c, i) => <Tree key={i} node={c} depth={0} selectedNode={selectedNode} onSelectNode={onSelectNode} />)}</>;
   const hasChildren = !!node.children?.length;
   const isShaft = node.label === "转轴";
   const isSelected = selectedNode === node.label;
+  const isStator = node.label === "定子";
+  const isRotor = node.label === "转子";
+  const menuItems: { label: string; onClick: () => void }[] = [
+    { label: "保存冲片到我的冲片库", onClick: () => toast.success("已保存冲片到我的冲片库") },
+  ];
+  if (isStator) menuItems.push({ label: "仅保存定子到我的冲片库", onClick: () => toast.success("已保存定子到我的冲片库") });
+  if (isRotor) menuItems.push({ label: "仅保存转子到我的冲片库", onClick: () => toast.success("已保存转子到我的冲片库") });
   return (
     <div>
       <div
-        className={`flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors hover:bg-sidebar-accent ${
+        className={`group relative flex cursor-pointer items-center gap-1 py-[3px] pr-2 transition-colors hover:bg-sidebar-accent ${
           node.active || isSelected ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""
         } ${isShaft ? "hover:text-[var(--fem)]" : ""}`}
         style={{ paddingLeft: 6 + depth * 14 }}
@@ -1137,6 +1146,32 @@ function Tree({
         {node.badge && (
           <ChevronRight className="ml-1 h-3 w-3 shrink-0 rounded-full bg-primary text-primary-foreground" />
         )}
+        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v); }}
+              className={`ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity ${
+                menuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+              }`}
+              aria-label="更多操作"
+            >
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="right" align="start" className="w-auto min-w-[12rem] p-1">
+            {menuItems.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); item.onClick(); setMenuOpen(false); }}
+                className="block w-full rounded-sm px-3 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+              >
+                {item.label}
+              </button>
+            ))}
+          </PopoverContent>
+        </Popover>
       </div>
       {hasChildren && open && node.children!.map((c, i) => <Tree key={i} node={c} depth={depth + 1} selectedNode={selectedNode} onSelectNode={onSelectNode} />)}
     </div>
