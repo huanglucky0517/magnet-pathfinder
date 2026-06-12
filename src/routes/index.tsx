@@ -32,6 +32,7 @@ import ventCircleAsset from "@/assets/vent-circle.png.asset.json";
 import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json";
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
+import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
