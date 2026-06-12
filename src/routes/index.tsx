@@ -20,6 +20,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { magneticParamGroups } from "./magnetic-params";
 import {
