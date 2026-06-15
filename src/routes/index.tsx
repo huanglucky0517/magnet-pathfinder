@@ -290,7 +290,9 @@ function Index() {
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+                  <span className="font-medium">
+                    {showDiagram ? "尺寸示意图" : selectedNode === "结果" ? "优化设计 » 结果" : "优化设计"}
+                  </span>
                 </div>
                 {showDiagram && (
                   <button
@@ -310,6 +312,8 @@ function Index() {
                       className="max-h-full max-w-[720px] object-contain"
                     />
                   </div>
+                ) : selectedNode === "结果" ? (
+                  <OptimizationResults />
                 ) : (
                 <>
                 {/* Section 1: 变量 */}
@@ -1972,5 +1976,201 @@ function CursorTooltip({ label, children }: { label: string; children: React.Rea
         </div>
       )}
     </>
+  );
+}
+
+// ============================= 优化设计结果 =============================
+const RESULT_COLS = [
+  { key: "p", label: "P(输出功率)" },
+  { key: "pout", label: "输出功率" },
+  { key: "emf", label: "工况1_线反电势" },
+  { key: "irms", label: "工况1: 电机线电流有效值" },
+] as const;
+
+type ResultRow = { p: number; pout: number; emf: number; irms: number; selected?: boolean };
+
+function genResultRows(): ResultRow[] {
+  const rows: ResultRow[] = [];
+  const seed = [
+    [12.9, 96, 24.4606778871768, 170.66697310675926, false],
+    [12.8, 91, 59.1706687046532, 64.8, false],
+    [11.6, 99, 16.88190754725628, 257.0123517904685, true],
+    [11.6, 93, 19.8748985615028, 251.35476763345338, false],
+    [11.6, 98, 19.8748985615028, 251.35476763345338, false],
+    [11.4, 95, 26.8033159040496, 128.684186046626, true],
+    [11.6, 91, 39.7190291544936, 251.35476763345338, false],
+    [12.3, 90, 39.7190291544936, 251.35476763345338, false],
+    [12.2, 98, 39.7190291544936, 57.882372980437616, true],
+  ];
+  seed.forEach((r) => rows.push({ p: r[0] as number, pout: r[1] as number, emf: r[2] as number, irms: r[3] as number, selected: r[4] as boolean }));
+  for (let i = 0; i < 30; i++) {
+    rows.push({ p: 12.2, pout: 90, emf: 39.7190291544936, irms: 251.35476763345338 });
+  }
+  return rows;
+}
+
+function genScatterPoints() {
+  const pts: { x: number; y: number; hi?: boolean }[] = [];
+  for (let i = 0; i < 90; i++) {
+    const x = 22.5 + Math.random() * 18.5;
+    const base = 220 * Math.exp(-(x - 22.5) * 0.13) + 40 + (Math.random() - 0.5) * 18;
+    pts.push({ x: +x.toFixed(2), y: +base.toFixed(2) });
+  }
+  [
+    { x: 29.5, y: 113 },
+    { x: 33.2, y: 80 },
+    { x: 36, y: 60 },
+  ].forEach((p) => pts.push({ ...p, hi: true }));
+  return pts;
+}
+
+type ResultView = "both" | "table" | "chart";
+
+function OptimizationResults() {
+  const [view, setView] = useState<ResultView>("both");
+  const [rows] = useState<ResultRow[]>(() => genResultRows());
+  const points = genScatterPoints();
+  const normal = points.filter((p) => !p.hi);
+  const highlighted = points.filter((p) => p.hi);
+
+  return (
+    <div className="flex h-full flex-col bg-background">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-3 border-b border-border bg-card px-4 py-2 text-[12px]">
+        <div className="flex items-center gap-3">
+          <span className="text-muted-foreground">
+            共计 <span className="font-semibold text-foreground">3,276</span> 条数据
+          </span>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">刷新</button>
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground">显示形式</span>
+            <select
+              value={view}
+              onChange={(e) => setView(e.target.value as ResultView)}
+              className="rounded border border-border bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none"
+            >
+              <option value="both">图表展示</option>
+              <option value="table">仅表</option>
+              <option value="chart">仅图</option>
+            </select>
+          </div>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">全部数据集 ▾</button>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">仅显示选中数据</button>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">仅显示目标距离数据</button>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">结果对比</button>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">筛选</button>
+          <button className="rounded border border-border bg-background px-2 py-1 hover:bg-accent">排序</button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-1 overflow-hidden">
+        {(view === "both" || view === "table") && (
+          <div className={`overflow-auto ${view === "table" ? "flex-1" : "w-1/2 border-r border-border"}`}>
+            <table className="w-full border-collapse text-[12px]">
+              <thead className="sticky top-0 bg-[var(--table-header)] text-muted-foreground">
+                <tr>
+                  <th className="w-8 border-b border-border px-2 py-2">
+                    <input type="checkbox" className="accent-[var(--primary)]" />
+                  </th>
+                  {RESULT_COLS.map((c) => (
+                    <th key={c.key} className="border-b border-border px-2 py-2 text-left font-medium">
+                      {c.label} ⇅
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} className={`border-b border-border ${r.selected ? "bg-primary/10" : "hover:bg-accent/50"}`}>
+                    <td className="px-2 py-1.5">
+                      <input type="checkbox" defaultChecked={r.selected} className="accent-[var(--primary)]" />
+                    </td>
+                    <td className="px-2 py-1.5">{r.p}</td>
+                    <td className="px-2 py-1.5">{r.pout}</td>
+                    <td className="px-2 py-1.5">{r.emf}</td>
+                    <td className="px-2 py-1.5">{r.irms}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {(view === "both" || view === "chart") && (
+          <div className={`flex flex-col ${view === "chart" ? "flex-1" : "w-1/2"}`}>
+            <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2 text-[12px]">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">显示</span>
+                <select className="rounded border border-border bg-background px-2 py-1">
+                  <option>二维显示</option>
+                  <option>三维显示</option>
+                </select>
+              </div>
+              <span className="text-muted-foreground">坐标轴设置</span>
+            </div>
+            <div className="flex-1 p-4">
+              <ScatterPlot normal={normal} highlighted={highlighted} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ScatterPlot({
+  normal,
+  highlighted,
+}: {
+  normal: { x: number; y: number }[];
+  highlighted: { x: number; y: number }[];
+}) {
+  const W = 560;
+  const H = 380;
+  const padL = 50;
+  const padR = 30;
+  const padT = 30;
+  const padB = 40;
+  const xMin = 22.53;
+  const xMax = 41.04;
+  const yMin = 46.9;
+  const yMax = 210;
+  const sx = (x: number) => padL + ((x - xMin) / (xMax - xMin)) * (W - padL - padR);
+  const sy = (y: number) => H - padB - ((y - yMin) / (yMax - yMin)) * (H - padT - padB);
+  const yTicks = [46.9, 60, 90, 120, 150, 180, 210];
+  const xTicks = [22.53, 24, 27, 30, 33, 36, 39, 41.04];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full">
+      <text x={padL} y={padT - 10} className="fill-foreground" fontSize="12">
+        电机线电流有效值
+      </text>
+      {yTicks.map((t) => (
+        <g key={t}>
+          <line x1={padL} x2={W - padR} y1={sy(t)} y2={sy(t)} stroke="hsl(var(--border))" strokeDasharray="2 2" />
+          <text x={padL - 6} y={sy(t) + 4} textAnchor="end" fontSize="10" className="fill-muted-foreground">
+            {t}
+          </text>
+        </g>
+      ))}
+      {xTicks.map((t) => (
+        <text key={t} x={sx(t)} y={H - padB + 14} textAnchor="middle" fontSize="10" className="fill-muted-foreground">
+          {t}
+        </text>
+      ))}
+      <line x1={padL} x2={W - padR} y1={H - padB} y2={H - padB} stroke="hsl(var(--border))" />
+      <line x1={padL} x2={padL} y1={padT} y2={H - padB} stroke="hsl(var(--border))" />
+      <text x={W - padR} y={H - padB - 6} textAnchor="end" fontSize="11" className="fill-foreground">
+        线反电势
+      </text>
+      {normal.map((p, i) => (
+        <circle key={i} cx={sx(p.x)} cy={sy(p.y)} r="3.5" fill="#60a5fa" opacity="0.85" />
+      ))}
+      {highlighted.map((p, i) => (
+        <circle key={`h${i}`} cx={sx(p.x)} cy={sy(p.y)} r="5" fill="#ef4444" />
+      ))}
+    </svg>
   );
 }
