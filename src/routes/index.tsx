@@ -290,7 +290,9 @@ function Index() {
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="font-medium">{showDiagram ? "尺寸示意图" : "优化设计"}</span>
+                  <span className="font-medium">
+                    {showDiagram ? "尺寸示意图" : selectedNode === "结果" ? "优化设计 » 结果" : "优化设计"}
+                  </span>
                 </div>
                 {showDiagram && (
                   <button
@@ -310,6 +312,8 @@ function Index() {
                       className="max-h-full max-w-[720px] object-contain"
                     />
                   </div>
+                ) : selectedNode === "结果" ? (
+                  <OptimizationResults />
                 ) : (
                 <>
                 {/* Section 1: 变量 */}
