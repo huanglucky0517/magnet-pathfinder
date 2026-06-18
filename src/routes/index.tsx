@@ -59,7 +59,7 @@ interface TargetRow {
   isPr?: boolean;
   prOrder?: number;
   prFreq?: number;
-  /** 通过"添加行"按钮新建的空白可编辑行 */
+  /** 通过"添加"按钮新建的空白可编辑行 */
   editable?: boolean;
 }
 
@@ -320,7 +320,7 @@ function Index() {
                 <Section step="1" title="变量" subtitle="选择需要优化的参数" action={
                   <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90">
                     <Plus className="h-3.5 w-3.5" />
-                    添加行
+                    添加
                   </button>
                 }>
                   <Table
@@ -505,7 +505,7 @@ function Index() {
                           <div className="px-3 py-8 text-center text-[12px] text-muted-foreground">
                             从左侧"可用目标参数"点击{" "}
                             <ChevronsRight className="inline h-3.5 w-3.5 align-text-bottom text-primary" />{" "}
-                            添加到此处，或点击右上角"+ 添加行"
+                            添加到此处，或点击右上角"+ 添加"
                           </div>
                         ) : (
                           <Table
@@ -1751,7 +1751,7 @@ function ParamGroupBlock({
   );
 }
 
-/* ---------- 目标参数列表 — 添加行 按钮 ---------- */
+/* ---------- 目标参数列表 — 添加 按钮 ---------- */
 
 function AddRowButton({
   menuOpen,
@@ -1774,7 +1774,7 @@ function AddRowButton({
           className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium transition-opacity hover:opacity-90"
         >
           <Plus className="h-3.5 w-3.5" />
-          添加行
+          添加
         </button>
         {false && (
           <>
