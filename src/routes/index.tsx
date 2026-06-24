@@ -577,7 +577,37 @@ function Index() {
           <StatusBar />
         </main>
           </ResizablePanel>
+          {chatOpen && (
+            <>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="560px">
+                <AIChatPanel
+                  calcStatus={calcStatus}
+                  onClose={() => setChatOpen(false)}
+                  onStartDesign={() => {
+                    setCalcStatus("running");
+                    toast.success("开始优化设计计算");
+                    setTimeout(() => setCalcStatus("done"), 4000);
+                  }}
+                  onViewResults={() => setSelectedNode("结果")}
+                  onCreateProject={() => {
+                    setSelectedNode("新设计(优化分析)");
+                    toast.success("已创建新优化设计项目");
+                  }}
+                />
+              </ResizablePanel>
+            </>
+          )}
         </ResizablePanelGroup>
+        {!chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90"
+            title="打开 AI 助手"
+          >
+            <Bot className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       <PrEditDialog
