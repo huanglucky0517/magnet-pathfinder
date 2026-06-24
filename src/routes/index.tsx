@@ -2310,9 +2310,7 @@ function AIChatPanel({
     <div className="flex h-full flex-col bg-card">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <Bot className="h-4 w-4" />
-          </div>
+          <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6 rounded-full" />
           <div className="leading-tight">
             <div className="text-[13px] font-medium">AI 设计助手</div>
             <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
