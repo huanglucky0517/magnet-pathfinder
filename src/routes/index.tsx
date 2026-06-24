@@ -2421,7 +2421,7 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
   }
   return (
     <div className="flex items-start gap-2">
-      <img src={aiChatIconAsset.url} alt="AI" className="h-7 w-7 flex-none rounded-full" />
+      <img src={aiChatIconAsset.url} alt="AI" className="h-4 w-4 flex-none" />
       <div className="max-w-[85%] space-y-1">
         <div className="text-[12px] font-medium text-foreground">AI 设计助手</div>
         <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-foreground">
