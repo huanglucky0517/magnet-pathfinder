@@ -603,10 +603,10 @@ function Index() {
         {!chatOpen && (
           <button
             onClick={() => setChatOpen(true)}
-            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90"
+            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition hover:scale-105"
             title="打开 AI 助手"
           >
-            <Bot className="h-5 w-5" />
+            <img src={aiChatIconAsset.url} alt="AI" className="h-11 w-11 rounded-full" />
           </button>
         )}
       </div>
