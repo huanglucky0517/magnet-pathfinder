@@ -18,6 +18,10 @@ import {
   X,
   ChevronsRight,
   GripVertical,
+  Send,
+  Bot,
+  Loader2,
+  User as UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -265,6 +269,7 @@ function Index() {
   const [shaft, setShaft] = useState<ShaftState>(defaultShaftState);
   const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
   const showDiagram = diagramHot !== null;
+  const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
@@ -274,7 +279,23 @@ function Index() {
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize="320px" minSize="280px" maxSize="600px">
+          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="520px">
+            <AIChatPanel
+              calcStatus={calcStatus}
+              onStartDesign={() => {
+                setCalcStatus("running");
+                toast.success("开始优化设计计算");
+                setTimeout(() => setCalcStatus("done"), 4000);
+              }}
+              onViewResults={() => setSelectedNode("结果")}
+              onCreateProject={() => {
+                setSelectedNode("新设计(优化分析)");
+                toast.success("已创建新优化设计项目");
+              }}
+            />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
             <LeftPane
               selectedNode={selectedNode}
               onSelectNode={setSelectedNode}
@@ -2172,5 +2193,233 @@ function ScatterPlot({
         <circle key={`h${i}`} cx={sx(p.x)} cy={sy(p.y)} r="5" fill="#ef4444" />
       ))}
     </svg>
+  );
+}
+
+// ============================= AI Chat Panel =============================
+type ChatMsg = {
+  role: "user" | "assistant";
+  text: string;
+  action?: { label: string; onClick: () => void };
+};
+
+function AIChatPanel({
+  calcStatus,
+  onStartDesign,
+  onViewResults,
+  onCreateProject,
+}: {
+  calcStatus: "idle" | "running" | "done";
+  onStartDesign: () => void;
+  onViewResults: () => void;
+  onCreateProject: () => void;
+}) {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<ChatMsg[]>([
+    {
+      role: "assistant",
+      text:
+        "你好，我是 EasiMotor AI 设计助手 👋\n我可以帮你：\n• 创建新的优化设计项目\n• 配置变量/约束/目标\n• 开始优化计算\n• 查看计算结果\n\n试着对我说：\"开始设计\" 或 \"查看结果\"。",
+    },
+  ]);
+
+  const send = (raw?: string) => {
+    const text = (raw ?? input).trim();
+    if (!text) return;
+    setInput("");
+    const userMsg: ChatMsg = { role: "user", text };
+    const reply = buildReply(text);
+    setMessages((m) => [...m, userMsg, ...reply]);
+  };
+
+  const buildReply = (text: string): ChatMsg[] => {
+    const t = text.toLowerCase();
+    if (/(创建|新建|new).*?(项目|设计)|创建项目|新建项目/.test(text)) {
+      onCreateProject();
+      return [
+        {
+          role: "assistant",
+          text:
+            "已为你创建新的「优化设计」项目，左侧节点已切换到 新设计(优化分析)。\n下一步建议：检查变量/约束/目标后点击 开始设计。",
+          action: { label: "开始设计", onClick: () => send("开始设计") },
+        },
+      ];
+    }
+    if (/开始|run|start|计算|优化/.test(text)) {
+      onStartDesign();
+      return [
+        {
+          role: "assistant",
+          text: "正在提交优化任务到求解器，预计耗时约 4 秒…\n你可以稍后说 \"查看结果\" 打开结果面板。",
+        },
+      ];
+    }
+    if (/结果|result|查看/.test(text)) {
+      onViewResults();
+      return [
+        {
+          role: "assistant",
+          text: "已为你打开结果面板，可在右侧切换 图/表/图表 视图查看 3276 组设计点。",
+        },
+      ];
+    }
+    if (/变量|约束|目标|参数/.test(text)) {
+      return [
+        {
+          role: "assistant",
+          text:
+            "你可以在左侧节点选择 变量 / 约束 / 目标 进行编辑：\n• 变量：设置优化参数的上下限与精度\n• 约束：限制工况指标范围\n• 目标：定义需要最大化/最小化的输出",
+        },
+      ];
+    }
+    return [
+      {
+        role: "assistant",
+        text:
+          "我可以执行以下操作，点击下面的快捷指令试试：",
+      },
+    ];
+  };
+
+  const quick = [
+    { label: "创建项目", q: "创建新的优化设计项目" },
+    { label: "开始设计", q: "开始设计" },
+    { label: "查看结果", q: "查看结果" },
+    { label: "讲讲变量", q: "怎么配置变量" },
+  ];
+
+  return (
+    <div className="flex h-full flex-col bg-card">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+            <Bot className="h-4 w-4" />
+          </div>
+          <div className="leading-tight">
+            <div className="text-[13px] font-medium">AI 设计助手</div>
+            <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
+          </div>
+        </div>
+        <CalcStatusBadge status={calcStatus} />
+      </div>
+
+      <div className="flex-1 space-y-3 overflow-auto px-3 py-3">
+        {messages.map((m, i) => (
+          <ChatBubble key={i} msg={m} />
+        ))}
+        {calcStatus === "running" && (
+          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-[12px] text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            正在执行优化计算…
+          </div>
+        )}
+        {calcStatus === "done" && (
+          <div className="flex items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-[12px]">
+            <span className="flex items-center gap-2 text-primary">
+              <Check className="h-3.5 w-3.5" />
+              计算完成
+            </span>
+            <button
+              onClick={() => {
+                onViewResults();
+              }}
+              className="rounded bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:opacity-90"
+            >
+              查看结果
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="border-t border-border px-3 py-2">
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {quick.map((q) => (
+            <button
+              key={q.label}
+              onClick={() => send(q.q)}
+              className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              {q.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-end gap-2 rounded-md border border-border bg-background px-2 py-1.5 focus-within:border-primary">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            placeholder="描述你的设计意图，例如：创建项目 / 开始设计 / 查看结果"
+            rows={2}
+            className="flex-1 resize-none bg-transparent text-[12px] outline-none placeholder:text-muted-foreground"
+          />
+          <button
+            onClick={() => send()}
+            disabled={!input.trim()}
+            className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ChatBubble({ msg }: { msg: ChatMsg }) {
+  const isUser = msg.role === "user";
+  return (
+    <div className={`flex gap-2 ${isUser ? "flex-row-reverse" : ""}`}>
+      <div
+        className={`flex h-6 w-6 flex-none items-center justify-center rounded-md ${
+          isUser ? "bg-muted text-foreground" : "bg-primary/10 text-primary"
+        }`}
+      >
+        {isUser ? <UserIcon className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
+      </div>
+      <div className={`max-w-[85%] space-y-1.5 ${isUser ? "items-end" : ""}`}>
+        <div
+          className={`whitespace-pre-wrap rounded-lg px-3 py-2 text-[12px] leading-relaxed ${
+            isUser
+              ? "bg-primary text-primary-foreground"
+              : "border border-border bg-background text-foreground"
+          }`}
+        >
+          {msg.text}
+        </div>
+        {msg.action && (
+          <button
+            onClick={msg.action.onClick}
+            className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
+          >
+            {msg.action.label} →
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CalcStatusBadge({ status }: { status: "idle" | "running" | "done" }) {
+  if (status === "idle")
+    return (
+      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+        待命
+      </span>
+    );
+  if (status === "running")
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+        <Loader2 className="h-3 w-3 animate-spin" /> 计算中
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-[10px] text-primary">
+      <Check className="h-3 w-3" /> 已完成
+    </span>
   );
 }
