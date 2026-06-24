@@ -581,7 +581,7 @@ function Index() {
           {chatOpen && (
             <>
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="560px">
+              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="900px">
                 <AIChatPanel
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
