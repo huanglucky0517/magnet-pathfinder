@@ -280,22 +280,6 @@ function Index() {
       <Toolbar />
       <div className="flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="520px">
-            <AIChatPanel
-              calcStatus={calcStatus}
-              onStartDesign={() => {
-                setCalcStatus("running");
-                toast.success("开始优化设计计算");
-                setTimeout(() => setCalcStatus("done"), 4000);
-              }}
-              onViewResults={() => setSelectedNode("结果")}
-              onCreateProject={() => {
-                setSelectedNode("新设计(优化分析)");
-                toast.success("已创建新优化设计项目");
-              }}
-            />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
           <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
             <LeftPane
               selectedNode={selectedNode}
