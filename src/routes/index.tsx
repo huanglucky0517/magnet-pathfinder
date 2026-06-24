@@ -270,6 +270,7 @@ function Index() {
   const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
+  const [chatOpen, setChatOpen] = useState(true);
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
@@ -277,24 +278,8 @@ function Index() {
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
       <Toolbar />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="520px">
-            <AIChatPanel
-              calcStatus={calcStatus}
-              onStartDesign={() => {
-                setCalcStatus("running");
-                toast.success("开始优化设计计算");
-                setTimeout(() => setCalcStatus("done"), 4000);
-              }}
-              onViewResults={() => setSelectedNode("结果")}
-              onCreateProject={() => {
-                setSelectedNode("新设计(优化分析)");
-                toast.success("已创建新优化设计项目");
-              }}
-            />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
           <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
             <LeftPane
               selectedNode={selectedNode}
@@ -592,7 +577,37 @@ function Index() {
           <StatusBar />
         </main>
           </ResizablePanel>
+          {chatOpen && (
+            <>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="560px">
+                <AIChatPanel
+                  calcStatus={calcStatus}
+                  onClose={() => setChatOpen(false)}
+                  onStartDesign={() => {
+                    setCalcStatus("running");
+                    toast.success("开始优化设计计算");
+                    setTimeout(() => setCalcStatus("done"), 4000);
+                  }}
+                  onViewResults={() => setSelectedNode("结果")}
+                  onCreateProject={() => {
+                    setSelectedNode("新设计(优化分析)");
+                    toast.success("已创建新优化设计项目");
+                  }}
+                />
+              </ResizablePanel>
+            </>
+          )}
         </ResizablePanelGroup>
+        {!chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90"
+            title="打开 AI 助手"
+          >
+            <Bot className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       <PrEditDialog
@@ -2208,11 +2223,13 @@ function AIChatPanel({
   onStartDesign,
   onViewResults,
   onCreateProject,
+  onClose,
 }: {
   calcStatus: "idle" | "running" | "done";
   onStartDesign: () => void;
   onViewResults: () => void;
   onCreateProject: () => void;
+  onClose?: () => void;
 }) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -2300,7 +2317,18 @@ function AIChatPanel({
             <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
           </div>
         </div>
-        <CalcStatusBadge status={calcStatus} />
+        <div className="flex items-center gap-1">
+          <CalcStatusBadge status={calcStatus} />
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-muted text-muted-foreground"
+              title="收起"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 space-y-3 overflow-auto px-3 py-3">
