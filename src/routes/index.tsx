@@ -278,7 +278,7 @@ function Index() {
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
       <Toolbar />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
           <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
             <LeftPane
