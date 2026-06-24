@@ -270,6 +270,7 @@ function Index() {
   const [diagramHot, setDiagramHot] = useState<DimKey | null>(null);
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
+  const [chatOpen, setChatOpen] = useState(true);
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
