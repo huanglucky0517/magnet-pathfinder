@@ -2399,29 +2399,40 @@ function AIChatPanel({
 
 function ChatBubble({ msg }: { msg: ChatMsg }) {
   const isUser = msg.role === "user";
-  return (
-    <div className={`flex gap-2 ${isUser ? "flex-row-reverse" : ""}`}>
-      <div
-        className={`flex h-6 w-6 flex-none items-center justify-center rounded-md ${
-          isUser ? "bg-muted text-foreground" : "bg-primary/10 text-primary"
-        }`}
-      >
-        {isUser ? <UserIcon className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
+  if (isUser) {
+    return (
+      <div className="flex flex-row-reverse items-start gap-2">
+        <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-muted text-foreground">
+          <UserIcon className="h-3.5 w-3.5" />
+        </div>
+        <div className="max-w-[85%] space-y-1.5">
+          <div className="whitespace-pre-wrap rounded-2xl bg-primary px-3.5 py-2 text-[12px] leading-relaxed text-primary-foreground">
+            {msg.text}
+          </div>
+          {msg.action && (
+            <button
+              onClick={msg.action.onClick}
+              className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
+            >
+              {msg.action.label} →
+            </button>
+          )}
+        </div>
       </div>
-      <div className={`max-w-[85%] space-y-1.5 ${isUser ? "items-end" : ""}`}>
-        <div
-          className={`whitespace-pre-wrap rounded-lg px-3 py-2 text-[12px] leading-relaxed ${
-            isUser
-              ? "bg-primary text-primary-foreground"
-              : "border border-border bg-background text-foreground"
-          }`}
-        >
+    );
+  }
+  return (
+    <div className="flex items-start gap-2">
+      <img src={aiChatIconAsset.url} alt="AI" className="h-7 w-7 flex-none rounded-full" />
+      <div className="max-w-[85%] space-y-1">
+        <div className="text-[12px] font-medium text-foreground">AI 设计助手</div>
+        <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-foreground">
           {msg.text}
         </div>
         {msg.action && (
           <button
             onClick={msg.action.onClick}
-            className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
+            className="mt-1 rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
           >
             {msg.action.label} →
           </button>
@@ -2430,6 +2441,7 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
     </div>
   );
 }
+
 
 function CalcStatusBadge({ status }: { status: "idle" | "running" | "done" }) {
   if (status === "idle")
