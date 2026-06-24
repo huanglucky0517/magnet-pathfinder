@@ -2223,11 +2223,13 @@ function AIChatPanel({
   onStartDesign,
   onViewResults,
   onCreateProject,
+  onClose,
 }: {
   calcStatus: "idle" | "running" | "done";
   onStartDesign: () => void;
   onViewResults: () => void;
   onCreateProject: () => void;
+  onClose?: () => void;
 }) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMsg[]>([
