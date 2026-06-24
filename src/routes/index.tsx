@@ -38,6 +38,7 @@ import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json";
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
+import aiChatIconAsset from "@/assets/ai-chat-icon.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -602,10 +603,10 @@ function Index() {
         {!chatOpen && (
           <button
             onClick={() => setChatOpen(true)}
-            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:opacity-90"
+            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition hover:scale-105"
             title="打开 AI 助手"
           >
-            <Bot className="h-5 w-5" />
+            <img src={aiChatIconAsset.url} alt="AI" className="h-11 w-11 rounded-full" />
           </button>
         )}
       </div>
@@ -2309,9 +2310,7 @@ function AIChatPanel({
     <div className="flex h-full flex-col bg-card">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <Bot className="h-4 w-4" />
-          </div>
+          <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6 rounded-full" />
           <div className="leading-tight">
             <div className="text-[13px] font-medium">AI 设计助手</div>
             <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
