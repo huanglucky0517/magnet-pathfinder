@@ -2317,7 +2317,18 @@ function AIChatPanel({
             <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
           </div>
         </div>
-        <CalcStatusBadge status={calcStatus} />
+        <div className="flex items-center gap-1">
+          <CalcStatusBadge status={calcStatus} />
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex h-6 w-6 items-center justify-center rounded hover:bg-muted text-muted-foreground"
+              title="收起"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 space-y-3 overflow-auto px-3 py-3">
