@@ -581,7 +581,7 @@ function Index() {
           {chatOpen && (
             <>
               <ResizableHandle withHandle />
-              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="560px">
+              <ResizablePanel defaultSize="340px" minSize="280px" maxSize="900px">
                 <AIChatPanel
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
@@ -2309,13 +2309,11 @@ function AIChatPanel({
   return (
     <div className="flex h-full flex-col bg-card">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <div className="flex items-center gap-2">
-          <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6 rounded-full" />
-          <div className="leading-tight">
-            <div className="text-[13px] font-medium">AI 设计助手</div>
-            <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
-          </div>
+        <div className="leading-tight">
+          <div className="text-[13px] font-medium">AI 设计助手</div>
+          <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
         </div>
+
         <div className="flex items-center gap-1">
           <CalcStatusBadge status={calcStatus} />
           {onClose && (
