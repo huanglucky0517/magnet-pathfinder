@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PunchLibraryRouteImport } from './routes/punch-library'
 import { Route as MotorLibraryRouteImport } from './routes/motor-library'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PunchLibraryRoute = PunchLibraryRouteImport.update({
+  id: '/punch-library',
+  path: '/punch-library',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MotorLibraryRoute = MotorLibraryRouteImport.update({
   id: '/motor-library',
   path: '/motor-library',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/motor-library': typeof MotorLibraryRoute
+  '/punch-library': typeof PunchLibraryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/motor-library': typeof MotorLibraryRoute
+  '/punch-library': typeof PunchLibraryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/motor-library': typeof MotorLibraryRoute
+  '/punch-library': typeof PunchLibraryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/motor-library'
+  fullPaths: '/' | '/motor-library' | '/punch-library'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/motor-library'
-  id: '__root__' | '/' | '/motor-library'
+  to: '/' | '/motor-library' | '/punch-library'
+  id: '__root__' | '/' | '/motor-library' | '/punch-library'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MotorLibraryRoute: typeof MotorLibraryRoute
+  PunchLibraryRoute: typeof PunchLibraryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/punch-library': {
+      id: '/punch-library'
+      path: '/punch-library'
+      fullPath: '/punch-library'
+      preLoaderRoute: typeof PunchLibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/motor-library': {
       id: '/motor-library'
       path: '/motor-library'
@@ -71,17 +88,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MotorLibraryRoute: MotorLibraryRoute,
+  PunchLibraryRoute: PunchLibraryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

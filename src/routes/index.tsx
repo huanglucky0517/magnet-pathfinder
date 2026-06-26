@@ -692,7 +692,7 @@ function CaseMenu() {
 }
 
 function TopBar() {
-  const menus = ["编辑", "视图", "工具", "帮助", "冲片商店"];
+  const menus = ["编辑", "视图", "工具", "帮助"];
   const right = ["产业链", "电机研习社", "消息", "黄燕"];
   return (
     <header className="flex h-11 shrink-0 items-center justify-between border-b border-border bg-card px-3">
