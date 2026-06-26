@@ -730,6 +730,7 @@ function TopBar() {
           {menus.map((m) => (
             <button key={m} className="text-foreground/80 transition-colors hover:text-primary">{m}</button>
           ))}
+          <Link to="/punch-library" className="text-foreground/80 transition-colors hover:text-primary">冲片商店</Link>
         </nav>
       </div>
       <div className="flex items-center gap-4 text-[12px] text-foreground/80">
