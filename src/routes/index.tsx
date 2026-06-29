@@ -2321,9 +2321,6 @@ function AIChatPanel({
 
   const quick = [
     { label: "创建项目", q: "创建新的优化设计项目" },
-    { label: "开始设计", q: "开始设计" },
-    { label: "查看结果", q: "查看结果" },
-    { label: "讲讲变量", q: "怎么配置变量" },
   ];
 
   return (
