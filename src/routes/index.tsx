@@ -2467,7 +2467,7 @@ function ModeChip({
       className={
         "flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition " +
         (active
-          ? "bg-violet-100 text-violet-600 ring-1 ring-violet-200 hover:bg-violet-200/70"
+          ? "bg-primary/10 text-primary ring-1 ring-primary/20 hover:bg-primary/20"
           : "bg-muted/60 text-muted-foreground ring-1 ring-transparent hover:bg-muted")
       }
     >
