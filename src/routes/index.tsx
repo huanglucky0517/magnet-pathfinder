@@ -2500,11 +2500,7 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
   }
   return (
     <div className="flex items-end gap-2">
-      <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
-        <img src={aiChatIconAsset.url} alt="AI" className="h-5 w-5" />
-      </div>
       <div className="flex max-w-[82%] flex-col gap-1.5">
-        <div className="text-[10.5px] font-medium text-muted-foreground/80">AI 设计助手</div>
         <div className="whitespace-pre-wrap rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-[12.5px] leading-relaxed text-foreground shadow-sm ring-1 ring-black/5 dark:bg-zinc-900">
           {msg.text}
         </div>
