@@ -2482,9 +2482,6 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
   if (isUser) {
     return (
       <div className="flex flex-row-reverse items-end gap-2">
-        <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 text-white shadow-sm">
-          <UserIcon className="h-3.5 w-3.5" />
-        </div>
         <div className="flex max-w-[82%] flex-col items-end gap-1.5">
           <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gradient-to-br from-primary to-emerald-500 px-3.5 py-2 text-[12.5px] leading-relaxed text-white shadow-md">
             {msg.text}
