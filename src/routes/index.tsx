@@ -2406,8 +2406,9 @@ function AIChatPanel({
             </button>
           ))}
         </div>
-        <div className="flex items-end gap-2 rounded-2xl bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)] ring-1 ring-black/5 focus-within:ring-primary/40 dark:bg-zinc-900">
+        <div className="flex flex-col gap-2 rounded-2xl bg-white px-3.5 py-3 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)] ring-1 ring-black/5 focus-within:ring-primary/40 dark:bg-zinc-900">
           <textarea
+            ref={taRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -2416,17 +2417,33 @@ function AIChatPanel({
                 send();
               }
             }}
-            placeholder="描述你的设计意图…"
-            rows={2}
-            className="flex-1 resize-none bg-transparent text-[12.5px] leading-relaxed outline-none placeholder:text-muted-foreground/70"
+            placeholder="请提出您的问题"
+            rows={1}
+            className="w-full resize-none bg-transparent text-[13px] leading-[20px] outline-none placeholder:text-muted-foreground/70"
           />
-          <button
-            onClick={() => send()}
-            disabled={!input.trim()}
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary to-emerald-500 text-white shadow-md transition hover:scale-105 hover:shadow-lg disabled:from-zinc-300 disabled:to-zinc-300 disabled:shadow-none"
-          >
-            <Send className="h-3.5 w-3.5" />
-          </button>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <ModeChip
+                active={deepThink}
+                onClick={() => setDeepThink((v) => !v)}
+                icon={<Brain className="h-3 w-3" />}
+                label="深度思考"
+              />
+              <ModeChip
+                active={webSearch}
+                onClick={() => setWebSearch((v) => !v)}
+                icon={<Globe className="h-3 w-3" />}
+                label="联网搜索"
+              />
+            </div>
+            <button
+              onClick={() => send()}
+              disabled={!input.trim()}
+              className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-muted-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-40 disabled:hover:bg-transparent"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <div className="mt-2 text-center text-[10px] text-muted-foreground/70">
           按 Enter 发送 · Shift + Enter 换行
