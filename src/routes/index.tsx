@@ -2321,9 +2321,6 @@ function AIChatPanel({
 
   const quick = [
     { label: "创建项目", q: "创建新的优化设计项目" },
-    { label: "开始设计", q: "开始设计" },
-    { label: "查看结果", q: "查看结果" },
-    { label: "讲讲变量", q: "怎么配置变量" },
   ];
 
   return (
@@ -2470,7 +2467,7 @@ function ModeChip({
       className={
         "flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition " +
         (active
-          ? "bg-violet-100 text-violet-600 ring-1 ring-violet-200 hover:bg-violet-200/70"
+          ? "bg-primary/10 text-primary ring-1 ring-primary/20 hover:bg-primary/20"
           : "bg-muted/60 text-muted-foreground ring-1 ring-transparent hover:bg-muted")
       }
     >
