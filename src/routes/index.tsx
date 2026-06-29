@@ -2437,13 +2437,41 @@ function AIChatPanel({
                 label="联网搜索"
               />
             </div>
-            <button
-              onClick={() => send()}
-              disabled={!input.trim()}
-              className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-muted-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-40 disabled:hover:bg-transparent"
-            >
-              <Send className="h-4 w-4" />
-            </button>
+            <VoiceSendButton
+              hasText={!!input.trim()}
+              recording={recording}
+              onSend={() => send()}
+              onToggleRecord={() => {
+                const SR: any =
+                  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                if (!SR) {
+                  toast.error("当前浏览器不支持语音输入");
+                  return;
+                }
+                if (recording) {
+                  recogRef.current?.stop?.();
+                  setRecording(false);
+                  return;
+                }
+                const r = new SR();
+                r.lang = "zh-CN";
+                r.continuous = true;
+                r.interimResults = true;
+                let base = input;
+                r.onresult = (e: any) => {
+                  let txt = "";
+                  for (let i = e.resultIndex; i < e.results.length; i++) {
+                    txt += e.results[i][0].transcript;
+                  }
+                  setInput((base ? base + " " : "") + txt);
+                };
+                r.onend = () => setRecording(false);
+                r.onerror = () => setRecording(false);
+                recogRef.current = r;
+                r.start();
+                setRecording(true);
+              }}
+            />
           </div>
         </div>
         <div className="mt-2 text-center text-[10px] text-muted-foreground/70">
