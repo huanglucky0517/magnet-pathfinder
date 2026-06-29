@@ -2236,6 +2236,9 @@ function AIChatPanel({
   onClose?: () => void;
 }) {
   const [input, setInput] = useState("");
+  const [deepThink, setDeepThink] = useState(false);
+  const [webSearch, setWebSearch] = useState(false);
+  const taRef = useRef<HTMLTextAreaElement | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([
     {
       role: "assistant",
@@ -2243,6 +2246,20 @@ function AIChatPanel({
         "你好，我是 EasiMotor AI 设计助手 👋\n我可以帮你：\n• 创建新的优化设计项目\n• 配置变量/约束/目标\n• 开始优化计算\n• 查看计算结果\n\n试着对我说：\"开始设计\" 或 \"查看结果\"。",
     },
   ]);
+
+  // auto-grow textarea up to 10 rows
+  useEffect(() => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const cs = window.getComputedStyle(ta);
+    const lh = parseFloat(cs.lineHeight) || 20;
+    const pY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    const maxH = lh * 10 + pY;
+    ta.style.height = "auto";
+    const next = Math.min(ta.scrollHeight, maxH);
+    ta.style.height = next + "px";
+    ta.style.overflowY = ta.scrollHeight > maxH ? "auto" : "hidden";
+  }, [input]);
 
   const send = (raw?: string) => {
     const text = (raw ?? input).trim();
