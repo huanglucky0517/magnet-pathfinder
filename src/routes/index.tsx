@@ -20,6 +20,8 @@ import {
   GripVertical,
   Send,
   Bot,
+  Brain,
+  Globe,
   Loader2,
   User as UserIcon,
 } from "lucide-react";
