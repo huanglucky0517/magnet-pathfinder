@@ -2513,44 +2513,68 @@ function AIChatPanel({
   );
 }
 
-function VoiceSendButton({
-  hasText,
-  recording,
-  onSend,
-  onToggleRecord,
+function VoiceRecorder({
+  onCancel,
+  onConfirm,
 }: {
-  hasText: boolean;
-  recording: boolean;
-  onSend: () => void;
-  onToggleRecord: () => void;
+  onCancel: () => void;
+  onConfirm: () => void;
 }) {
-  if (hasText) {
-    return (
-      <button
-        onClick={onSend}
-        title="发送"
-        className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:opacity-90"
-      >
-        <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
-      </button>
-    );
-  }
+  const [elapsed, setElapsed] = useState(0);
+  const [seed, setSeed] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsed((s) => s + 1), 1000);
+    const a = setInterval(() => setSeed((s) => s + 1), 120);
+    return () => {
+      clearInterval(t);
+      clearInterval(a);
+    };
+  }, []);
+  // pseudo-random bar heights animated by seed
+  const bars = Array.from({ length: 36 }).map((_, i) => {
+    const v = Math.abs(Math.sin((i + seed) * 0.7) * Math.cos((i - seed) * 0.31));
+    return 6 + v * 22;
+  });
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
   return (
-    <button
-      onClick={onToggleRecord}
-      title={recording ? "停止录音" : "语音输入"}
-      className={
-        "relative flex h-8 w-8 flex-none items-center justify-center rounded-full transition " +
-        (recording
-          ? "bg-primary text-primary-foreground shadow-sm"
-          : "bg-muted/70 text-foreground hover:bg-primary/10 hover:text-primary")
-      }
-    >
-      {recording ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
-      {recording && (
-        <span className="absolute inset-0 -z-0 animate-ping rounded-full bg-primary/40" />
-      )}
-    </button>
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-center gap-2">
+        <span className="flex items-center gap-1.5 text-[11px] font-medium text-primary">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+          </span>
+          正在录音
+        </span>
+        <span className="text-[11px] tabular-nums text-muted-foreground">{mm}:{ss}</span>
+        <div className="ml-1 flex h-8 flex-1 items-center gap-[2px] overflow-hidden">
+          {bars.map((h, i) => (
+            <span
+              key={i}
+              className="w-[3px] flex-none rounded-full bg-primary/70 transition-all duration-100"
+              style={{ height: `${h}px` }}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-1.5">
+        <button
+          onClick={onCancel}
+          title="取消"
+          className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-muted/70 text-muted-foreground transition hover:bg-red-50 hover:text-red-500"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+        <button
+          onClick={onConfirm}
+          title="确认"
+          className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:opacity-90"
+        >
+          <Check className="h-4 w-4" strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
   );
 }
 
