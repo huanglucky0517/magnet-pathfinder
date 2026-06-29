@@ -23,7 +23,7 @@ import {
   Brain,
   Globe,
   Loader2,
-  User as UserIcon,
+  
 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
