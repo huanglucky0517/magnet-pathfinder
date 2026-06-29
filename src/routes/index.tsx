@@ -18,12 +18,13 @@ import {
   X,
   ChevronsRight,
   GripVertical,
-  Send,
   Bot,
   Brain,
   Globe,
   Loader2,
-  
+  Mic,
+  ArrowUp,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -2238,6 +2239,8 @@ function AIChatPanel({
   const [input, setInput] = useState("");
   const [deepThink, setDeepThink] = useState(false);
   const [webSearch, setWebSearch] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const recogRef = useRef<any>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([
     {
@@ -2433,13 +2436,41 @@ function AIChatPanel({
                 label="联网搜索"
               />
             </div>
-            <button
-              onClick={() => send()}
-              disabled={!input.trim()}
-              className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-muted-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-40 disabled:hover:bg-transparent"
-            >
-              <Send className="h-4 w-4" />
-            </button>
+            <VoiceSendButton
+              hasText={!!input.trim()}
+              recording={recording}
+              onSend={() => send()}
+              onToggleRecord={() => {
+                const SR: any =
+                  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                if (!SR) {
+                  toast.error("当前浏览器不支持语音输入");
+                  return;
+                }
+                if (recording) {
+                  recogRef.current?.stop?.();
+                  setRecording(false);
+                  return;
+                }
+                const r = new SR();
+                r.lang = "zh-CN";
+                r.continuous = true;
+                r.interimResults = true;
+                let base = input;
+                r.onresult = (e: any) => {
+                  let txt = "";
+                  for (let i = e.resultIndex; i < e.results.length; i++) {
+                    txt += e.results[i][0].transcript;
+                  }
+                  setInput((base ? base + " " : "") + txt);
+                };
+                r.onend = () => setRecording(false);
+                r.onerror = () => setRecording(false);
+                recogRef.current = r;
+                r.start();
+                setRecording(true);
+              }}
+            />
           </div>
         </div>
         <div className="mt-2 text-center text-[10px] text-muted-foreground/70">
@@ -2447,6 +2478,47 @@ function AIChatPanel({
         </div>
       </div>
     </div>
+  );
+}
+
+function VoiceSendButton({
+  hasText,
+  recording,
+  onSend,
+  onToggleRecord,
+}: {
+  hasText: boolean;
+  recording: boolean;
+  onSend: () => void;
+  onToggleRecord: () => void;
+}) {
+  if (hasText) {
+    return (
+      <button
+        onClick={onSend}
+        title="发送"
+        className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:opacity-90"
+      >
+        <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={onToggleRecord}
+      title={recording ? "停止录音" : "语音输入"}
+      className={
+        "relative flex h-8 w-8 flex-none items-center justify-center rounded-full transition " +
+        (recording
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "bg-muted/70 text-foreground hover:bg-primary/10 hover:text-primary")
+      }
+    >
+      {recording ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+      {recording && (
+        <span className="absolute inset-0 -z-0 animate-ping rounded-full bg-primary/40" />
+      )}
+    </button>
   );
 }
 
