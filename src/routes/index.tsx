@@ -18,7 +18,7 @@ import {
   X,
   ChevronsRight,
   GripVertical,
-  Send,
+  Bot,
   Bot,
   Brain,
   Globe,
