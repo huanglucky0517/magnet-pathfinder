@@ -19,7 +19,6 @@ import {
   ChevronsRight,
   GripVertical,
   Bot,
-  Bot,
   Brain,
   Globe,
   Loader2,
