@@ -2453,6 +2453,33 @@ function AIChatPanel({
   );
 }
 
+function ModeChip({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={
+        "flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition " +
+        (active
+          ? "bg-violet-100 text-violet-600 ring-1 ring-violet-200 hover:bg-violet-200/70"
+          : "bg-muted/60 text-muted-foreground ring-1 ring-transparent hover:bg-muted")
+      }
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
 function ChatBubble({ msg }: { msg: ChatMsg }) {
   const isUser = msg.role === "user";
   if (isUser) {
