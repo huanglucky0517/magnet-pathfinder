@@ -2308,19 +2308,36 @@ function AIChatPanel({
   ];
 
   return (
-    <div className="flex h-full flex-col bg-card">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
-        <div className="leading-tight">
-          <div className="text-[13px] font-medium">AI 设计助手</div>
-          <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
+    <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-b from-[#F4F8F6] via-white to-[#EAF5F0] dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+      {/* decorative blobs */}
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+      <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-sky-300/20 blur-3xl" />
+
+      {/* Header */}
+      <div className="relative z-10 flex items-center justify-between gap-2 px-4 pt-4 pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-emerald-400 opacity-60 blur-md" />
+            <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
+              <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6" />
+            </div>
+            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
+          </div>
+          <div className="leading-tight">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[13px] font-semibold tracking-tight text-foreground">AI 设计助手</span>
+              <span className="rounded-full bg-emerald-100 px-1.5 py-px text-[9px] font-medium text-emerald-700">Beta</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground">对话驱动 · 优化设计</div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <CalcStatusBadge status={calcStatus} />
           {onClose && (
             <button
               onClick={onClose}
-              className="flex h-6 w-6 items-center justify-center rounded hover:bg-muted text-muted-foreground"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-white/70 text-muted-foreground shadow-sm ring-1 ring-black/5 backdrop-blur hover:text-foreground"
               title="收起"
             >
               <X className="h-3.5 w-3.5" />
@@ -2329,27 +2346,26 @@ function AIChatPanel({
         </div>
       </div>
 
-      <div className="flex-1 space-y-3 overflow-auto px-3 py-3">
+      {/* Messages */}
+      <div className="relative z-10 flex-1 space-y-4 overflow-auto px-4 py-3">
         {messages.map((m, i) => (
           <ChatBubble key={i} msg={m} />
         ))}
         {calcStatus === "running" && (
-          <div className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-[12px] text-muted-foreground">
+          <div className="ml-9 flex items-center gap-2 rounded-2xl bg-white/80 px-3.5 py-2 text-[12px] text-muted-foreground shadow-sm ring-1 ring-black/5 backdrop-blur">
             <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             正在执行优化计算…
           </div>
         )}
         {calcStatus === "done" && (
-          <div className="flex items-center justify-between gap-2 rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-[12px]">
+          <div className="ml-9 flex items-center justify-between gap-2 rounded-2xl bg-gradient-to-r from-primary/10 to-emerald-100/60 px-3.5 py-2 text-[12px] shadow-sm ring-1 ring-primary/20">
             <span className="flex items-center gap-2 text-primary">
               <Check className="h-3.5 w-3.5" />
               计算完成
             </span>
             <button
-              onClick={() => {
-                onViewResults();
-              }}
-              className="rounded bg-primary px-2 py-0.5 text-[11px] font-medium text-primary-foreground hover:opacity-90"
+              onClick={() => onViewResults()}
+              className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow hover:opacity-90"
             >
               查看结果
             </button>
@@ -2357,19 +2373,21 @@ function AIChatPanel({
         )}
       </div>
 
-      <div className="border-t border-border px-3 py-2">
-        <div className="mb-2 flex flex-wrap gap-1.5">
+      {/* Composer */}
+      <div className="relative z-10 px-4 pb-4 pt-2">
+        <div className="mb-2.5 flex flex-wrap gap-1.5">
           {quick.map((q) => (
             <button
               key={q.label}
               onClick={() => send(q.q)}
-              className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="group flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 text-[11px] text-muted-foreground shadow-sm ring-1 ring-black/5 backdrop-blur transition hover:-translate-y-px hover:text-primary hover:ring-primary/30"
             >
+              <Sparkles className="h-3 w-3 text-primary/70 transition group-hover:text-primary" />
               {q.label}
             </button>
           ))}
         </div>
-        <div className="flex items-end gap-2 rounded-md border border-border bg-background px-2 py-1.5 focus-within:border-primary">
+        <div className="flex items-end gap-2 rounded-2xl bg-white px-3 py-2.5 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)] ring-1 ring-black/5 focus-within:ring-primary/40 dark:bg-zinc-900">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -2379,17 +2397,20 @@ function AIChatPanel({
                 send();
               }
             }}
-            placeholder="描述你的设计意图，例如：创建项目 / 开始设计 / 查看结果"
+            placeholder="描述你的设计意图…"
             rows={2}
-            className="flex-1 resize-none bg-transparent text-[12px] outline-none placeholder:text-muted-foreground"
+            className="flex-1 resize-none bg-transparent text-[12.5px] leading-relaxed outline-none placeholder:text-muted-foreground/70"
           />
           <button
             onClick={() => send()}
             disabled={!input.trim()}
-            className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-40"
+            className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-gradient-to-br from-primary to-emerald-500 text-white shadow-md transition hover:scale-105 hover:shadow-lg disabled:from-zinc-300 disabled:to-zinc-300 disabled:shadow-none"
           >
             <Send className="h-3.5 w-3.5" />
           </button>
+        </div>
+        <div className="mt-2 text-center text-[10px] text-muted-foreground/70">
+          按 Enter 发送 · Shift + Enter 换行
         </div>
       </div>
     </div>
@@ -2400,18 +2421,18 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
   const isUser = msg.role === "user";
   if (isUser) {
     return (
-      <div className="flex flex-row-reverse items-start gap-2">
-        <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-muted text-foreground">
+      <div className="flex flex-row-reverse items-end gap-2">
+        <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 text-white shadow-sm">
           <UserIcon className="h-3.5 w-3.5" />
         </div>
-        <div className="max-w-[85%] space-y-1.5">
-          <div className="whitespace-pre-wrap rounded-2xl bg-primary px-3.5 py-2 text-[12px] leading-relaxed text-primary-foreground">
+        <div className="flex max-w-[82%] flex-col items-end gap-1.5">
+          <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gradient-to-br from-primary to-emerald-500 px-3.5 py-2 text-[12.5px] leading-relaxed text-white shadow-md">
             {msg.text}
           </div>
           {msg.action && (
             <button
               onClick={msg.action.onClick}
-              className="rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
+              className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-primary shadow-sm ring-1 ring-primary/20 hover:bg-primary/5"
             >
               {msg.action.label} →
             </button>
@@ -2421,17 +2442,19 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
     );
   }
   return (
-    <div className="flex items-start gap-2">
-      <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6 flex-none" />
-      <div className="max-w-[85%] space-y-1">
-        <div className="text-[12px] font-medium text-foreground">AI 设计助手</div>
-        <div className="whitespace-pre-wrap text-[12px] leading-relaxed text-foreground">
+    <div className="flex items-end gap-2">
+      <div className="flex h-7 w-7 flex-none items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
+        <img src={aiChatIconAsset.url} alt="AI" className="h-5 w-5" />
+      </div>
+      <div className="flex max-w-[82%] flex-col gap-1.5">
+        <div className="text-[10.5px] font-medium text-muted-foreground/80">AI 设计助手</div>
+        <div className="whitespace-pre-wrap rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-[12.5px] leading-relaxed text-foreground shadow-sm ring-1 ring-black/5 dark:bg-zinc-900">
           {msg.text}
         </div>
         {msg.action && (
           <button
             onClick={msg.action.onClick}
-            className="mt-1 rounded border border-primary/40 bg-primary/5 px-2 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/10"
+            className="self-start rounded-full bg-gradient-to-r from-primary to-emerald-500 px-3 py-1 text-[11px] font-medium text-white shadow-sm hover:opacity-90"
           >
             {msg.action.label} →
           </button>
