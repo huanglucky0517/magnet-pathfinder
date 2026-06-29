@@ -2482,6 +2482,47 @@ function AIChatPanel({
   );
 }
 
+function VoiceSendButton({
+  hasText,
+  recording,
+  onSend,
+  onToggleRecord,
+}: {
+  hasText: boolean;
+  recording: boolean;
+  onSend: () => void;
+  onToggleRecord: () => void;
+}) {
+  if (hasText) {
+    return (
+      <button
+        onClick={onSend}
+        title="发送"
+        className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:opacity-90"
+      >
+        <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
+      </button>
+    );
+  }
+  return (
+    <button
+      onClick={onToggleRecord}
+      title={recording ? "停止录音" : "语音输入"}
+      className={
+        "relative flex h-8 w-8 flex-none items-center justify-center rounded-full transition " +
+        (recording
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "bg-muted/70 text-foreground hover:bg-primary/10 hover:text-primary")
+      }
+    >
+      {recording ? <Square className="h-3.5 w-3.5 fill-current" /> : <Mic className="h-4 w-4" />}
+      {recording && (
+        <span className="absolute inset-0 -z-0 animate-ping rounded-full bg-primary/40" />
+      )}
+    </button>
+  );
+}
+
 function ModeChip({
   active,
   onClick,
