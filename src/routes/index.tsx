@@ -2472,13 +2472,13 @@ function AIChatPanel({
                       r.lang = "zh-CN";
                       r.continuous = true;
                       r.interimResults = true;
-                      const base = input;
+                      setLiveTranscript("");
                       r.onresult = (e: any) => {
                         let txt = "";
-                        for (let i = e.resultIndex; i < e.results.length; i++) {
+                        for (let i = 0; i < e.results.length; i++) {
                           txt += e.results[i][0].transcript;
                         }
-                        setInput((base ? base + " " : "") + txt);
+                        setLiveTranscript(txt);
                       };
                       r.onend = () => setRecording(false);
                       r.onerror = () => setRecording(false);
