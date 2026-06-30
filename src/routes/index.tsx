@@ -2522,9 +2522,11 @@ function AIChatPanel({
 }
 
 function VoiceRecorder({
+  transcript,
   onCancel,
   onConfirm,
 }: {
+  transcript: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -2566,6 +2568,11 @@ function VoiceRecorder({
           ))}
         </div>
       </div>
+      {transcript && (
+        <div className="max-h-24 overflow-auto rounded-lg bg-primary/5 px-2.5 py-1.5 text-[12px] leading-relaxed text-foreground/80 ring-1 ring-primary/15">
+          {transcript}
+        </div>
+      )}
       <div className="flex items-center justify-end gap-1.5">
         <button
           onClick={onCancel}
