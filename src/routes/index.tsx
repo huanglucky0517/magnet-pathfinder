@@ -2239,6 +2239,7 @@ function AIChatPanel({
   const [deepThink, setDeepThink] = useState(false);
   const [webSearch, setWebSearch] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const recogRef = useRef<any>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([
@@ -2408,14 +2409,22 @@ function AIChatPanel({
         <div className="flex flex-col gap-2 rounded-2xl bg-white px-3.5 py-3 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)] ring-1 ring-black/5 focus-within:ring-primary/40 dark:bg-zinc-900">
           {recording ? (
             <VoiceRecorder
+              transcript={liveTranscript}
               onCancel={() => {
                 recogRef.current?.abort?.();
                 recogRef.current?.stop?.();
+                setLiveTranscript("");
                 setRecording(false);
               }}
               onConfirm={() => {
                 recogRef.current?.stop?.();
+                const finalText = liveTranscript.trim();
+                if (finalText) {
+                  setInput((prev) => (prev ? prev + " " : "") + finalText);
+                }
+                setLiveTranscript("");
                 setRecording(false);
+                requestAnimationFrame(() => taRef.current?.focus());
               }}
             />
           ) : (
@@ -2463,13 +2472,13 @@ function AIChatPanel({
                       r.lang = "zh-CN";
                       r.continuous = true;
                       r.interimResults = true;
-                      const base = input;
+                      setLiveTranscript("");
                       r.onresult = (e: any) => {
                         let txt = "";
-                        for (let i = e.resultIndex; i < e.results.length; i++) {
+                        for (let i = 0; i < e.results.length; i++) {
                           txt += e.results[i][0].transcript;
                         }
-                        setInput((base ? base + " " : "") + txt);
+                        setLiveTranscript(txt);
                       };
                       r.onend = () => setRecording(false);
                       r.onerror = () => setRecording(false);
@@ -2513,9 +2522,11 @@ function AIChatPanel({
 }
 
 function VoiceRecorder({
+  transcript,
   onCancel,
   onConfirm,
 }: {
+  transcript: string;
   onCancel: () => void;
   onConfirm: () => void;
 }) {
@@ -2557,6 +2568,11 @@ function VoiceRecorder({
           ))}
         </div>
       </div>
+      {transcript && (
+        <div className="max-h-24 overflow-auto rounded-lg bg-primary/5 px-2.5 py-1.5 text-[12px] leading-relaxed text-foreground/80 ring-1 ring-primary/15">
+          {transcript}
+        </div>
+      )}
       <div className="flex items-center justify-end gap-1.5">
         <button
           onClick={onCancel}
