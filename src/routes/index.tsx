@@ -2426,8 +2426,6 @@ function AIChatPanel({
                 requestAnimationFrame(() => taRef.current?.focus());
               }}
             />
-          ) : null}
-          {!recording && (
           ) : (
             <>
               <textarea
