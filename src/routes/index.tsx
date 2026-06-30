@@ -2408,16 +2408,26 @@ function AIChatPanel({
         <div className="flex flex-col gap-2 rounded-2xl bg-white px-3.5 py-3 shadow-[0_8px_24px_-12px_rgba(0,0,0,0.18)] ring-1 ring-black/5 focus-within:ring-primary/40 dark:bg-zinc-900">
           {recording ? (
             <VoiceRecorder
+              transcript={liveTranscript}
               onCancel={() => {
                 recogRef.current?.abort?.();
                 recogRef.current?.stop?.();
+                setLiveTranscript("");
                 setRecording(false);
               }}
               onConfirm={() => {
                 recogRef.current?.stop?.();
+                const finalText = liveTranscript.trim();
+                if (finalText) {
+                  setInput((prev) => (prev ? prev + " " : "") + finalText);
+                }
+                setLiveTranscript("");
                 setRecording(false);
+                requestAnimationFrame(() => taRef.current?.focus());
               }}
             />
+          ) : null}
+          {!recording && (
           ) : (
             <>
               <textarea
