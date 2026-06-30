@@ -2239,6 +2239,7 @@ function AIChatPanel({
   const [deepThink, setDeepThink] = useState(false);
   const [webSearch, setWebSearch] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [liveTranscript, setLiveTranscript] = useState("");
   const recogRef = useRef<any>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const [messages, setMessages] = useState<ChatMsg[]>([
