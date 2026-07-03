@@ -2392,10 +2392,11 @@ function AIChatPanel({
   ];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-b from-[#F4F8F6] via-white to-[#EAF5F0] dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-br from-cyan-100/30 via-sky-100/20 to-indigo-100/30 dark:from-slate-900/60 dark:via-slate-900/40 dark:to-slate-900/60">
       {/* decorative blobs */}
-      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-sky-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-cyan-400/25 blur-3xl" />
+      <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-indigo-300/25 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-teal-300/20 blur-3xl" />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between gap-2">
