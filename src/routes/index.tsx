@@ -40,7 +40,8 @@ import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json";
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
-import aiChatIconAsset from "@/assets/ai-chat-icon.png.asset.json";
+import aiChatIconAsset from "@/assets/ai-sphere.png.asset.json";
+import aiChatBadgeAsset from "@/assets/aichat-badge.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -605,10 +606,10 @@ function Index() {
         {!chatOpen && (
           <button
             onClick={() => setChatOpen(true)}
-            className="absolute right-3 bottom-16 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-lg transition hover:scale-105"
+            className="absolute right-3 bottom-16 z-30 transition hover:scale-105"
             title="打开 AI 助手"
           >
-            <img src={aiChatIconAsset.url} alt="AI" className="h-11 w-11 rounded-full" />
+            <img src={aiChatBadgeAsset.url} alt="AIchat" className="h-12 w-auto" />
           </button>
         )}
       </div>
