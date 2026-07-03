@@ -286,6 +286,32 @@ function Index() {
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current.dragging || !btnRef.current) return;
+      const parent = btnRef.current.offsetParent as HTMLElement | null;
+      if (!parent) return;
+      const pRect = parent.getBoundingClientRect();
+      const btnW = btnRef.current.offsetWidth;
+      const btnH = btnRef.current.offsetHeight;
+      let nx = e.clientX - pRect.left - dragRef.current.ox;
+      let ny = e.clientY - pRect.top - dragRef.current.oy;
+      nx = Math.max(0, Math.min(nx, pRect.width - btnW));
+      ny = Math.max(0, Math.min(ny, pRect.height - btnH));
+      setBtnPos({ x: nx, y: ny });
+      dragRef.current.didDrag = true;
+    };
+    const onUp = () => {
+      dragRef.current.dragging = false;
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
       <TopBar />
