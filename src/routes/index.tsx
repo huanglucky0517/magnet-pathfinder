@@ -2400,10 +2400,9 @@ function AIChatPanel({
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between gap-2 px-4 pt-4 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-emerald-400 opacity-60 blur-md" />
-            <img src={aiChatIconAsset.url} alt="AI" className="relative h-12 w-12 rounded-full" />
-            <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
+          <div className="relative h-[60px] w-[60px]">
+            <img src={aiChatIconAsset.url} alt="AI" className="h-[60px] w-[60px] rounded-full" />
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
           </div>
           <div className="leading-tight">
             <div className="flex items-center gap-1.5">
