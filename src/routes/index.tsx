@@ -2233,12 +2233,12 @@ function ScatterPlot({
   normal: { x: number; y: number }[];
   highlighted: { x: number; y: number }[];
 }) {
-  const W = 60;
-  const H = 60;
-  const padL = 10;
-  const padR = 4;
-  const padT = 4;
-  const padB = 10;
+  const W = 560;
+  const H = 380;
+  const padL = 50;
+  const padR = 30;
+  const padT = 30;
+  const padB = 40;
   const xMin = 22.53;
   const xMax = 41.04;
   const yMin = 46.9;
@@ -2248,7 +2248,7 @@ function ScatterPlot({
   const yTicks = [46.9, 60, 90, 120, 150, 180, 210];
   const xTicks = [22.53, 24, 27, 30, 33, 36, 39, 41.04];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-[60px] w-[60px]">
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full">
       <text x={padL} y={padT - 10} className="fill-foreground" fontSize="12">
         电机线电流有效值
       </text>
@@ -2402,7 +2402,7 @@ function AIChatPanel({
         <div className="flex items-center gap-2.5">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-emerald-400 opacity-60 blur-md" />
-            <img src={aiChatIconAsset.url} alt="AI" className="relative h-9 w-9 rounded-full" />
+            <img src={aiChatIconAsset.url} alt="AI" className="relative h-12 w-12 rounded-full" />
             <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
           </div>
           <div className="leading-tight">
