@@ -2403,7 +2403,7 @@ function AIChatPanel({
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-emerald-400 opacity-60 blur-md" />
             <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
-              <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6" />
+              <img src={aiChatIconAsset.url} alt="AI" className="h-8 w-8" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
           </div>
