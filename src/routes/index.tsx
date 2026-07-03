@@ -2233,12 +2233,12 @@ function ScatterPlot({
   normal: { x: number; y: number }[];
   highlighted: { x: number; y: number }[];
 }) {
-  const W = 560;
-  const H = 380;
-  const padL = 50;
-  const padR = 30;
-  const padT = 30;
-  const padB = 40;
+  const W = 60;
+  const H = 60;
+  const padL = 10;
+  const padR = 4;
+  const padT = 4;
+  const padB = 10;
   const xMin = 22.53;
   const xMax = 41.04;
   const yMin = 46.9;
