@@ -639,11 +639,41 @@ function Index() {
         </ResizablePanelGroup>
         {!chatOpen && (
           <button
-            onClick={() => setChatOpen(true)}
-            className="absolute right-3 bottom-16 z-30 transition hover:scale-105"
+            ref={btnRef}
+            onMouseDown={(e) => {
+              if (!btnRef.current) return;
+              const rect = btnRef.current.getBoundingClientRect();
+              const parent = btnRef.current.offsetParent as HTMLElement | null;
+              const pRect = parent?.getBoundingClientRect();
+              if (!pRect) return;
+              dragRef.current.dragging = true;
+              dragRef.current.didDrag = false;
+              dragRef.current.ox = e.clientX - rect.left;
+              dragRef.current.oy = e.clientY - rect.top;
+              if (!btnPos) {
+                setBtnPos({ x: rect.left - pRect.left, y: rect.top - pRect.top });
+              }
+            }}
+            onClick={() => {
+              if (dragRef.current.didDrag) {
+                dragRef.current.didDrag = false;
+                return;
+              }
+              setChatOpen(true);
+            }}
+            className="absolute z-30 cursor-grab select-none transition hover:scale-105 active:cursor-grabbing"
+            style={
+              btnPos
+                ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto" }
+                : { right: 12, bottom: 64 }
+            }
             title="打开 AI 助手"
           >
-            <img src={aiChatBadgeAsset.url} alt="AIchat" className="h-12 w-auto" />
+            <img
+              src={aiChatBadgeAsset.url}
+              alt="AIchat"
+              className="h-10 w-auto rounded-lg shadow-[0_8px_24px_-6px_rgba(0,0,0,0.22)]"
+            />
           </button>
         )}
       </div>
