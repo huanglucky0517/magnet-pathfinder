@@ -40,7 +40,7 @@ import ventRingAsset from "@/assets/vent-ring.png.asset.json";
 import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json";
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
-import aiChatIconAsset from "@/assets/ai-sphere.png.asset.json";
+import aiChatIconAsset from "@/assets/ai-sphere-new.png.asset.json";
 import aiChatBadgeAsset from "@/assets/aichat-badge.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
@@ -2392,17 +2392,17 @@ function AIChatPanel({
   ];
 
   return (
-    <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-b from-[#F4F8F6] via-white to-[#EAF5F0] dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <div className="relative flex h-full flex-col overflow-hidden bg-gradient-to-br from-cyan-100/30 via-sky-100/20 to-indigo-100/30 dark:from-slate-900/60 dark:via-slate-900/40 dark:to-slate-900/60">
       {/* decorative blobs */}
-      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-sky-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-cyan-400/25 blur-3xl" />
+      <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-indigo-300/25 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-teal-300/20 blur-3xl" />
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="relative h-[60px] w-[60px]">
+          <div className="h-[60px] w-[60px]">
             <img src={aiChatIconAsset.url} alt="AI" className="h-[60px] w-[60px] rounded-full" />
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
           </div>
           <div className="leading-tight">
             <div className="flex items-center gap-1.5">
