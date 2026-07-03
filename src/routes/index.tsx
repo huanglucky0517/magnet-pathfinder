@@ -661,7 +661,7 @@ function Index() {
               }
               setChatOpen(true);
             }}
-            className="absolute z-30 cursor-grab select-none transition hover:scale-105 active:cursor-grabbing"
+            className="absolute z-30 cursor-grab select-none p-0 transition hover:scale-105 active:cursor-grabbing"
             style={
               btnPos
                 ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto" }
