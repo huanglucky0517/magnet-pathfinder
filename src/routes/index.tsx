@@ -41,7 +41,7 @@ import multifieldAnalysisAsset from "@/assets/multifield-analysis.png.asset.json
 import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 import aiChatIconAsset from "@/assets/ai-sphere-v3.png.asset.json";
-import aiChatBadgeAsset from "@/assets/aichat-widget-v2.png.asset.json";
+import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -2400,10 +2400,7 @@ function AIChatPanel({
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2.5">
-          <div className="h-[60px] w-[60px]">
-            <img src={aiChatIconAsset.url} alt="AI" className="h-[60px] w-[60px] rounded-full" />
-          </div>
+        <div className="flex items-center gap-2.5 px-4 pt-4">
           <div className="leading-tight">
             <div className="flex items-center gap-1.5">
               <span className="text-[13px] font-semibold tracking-tight text-foreground">AI 设计助手</span>
@@ -2688,13 +2685,13 @@ function ChatBubble({ msg }: { msg: ChatMsg }) {
     return (
       <div className="flex flex-row-reverse items-end gap-2">
         <div className="flex max-w-[82%] flex-col items-end gap-1.5">
-          <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gradient-to-br from-primary to-emerald-500 px-3.5 py-2 text-[12.5px] leading-relaxed text-white shadow-md">
+          <div className="whitespace-pre-wrap rounded-2xl rounded-br-md bg-gradient-to-br from-cyan-400/70 via-sky-400/60 to-indigo-400/70 px-3.5 py-2 text-[12.5px] leading-relaxed text-white shadow-md ring-1 ring-white/30 backdrop-blur-md">
             {msg.text}
           </div>
           {msg.action && (
             <button
               onClick={msg.action.onClick}
-              className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-primary shadow-sm ring-1 ring-primary/20 hover:bg-primary/5"
+              className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-medium text-indigo-600 shadow-sm ring-1 ring-indigo-200/60 backdrop-blur hover:bg-white"
             >
               {msg.action.label} →
             </button>
