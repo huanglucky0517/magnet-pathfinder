@@ -275,6 +275,14 @@ function Index() {
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
   const [chatOpen, setChatOpen] = useState(true);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    dragging: boolean;
+    didDrag: boolean;
+    ox: number;
+    oy: number;
+  }>({ dragging: false, didDrag: false, ox: 0, oy: 0 });
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
 
