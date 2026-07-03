@@ -2248,7 +2248,7 @@ function ScatterPlot({
   const yTicks = [46.9, 60, 90, 120, 150, 180, 210];
   const xTicks = [22.53, 24, 27, 30, 33, 36, 39, 41.04];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full">
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-[60px] w-[60px]">
       <text x={padL} y={padT - 10} className="fill-foreground" fontSize="12">
         电机线电流有效值
       </text>
