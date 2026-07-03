@@ -275,8 +275,42 @@ function Index() {
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
   const [chatOpen, setChatOpen] = useState(true);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    dragging: boolean;
+    didDrag: boolean;
+    ox: number;
+    oy: number;
+  }>({ dragging: false, didDrag: false, ox: 0, oy: 0 });
 
   const ventAsset = shaft.ventShape === "circle" ? ventCircleAsset : ventRingAsset;
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current.dragging || !btnRef.current) return;
+      const parent = btnRef.current.offsetParent as HTMLElement | null;
+      if (!parent) return;
+      const pRect = parent.getBoundingClientRect();
+      const btnW = btnRef.current.offsetWidth;
+      const btnH = btnRef.current.offsetHeight;
+      let nx = e.clientX - pRect.left - dragRef.current.ox;
+      let ny = e.clientY - pRect.top - dragRef.current.oy;
+      nx = Math.max(0, Math.min(nx, pRect.width - btnW));
+      ny = Math.max(0, Math.min(ny, pRect.height - btnH));
+      setBtnPos({ x: nx, y: ny });
+      dragRef.current.didDrag = true;
+    };
+    const onUp = () => {
+      dragRef.current.dragging = false;
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen flex-col bg-background text-foreground text-[13px]">
@@ -605,11 +639,41 @@ function Index() {
         </ResizablePanelGroup>
         {!chatOpen && (
           <button
-            onClick={() => setChatOpen(true)}
-            className="absolute right-3 bottom-16 z-30 transition hover:scale-105"
+            ref={btnRef}
+            onMouseDown={(e) => {
+              if (!btnRef.current) return;
+              const rect = btnRef.current.getBoundingClientRect();
+              const parent = btnRef.current.offsetParent as HTMLElement | null;
+              const pRect = parent?.getBoundingClientRect();
+              if (!pRect) return;
+              dragRef.current.dragging = true;
+              dragRef.current.didDrag = false;
+              dragRef.current.ox = e.clientX - rect.left;
+              dragRef.current.oy = e.clientY - rect.top;
+              if (!btnPos) {
+                setBtnPos({ x: rect.left - pRect.left, y: rect.top - pRect.top });
+              }
+            }}
+            onClick={() => {
+              if (dragRef.current.didDrag) {
+                dragRef.current.didDrag = false;
+                return;
+              }
+              setChatOpen(true);
+            }}
+            className="absolute z-30 cursor-grab select-none p-0 transition hover:scale-105 active:cursor-grabbing"
+            style={
+              btnPos
+                ? { left: btnPos.x, top: btnPos.y, right: "auto", bottom: "auto" }
+                : { right: 12, bottom: 64 }
+            }
             title="打开 AI 助手"
           >
-            <img src={aiChatBadgeAsset.url} alt="AIchat" className="h-12 w-auto" />
+            <img
+              src={aiChatBadgeAsset.url}
+              alt="AIchat"
+              className="h-10 w-auto rounded-lg shadow-[0_8px_24px_-6px_rgba(0,0,0,0.22)]"
+            />
           </button>
         )}
       </div>
@@ -2339,7 +2403,7 @@ function AIChatPanel({
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-emerald-400 opacity-60 blur-md" />
             <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-black/5">
-              <img src={aiChatIconAsset.url} alt="AI" className="h-6 w-6" />
+              <img src={aiChatIconAsset.url} alt="AI" className="h-8 w-8" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
           </div>
