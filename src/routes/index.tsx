@@ -2398,7 +2398,7 @@ function AIChatPanel({
       <div className="pointer-events-none absolute top-40 -left-20 h-48 w-48 rounded-full bg-sky-300/20 blur-3xl" />
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between gap-2 px-4 pt-4 pb-3">
+      <div className="relative z-10 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2.5">
           <div className="relative h-[60px] w-[60px]">
             <img src={aiChatIconAsset.url} alt="AI" className="h-[60px] w-[60px] rounded-full" />
