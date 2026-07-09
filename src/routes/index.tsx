@@ -1565,6 +1565,107 @@ function Empty({ children }: { children: React.ReactNode }) {
   return <div className="rounded border border-dashed border-border px-3 py-3 text-center text-[11px] text-muted-foreground">{children}</div>;
 }
 
+function FloatingPanel({
+  title,
+  initial,
+  storageKey,
+  children,
+}: {
+  title: string;
+  initial: { x: number; y: number; w: number; h: number };
+  storageKey: string;
+  children: React.ReactNode;
+}) {
+  const [pos, setPos] = useState<{ x: number; y: number; w: number; h: number }>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) return JSON.parse(raw);
+      } catch {}
+    }
+    return initial;
+  });
+  const [collapsed, setCollapsed] = useState(false);
+  const dragRef = useRef<{ dx: number; dy: number; dragging: boolean; mode: "move" | "resize" }>({
+    dx: 0, dy: 0, dragging: false, mode: "move",
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(pos)); } catch {}
+  }, [pos, storageKey]);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragRef.current.dragging) return;
+      if (dragRef.current.mode === "move") {
+        setPos((p) => ({ ...p, x: Math.max(0, e.clientX - dragRef.current.dx), y: Math.max(0, e.clientY - dragRef.current.dy) }));
+      } else {
+        setPos((p) => ({
+          ...p,
+          w: Math.max(220, e.clientX - p.x - (containerLeft.current ?? 0)),
+          h: Math.max(120, e.clientY - p.y - (containerTop.current ?? 0)),
+        }));
+      }
+    };
+    const onUp = () => { dragRef.current.dragging = false; };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
+  const containerLeft = useRef<number | null>(null);
+  const containerTop = useRef<number | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  return (
+    <div
+      ref={rootRef}
+      className="absolute z-20 flex flex-col overflow-hidden rounded-lg border border-border bg-card/95 shadow-xl backdrop-blur"
+      style={{ left: pos.x, top: pos.y, width: pos.w, height: collapsed ? 34 : pos.h }}
+    >
+      <div
+        className="flex h-[34px] shrink-0 cursor-move items-center justify-between border-b border-border bg-muted/60 px-2 text-[12px] font-medium"
+        onMouseDown={(e) => {
+          const rect = rootRef.current!.getBoundingClientRect();
+          dragRef.current = { dx: e.clientX - rect.left, dy: e.clientY - rect.top, dragging: true, mode: "move" };
+        }}
+      >
+        <span className="flex items-center gap-1.5">
+          <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
+          {title}
+        </span>
+        <button
+          onClick={() => setCollapsed((v) => !v)}
+          className="rounded p-0.5 text-muted-foreground hover:bg-accent"
+        >
+          {collapsed ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronUp className="h-3.5 w-3.5" />}
+        </button>
+      </div>
+      {!collapsed && (
+        <>
+          <div className="flex-1 overflow-hidden">{children}</div>
+          <div
+            className="absolute bottom-0 right-0 h-3 w-3 cursor-nwse-resize"
+            onMouseDown={(e) => {
+              const parent = rootRef.current!.offsetParent as HTMLElement | null;
+              const pRect = parent?.getBoundingClientRect();
+              containerLeft.current = pRect?.left ?? 0;
+              containerTop.current = pRect?.top ?? 0;
+              dragRef.current = { dx: 0, dy: 0, dragging: true, mode: "resize" };
+              e.stopPropagation();
+            }}
+            style={{ background: "linear-gradient(135deg, transparent 50%, hsl(var(--muted-foreground)/0.5) 50%)" }}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+
 function StatusBar() {
   return (
     <footer className="flex shrink-0 items-center justify-between border-t border-border bg-card px-3 py-1.5 text-[11px] text-muted-foreground">
