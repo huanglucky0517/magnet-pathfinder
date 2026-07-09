@@ -42,6 +42,7 @@ import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
+import motorModelAsset from "@/assets/motor-model.png.asset.json";
 import { MotorInput } from "@/components/motor/motor-input";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
