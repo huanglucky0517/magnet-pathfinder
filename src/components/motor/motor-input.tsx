@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 import { AiChatIcon } from "./ai-chat-icon";
@@ -30,29 +29,18 @@ export function MotorInput({
       role="group"
       aria-label={label}
       className={cn(
-        "relative inline-flex items-center overflow-hidden rounded-lg",
+        "relative inline-flex w-fit max-w-max items-center overflow-hidden rounded-lg",
         "bg-gradient-to-r from-[#00f5a0] via-[#00d9f5] via-[59.135%] to-[#bfb9fb] to-[88.462%]",
-        "py-2 pl-3 pr-4",
+        "py-2 pl-3 pr-3",
         className,
       )}
       {...rest}
     >
       <div className="flex items-center gap-[10px]">
         <AiChatIcon className="h-[22.895px] w-[24.163px] shrink-0" />
-        <div className="flex flex-col items-start gap-[3px]">
-          <Input
-            readOnly
-            tabIndex={-1}
-            value={label}
-            aria-label={label}
-            className={cn(
-              "h-auto w-auto border-0 bg-transparent p-0 shadow-none",
-              "pointer-events-none",
-              "text-lg leading-[23px] font-semibold tracking-[0.5px] text-black",
-              "focus-visible:border-0 focus-visible:ring-0",
-            )}
-          />
-        </div>
+        <span className="block whitespace-nowrap text-lg font-semibold leading-[23px] tracking-[0.5px] text-black">
+          {label}
+        </span>
       </div>
     </div>
   );
