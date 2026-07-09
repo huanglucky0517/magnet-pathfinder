@@ -590,9 +590,13 @@ function Index() {
               </div>
             </Section>
 
-            {/* Section 4: 计算选项 */}
-            <Section step="4" title="计算选项">
-              <div className="flex items-center justify-end gap-2 py-1">
+            {/* Section 4: 计算选项 — 固定沉底 */}
+            <Section
+              step="4"
+              title="计算选项"
+              className="sticky bottom-0 z-20 border-t border-border bg-background/95 px-5 py-3 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.12)] backdrop-blur"
+            >
+              <div className="flex items-center justify-end gap-2">
                 <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
                   多目标遗传算法优化配置
                 </button>
