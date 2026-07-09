@@ -42,6 +42,7 @@ import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
+import { MotorInput } from "@/components/motor/motor-input";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -669,11 +670,7 @@ function Index() {
             }
             title="打开 AI 助手"
           >
-            <img
-              src={aiChatBadgeAsset.url}
-              alt="AIchat"
-              className="h-10 w-auto rounded-lg shadow-[0_8px_24px_-6px_rgba(0,0,0,0.22)]"
-            />
+            <MotorInput className="w-auto shadow-[0_8px_24px_-6px_rgba(0,0,0,0.22)]" />
           </button>
         )}
       </div>
