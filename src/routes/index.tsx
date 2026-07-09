@@ -1330,10 +1330,10 @@ function Tree({
 }
 
 function Section({
-  step, title, subtitle, action, children,
-}: { step: string; title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode }) {
+  step, title, subtitle, action, children, className,
+}: { step: string; title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className="border-b border-border px-5 py-4">
+    <section className={className ?? "border-b border-border px-5 py-4"}>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
