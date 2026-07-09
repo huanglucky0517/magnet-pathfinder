@@ -38,21 +38,9 @@ export function MotorInput({
     >
       <div className="flex items-center gap-[10px]">
         <AiChatIcon className="h-[22.895px] w-[24.163px] shrink-0" />
-        <div className="flex flex-col items-start gap-[3px]">
-          <input
-            readOnly
-            tabIndex={-1}
-            value={label}
-            size={Math.max(label.length, 1)}
-            aria-label={label}
-            className={cn(
-              "h-auto min-w-0 border-0 bg-transparent p-0 shadow-none outline-none",
-              "pointer-events-none [field-sizing:content]",
-              "text-lg leading-[23px] font-semibold tracking-[0.5px] text-black",
-            )}
-            style={{ width: `${Math.max(label.length, 1)}ch` }}
-          />
-        </div>
+        <span className="block whitespace-nowrap text-lg font-semibold leading-[23px] tracking-[0.5px] text-black">
+          {label}
+        </span>
       </div>
     </div>
   );
