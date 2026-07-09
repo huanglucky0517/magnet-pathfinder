@@ -42,7 +42,6 @@ import multifieldLibraryAsset from "@/assets/multifield-library.png.asset.json";
 import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
-import motorModelAsset from "@/assets/motor-model.png.asset.json";
 import { MotorInput } from "@/components/motor/motor-input";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
@@ -320,9 +319,19 @@ function Index() {
       <Toolbar />
       <div className="relative flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
+          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
+            <LeftPane
+              selectedNode={selectedNode}
+              onSelectNode={setSelectedNode}
+              shaft={shaft}
+              setShaft={setShaft}
+              onFocusVentParam={setDiagramHot}
+            />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
           <ResizablePanel minSize="400px">
 
-            <main className="relative flex h-full flex-col overflow-hidden">
+            <main className="flex h-full flex-col overflow-hidden border-l border-border">
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -339,7 +348,7 @@ function Index() {
                   </button>
                 )}
               </div>
-              <div className="relative flex-1 overflow-auto">
+              <div className="flex-1 overflow-auto">
                 {showDiagram ? (
                   <div className="flex h-full items-center justify-center bg-white p-6">
                     <img
@@ -604,7 +613,7 @@ function Index() {
             </>
             )}
           </div>
-
+          <StatusBar />
         </main>
           </ResizablePanel>
           {chatOpen && (
@@ -665,7 +674,6 @@ function Index() {
           </button>
         )}
       </div>
-
 
       <PrEditDialog
         open={prDialogOpen}
