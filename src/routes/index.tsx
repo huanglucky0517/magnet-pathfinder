@@ -590,9 +590,13 @@ function Index() {
               </div>
             </Section>
 
-            {/* Section 4: 计算选项 */}
-            <Section step="4" title="计算选项">
-              <div className="flex items-center justify-end gap-2 py-1">
+            {/* Section 4: 计算选项 — 固定沉底 */}
+            <Section
+              step="4"
+              title="计算选项"
+              className="sticky bottom-0 z-20 border-t border-border bg-background/95 px-5 py-3 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.12)] backdrop-blur"
+            >
+              <div className="flex items-center justify-end gap-2">
                 <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
                   多目标遗传算法优化配置
                 </button>
@@ -1330,10 +1334,10 @@ function Tree({
 }
 
 function Section({
-  step, title, subtitle, action, children,
-}: { step: string; title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode }) {
+  step, title, subtitle, action, children, className,
+}: { step: string; title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className="border-b border-border px-5 py-4">
+    <section className={className ?? "border-b border-border px-5 py-4"}>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
