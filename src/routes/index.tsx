@@ -320,19 +320,9 @@ function Index() {
       <Toolbar />
       <div className="relative flex flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal" className="flex-1">
-          <ResizablePanel defaultSize="320px" minSize="260px" maxSize="600px">
-            <LeftPane
-              selectedNode={selectedNode}
-              onSelectNode={setSelectedNode}
-              shaft={shaft}
-              setShaft={setShaft}
-              onFocusVentParam={setDiagramHot}
-            />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
           <ResizablePanel minSize="400px">
 
-            <main className="flex h-full flex-col overflow-hidden border-l border-border">
+            <main className="relative flex h-full flex-col overflow-hidden">
               <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-4 py-2">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -349,7 +339,7 @@ function Index() {
                   </button>
                 )}
               </div>
-              <div className="flex-1 overflow-auto">
+              <div className="relative flex-1 overflow-auto">
                 {showDiagram ? (
                   <div className="flex h-full items-center justify-center bg-white p-6">
                     <img
@@ -614,7 +604,53 @@ function Index() {
             </>
             )}
           </div>
-          <StatusBar />
+
+          {/* 底部电机模型示意图 */}
+          {!showDiagram && selectedNode !== "结果" && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center pb-3">
+              <div className="pointer-events-auto flex items-end gap-3 rounded-lg border border-border bg-card/85 px-4 py-2 shadow-lg backdrop-blur">
+                <img
+                  src={motorModelAsset.url}
+                  alt="电机模型"
+                  className="h-40 w-40 object-contain"
+                />
+                <div className="pb-2 text-[11px] text-muted-foreground">
+                  <div className="text-[12px] font-medium text-foreground">电机模型</div>
+                  <div>当前项目 · 结构预览</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 悬浮：项目 */}
+          <FloatingPanel
+            title="项目"
+            initial={{ x: 12, y: 12, w: 300, h: 320 }}
+            storageKey="float-project"
+          >
+            <div className="h-full overflow-auto py-1 text-[12px]">
+              <Tree
+                node={projectTree}
+                selectedNode={selectedNode}
+                onSelectNode={setSelectedNode}
+              />
+            </div>
+          </FloatingPanel>
+
+          {/* 悬浮：属性 */}
+          <FloatingPanel
+            title="属性"
+            initial={{ x: 12, y: 348, w: 300, h: 340 }}
+            storageKey="float-props"
+          >
+            <div className="h-full overflow-auto">
+              {selectedNode === "转轴" ? (
+                <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={setDiagramHot} />
+              ) : (
+                <DefaultPropertiesPanel />
+              )}
+            </div>
+          </FloatingPanel>
         </main>
           </ResizablePanel>
           {chatOpen && (
@@ -675,6 +711,7 @@ function Index() {
           </button>
         )}
       </div>
+
 
       <PrEditDialog
         open={prDialogOpen}
