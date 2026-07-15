@@ -2172,6 +2172,160 @@ function PrEditDialog({
   );
 }
 
+type SolverConfig = { algo: string; generations: string; population: string };
+type SurrogateConfig = {
+  algo: string;
+  sampling: string;
+  generations: string;
+  population: string;
+  mode: string;
+  interval: string;
+  modelAlgo: string;
+};
+
+function ModelConfigDialog({
+  kind,
+  onClose,
+  solverConfig,
+  surrogateConfig,
+  onSaveSolver,
+  onSaveSurrogate,
+}: {
+  kind: null | "solver" | "surrogate";
+  onClose: () => void;
+  solverConfig: SolverConfig;
+  surrogateConfig: SurrogateConfig;
+  onSaveSolver: (c: SolverConfig) => void;
+  onSaveSurrogate: (c: SurrogateConfig) => void;
+}) {
+  const solverDefault: SolverConfig = { algo: "NSGA-II", generations: "20", population: "20" };
+  const surrogateDefault: SurrogateConfig = {
+    algo: "NSGA-II",
+    sampling: "随机采样",
+    generations: "20",
+    population: "20",
+    mode: "指定FEA间隔",
+    interval: "5",
+    modelAlgo: "随机森林算法",
+  };
+  const [solver, setSolver] = useState<SolverConfig>(solverConfig);
+  const [surrogate, setSurrogate] = useState<SurrogateConfig>(surrogateConfig);
+  useEffect(() => {
+    if (kind === "solver") setSolver(solverConfig);
+    if (kind === "surrogate") setSurrogate(surrogateConfig);
+  }, [kind, solverConfig, surrogateConfig]);
+
+  if (!kind) return null;
+
+  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div>
+      <label className="mb-1 block text-[12px] font-medium">{label}</label>
+      {children}
+    </div>
+  );
+  const inputCls =
+    "w-full rounded border border-input bg-background px-2 py-1.5 text-[12px] focus:border-primary focus:outline-none";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="w-[420px] max-h-[90vh] overflow-y-auto rounded-md border border-border bg-card shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+          <span className="text-[13px] font-medium">{kind === "solver" ? "求解器配置" : "代理模型配置"}</span>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="space-y-3 p-4">
+          {kind === "solver" ? (
+            <>
+              <Field label="遗传算法">
+                <select value={solver.algo} onChange={(e) => setSolver({ ...solver, algo: e.target.value })} className={inputCls}>
+                  <option>NSGA-II</option>
+                  <option>NSGA-III</option>
+                  <option>MOEA/D</option>
+                </select>
+              </Field>
+              <Field label="遗传代数">
+                <input value={solver.generations} onChange={(e) => setSolver({ ...solver, generations: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="每代种群数量">
+                <input value={solver.population} onChange={(e) => setSolver({ ...solver, population: e.target.value })} className={inputCls} />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="遗传算法">
+                <select value={surrogate.algo} onChange={(e) => setSurrogate({ ...surrogate, algo: e.target.value })} className={inputCls}>
+                  <option>NSGA-II</option>
+                  <option>NSGA-III</option>
+                  <option>MOEA/D</option>
+                </select>
+              </Field>
+              <Field label="采样方法">
+                <select value={surrogate.sampling} onChange={(e) => setSurrogate({ ...surrogate, sampling: e.target.value })} className={inputCls}>
+                  <option>随机采样</option>
+                  <option>拉丁超立方采样</option>
+                  <option>正交采样</option>
+                </select>
+              </Field>
+              <Field label="遗传代数">
+                <input value={surrogate.generations} onChange={(e) => setSurrogate({ ...surrogate, generations: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="每代种群数量">
+                <input value={surrogate.population} onChange={(e) => setSurrogate({ ...surrogate, population: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="工作模式">
+                <select value={surrogate.mode} onChange={(e) => setSurrogate({ ...surrogate, mode: e.target.value })} className={inputCls}>
+                  <option>指定FEA间隔</option>
+                  <option>全部使用代理模型</option>
+                </select>
+                <input
+                  value={surrogate.interval}
+                  onChange={(e) => setSurrogate({ ...surrogate, interval: e.target.value })}
+                  className={`${inputCls} mt-2`}
+                />
+                <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                  每隔N代采用非代理模型求解，其余使用代理模型求解。第1代与最后1代不可使用代理模型。例如：遗传代数为20，指定FEA间隔为5，则第1、7、13、19、20代使用非代理模型，其余代数使用代理模型。
+                </p>
+              </Field>
+              <Field label="模型算法">
+                <select value={surrogate.modelAlgo} onChange={(e) => setSurrogate({ ...surrogate, modelAlgo: e.target.value })} className={inputCls}>
+                  <option>随机森林算法</option>
+                  <option>高斯过程回归</option>
+                  <option>神经网络</option>
+                </select>
+              </Field>
+            </>
+          )}
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+          <button onClick={onClose} className="rounded border border-input bg-background px-3 py-1.5 text-[12px] hover:bg-accent">
+            取消
+          </button>
+          <button
+            onClick={() => {
+              if (kind === "solver") setSolver(solverDefault);
+              else setSurrogate(surrogateDefault);
+            }}
+            className="rounded border border-input bg-background px-3 py-1.5 text-[12px] hover:bg-accent"
+          >
+            重置
+          </button>
+          <button
+            onClick={() => (kind === "solver" ? onSaveSolver(solver) : onSaveSurrogate(surrogate))}
+            className="rounded bg-foreground px-3 py-1.5 text-[12px] font-medium text-background hover:opacity-90"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CursorTooltip({ label, children }: { label: string; children: React.ReactNode }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const handleMove = (e: React.MouseEvent) => {
