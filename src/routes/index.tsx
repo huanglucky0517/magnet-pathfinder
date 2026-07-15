@@ -657,14 +657,24 @@ function Index() {
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
                   onStartDesign={() => {
-                    const bad = workloads.find(
+                    const badAmp = workloads.find(
                       (w) =>
                         w.type === "fem" &&
                         w.femSource === "emforce" &&
                         !(parseFloat(w.emForceAmp ?? "0") > 0),
                     );
-                    if (bad) {
-                      toast.error(`工况"${bad.name}"的电磁力幅值必须大于 0，请修改后再开始计算`);
+                    if (badAmp) {
+                      toast.error(`工况"${badAmp.name}"的电磁力幅值必须大于 0，请修改后再开始计算`);
+                      return;
+                    }
+                    const badR = workloads.find(
+                      (w) =>
+                        w.type === "fem" &&
+                        w.femSource === "emforce" &&
+                        !(parseFloat(w.airgapRadius ?? "0") > 0),
+                    );
+                    if (badR) {
+                      toast.error(`工况"${badR.name}"的气隙半径必须大于 0，请修改后再开始计算`);
                       return;
                     }
                     setCalcStatus("running");
