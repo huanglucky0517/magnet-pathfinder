@@ -646,6 +646,16 @@ function Index() {
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
                   onStartDesign={() => {
+                    const bad = workloads.find(
+                      (w) =>
+                        w.type === "fem" &&
+                        w.femSource === "emforce" &&
+                        !(parseFloat(w.emForceAmp ?? "0") > 0),
+                    );
+                    if (bad) {
+                      toast.error(`工况"${bad.name}"的电磁力幅值必须大于 0，请修改后再开始计算`);
+                      return;
+                    }
                     setCalcStatus("running");
                     toast.success("开始优化设计计算");
                     setTimeout(() => setCalcStatus("done"), 4000);
