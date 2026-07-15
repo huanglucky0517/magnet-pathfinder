@@ -655,15 +655,19 @@ function Index() {
             </Section>
 
             {/* Section 4: 计算选项 */}
-            <Section
-              step="4"
-              title="计算选项"
-              action={
+            <section className="border-b border-border px-5 py-4">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                    4
+                  </span>
+                  <h2 className="text-[14px] font-semibold">计算选项</h2>
+                </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] text-muted-foreground">计算模型</span>
                   <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
                     <PopoverTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 rounded-full border border-input bg-background px-3 py-1 text-[12px] font-medium hover:bg-accent">
+                      <button className="inline-flex items-center gap-1.5 rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
                         {selectedModel === "solver" ? "求解器" : "代理模型"}
                         <ChevronDown className="h-3 w-3 text-muted-foreground" />
                       </button>
@@ -689,31 +693,29 @@ function Index() {
                   </Popover>
                   <button
                     onClick={() => setModelDialog(selectedModel)}
-                    className="rounded-full border border-input bg-background px-3 py-1 text-[12px] font-medium hover:bg-accent"
+                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
                   >
                     模型配置
                   </button>
+                  <div className="mx-1 h-5 w-px bg-border" />
+                  <button className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
+                    参数预览
+                  </button>
+                  <button
+                    onClick={() => toast.success("已保存")}
+                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={runStartDesign}
+                    className="rounded bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
+                  >
+                    分析计算
+                  </button>
                 </div>
-              }
-            >
-              <div className="flex items-center justify-end gap-2 py-1">
-                <button className="rounded-full border border-input bg-background px-3.5 py-1.5 text-[12px] font-medium hover:bg-accent">
-                  参数预览
-                </button>
-                <button
-                  onClick={() => toast.success("已保存")}
-                  className="rounded-full border border-input bg-background px-3.5 py-1.5 text-[12px] font-medium hover:bg-accent"
-                >
-                  保存
-                </button>
-                <button
-                  onClick={runStartDesign}
-                  className="rounded-full bg-foreground px-4 py-1.5 text-[12px] font-medium text-background shadow-sm transition-all hover:opacity-90 hover:shadow-md"
-                >
-                  分析计算
-                </button>
               </div>
-            </Section>
+            </section>
             </>
             )}
           </div>
