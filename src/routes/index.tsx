@@ -84,6 +84,7 @@ interface Workload {
   powerAngle?: string;
   voltage?: string;
   freqV?: string;
+  emForceAmp?: string;
   targets: TargetRow[];
 }
 
