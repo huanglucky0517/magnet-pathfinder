@@ -268,6 +268,38 @@ function Index() {
 
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [prDialogOpen, setPrDialogOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<"solver" | "surrogate">("solver");
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
+  const [modelDialog, setModelDialog] = useState<null | "solver" | "surrogate">(null);
+  const [solverConfig, setSolverConfig] = useState({
+    algo: "NSGA-II",
+    generations: "20",
+    population: "20",
+  });
+  const [surrogateConfig, setSurrogateConfig] = useState({
+    algo: "NSGA-II",
+    sampling: "随机采样",
+    generations: "20",
+    population: "20",
+    mode: "指定FEA间隔",
+    interval: "5",
+    modelAlgo: "随机森林算法",
+  });
+  const runStartDesign = () => {
+    const badR = workloads.find(
+      (w) =>
+        w.type === "fem" &&
+        w.femSource === "emforce" &&
+        !(parseFloat(w.airgapRadius ?? "0") > 0),
+    );
+    if (badR) {
+      toast.error(`工况"${badR.name}"的气隙半径必须大于 0，请修改后再开始计算`);
+      return;
+    }
+    setCalcStatus("running");
+    toast.success("开始优化设计计算");
+    setTimeout(() => setCalcStatus("done"), 4000);
+  };
 
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
