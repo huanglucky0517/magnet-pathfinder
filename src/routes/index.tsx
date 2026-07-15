@@ -479,6 +479,27 @@ function Index() {
                           <Cell>{active.freqV ?? "50"}</Cell>
                         </Row>
                       </Table>
+                    ) : active.femSource === "emforce" ? (
+                      <Table
+                        head={["转速(rpm)", "电流(A)", "内功率因数角(degree)", "电磁力幅值(N)"]}
+                        widths={["1fr", "1fr", "1fr", "1fr"]}
+                      >
+                        <Row>
+                          <Cell>{active.speed ?? "3000"}</Cell>
+                          <Cell>{active.current ?? "0"}</Cell>
+                          <Cell>{active.powerAngle ?? "0"}</Cell>
+                          <div className="px-2 py-1 last:border-r-0">
+                            <input
+                              type="number"
+                              min={0}
+                              step="any"
+                              value={active.emForceAmp ?? "0"}
+                              onChange={(e) => updateActive({ emForceAmp: e.target.value })}
+                              className="w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none"
+                            />
+                          </div>
+                        </Row>
+                      </Table>
                     ) : (
                       <Table head={["转速(rpm)", "电流(A)", "内功率因数角(degree)"]} widths={["1fr", "1fr", "1fr"]}>
                         <Row>
