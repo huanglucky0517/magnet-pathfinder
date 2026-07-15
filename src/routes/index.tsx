@@ -482,31 +482,21 @@ function Index() {
                       </Table>
                     ) : active.femSource === "emforce" ? (
                       <Table
-                        head={["转速(rpm)", "电流(A)", "内功率因数角(degree)", "电磁力幅值(N)", "气隙半径(mm)"]}
-                        widths={["1fr", "1fr", "1fr", "1fr", "1fr"]}
+                        head={["转速(rpm)", "电流(A)", "内功率因数角(degree)", "气隙半径(mm)"]}
+                        widths={["1fr", "1fr", "1fr", "1fr"]}
                       >
                         <Row>
                           <Cell>{active.speed ?? "3000"}</Cell>
                           <Cell>{active.current ?? "0"}</Cell>
                           <Cell>{active.powerAngle ?? "0"}</Cell>
-                          <div className="px-2 py-1">
-                            <input
-                              type="number"
-                              min={0}
-                              step="any"
-                              value={active.emForceAmp ?? "0"}
-                              onChange={(e) => updateActive({ emForceAmp: e.target.value })}
-                              className="w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none"
-                            />
-                          </div>
-                          <div className="px-2 py-1 last:border-r-0">
+                          <div className="border-r border-border last:border-r-0">
                             <input
                               type="number"
                               min={0}
                               step="any"
                               value={active.airgapRadius ?? "0"}
                               onChange={(e) => updateActive({ airgapRadius: e.target.value })}
-                              className="w-full rounded border border-input bg-background px-2 py-1 text-[12px] focus:border-primary focus:outline-none"
+                              className="w-full border-0 bg-transparent px-3 py-2 text-[12px] focus:outline-none"
                             />
                           </div>
                         </Row>
