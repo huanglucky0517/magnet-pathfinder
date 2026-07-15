@@ -793,6 +793,22 @@ function Index() {
           setPrDialogOpen(false);
         }}
       />
+      <ModelConfigDialog
+        kind={modelDialog}
+        onClose={() => setModelDialog(null)}
+        solverConfig={solverConfig}
+        surrogateConfig={surrogateConfig}
+        onSaveSolver={(c) => {
+          setSolverConfig(c);
+          setModelDialog(null);
+          toast.success("求解器配置已保存");
+        }}
+        onSaveSurrogate={(c) => {
+          setSurrogateConfig(c);
+          setModelDialog(null);
+          toast.success("代理模型配置已保存");
+        }}
+      />
     </div>
   );
 }
