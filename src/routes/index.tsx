@@ -647,16 +647,6 @@ function Index() {
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
                   onStartDesign={() => {
-                    const badAmp = workloads.find(
-                      (w) =>
-                        w.type === "fem" &&
-                        w.femSource === "emforce" &&
-                        !(parseFloat(w.emForceAmp ?? "0") > 0),
-                    );
-                    if (badAmp) {
-                      toast.error(`工况"${badAmp.name}"的电磁力幅值必须大于 0，请修改后再开始计算`);
-                      return;
-                    }
                     const badR = workloads.find(
                       (w) =>
                         w.type === "fem" &&
