@@ -482,7 +482,7 @@ function Index() {
                       </Table>
                     ) : active.femSource === "emforce" ? (
                       <Table
-                        head={["转速(rpm)", "电流(A)", "内功率因数角(degree)", "气隙半径(mm)"]}
+                        head={["转速(rpm)", "电流(A)", "电流角(度)", "气隙半径(mm)"]}
                         widths={["1fr", "1fr", "1fr", "1fr"]}
                       >
                         <Row>
@@ -502,7 +502,7 @@ function Index() {
                         </Row>
                       </Table>
                     ) : (
-                      <Table head={["转速(rpm)", "电流(A)", "内功率因数角(degree)"]} widths={["1fr", "1fr", "1fr"]}>
+                      <Table head={["转速(rpm)", "电流(A)", "电流角(度)"]} widths={["1fr", "1fr", "1fr"]}>
                         <Row>
                           <Cell>{active.speed ?? "3000"}</Cell>
                           <Cell>{active.current ?? "0"}</Cell>
