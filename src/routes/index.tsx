@@ -737,21 +737,7 @@ function Index() {
                 <AIChatPanel
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
-                  onStartDesign={() => {
-                    const badR = workloads.find(
-                      (w) =>
-                        w.type === "fem" &&
-                        w.femSource === "emforce" &&
-                        !(parseFloat(w.airgapRadius ?? "0") > 0),
-                    );
-                    if (badR) {
-                      toast.error(`工况"${badR.name}"的气隙半径必须大于 0，请修改后再开始计算`);
-                      return;
-                    }
-                    setCalcStatus("running");
-                    toast.success("开始优化设计计算");
-                    setTimeout(() => setCalcStatus("done"), 4000);
-                  }}
+                  onStartDesign={runStartDesign}
                   onViewResults={() => setSelectedNode("结果")}
                   onCreateProject={() => {
                     setSelectedNode("新设计(优化分析)");
