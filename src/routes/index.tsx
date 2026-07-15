@@ -656,13 +656,72 @@ function Index() {
 
             {/* Section 4: 计算选项 */}
             <Section step="4" title="计算选项">
-              <div className="flex items-center justify-end gap-2 py-1">
-                <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
-                  多目标遗传算法优化配置
-                </button>
-                <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
-                  参数预览
-                </button>
+              <div className="flex items-center justify-between gap-2 py-1">
+                <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-[12px] hover:bg-accent">
+                      <Brain className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-muted-foreground">模型：</span>
+                      <span className="font-medium">{selectedModel === "solver" ? "求解器" : "代理模型"}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-64 p-1">
+                    {[
+                      { key: "solver" as const, label: "求解器", desc: "遗传算法直接求解" },
+                      { key: "surrogate" as const, label: "代理模型", desc: "代理模型加速寻优" },
+                    ].map((m) => (
+                      <div
+                        key={m.key}
+                        className={`group flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-[12px] hover:bg-accent ${selectedModel === m.key ? "bg-accent/60" : ""}`}
+                        onClick={() => {
+                          setSelectedModel(m.key);
+                          setModelPickerOpen(false);
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium">{m.label}</span>
+                          <span className="text-[10px] text-muted-foreground">{m.desc}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedModel(m.key);
+                            setModelPickerOpen(false);
+                            setModelDialog(m.key);
+                          }}
+                          className="rounded p-1 text-muted-foreground opacity-0 hover:bg-background hover:text-foreground group-hover:opacity-100"
+                          title="配置参数"
+                        >
+                          <Settings2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setModelDialog(selectedModel)}
+                    className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent"
+                  >
+                    模型配置
+                  </button>
+                  <button className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent">
+                    参数预览
+                  </button>
+                  <button
+                    onClick={() => toast.success("已保存")}
+                    className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={runStartDesign}
+                    className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    分析计算
+                  </button>
+                </div>
               </div>
             </Section>
             </>
