@@ -268,6 +268,38 @@ function Index() {
 
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [prDialogOpen, setPrDialogOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<"solver" | "surrogate">("solver");
+  const [modelPickerOpen, setModelPickerOpen] = useState(false);
+  const [modelDialog, setModelDialog] = useState<null | "solver" | "surrogate">(null);
+  const [solverConfig, setSolverConfig] = useState({
+    algo: "NSGA-II",
+    generations: "20",
+    population: "20",
+  });
+  const [surrogateConfig, setSurrogateConfig] = useState({
+    algo: "NSGA-II",
+    sampling: "随机采样",
+    generations: "20",
+    population: "20",
+    mode: "指定FEA间隔",
+    interval: "5",
+    modelAlgo: "随机森林算法",
+  });
+  const runStartDesign = () => {
+    const badR = workloads.find(
+      (w) =>
+        w.type === "fem" &&
+        w.femSource === "emforce" &&
+        !(parseFloat(w.airgapRadius ?? "0") > 0),
+    );
+    if (badR) {
+      toast.error(`工况"${badR.name}"的气隙半径必须大于 0，请修改后再开始计算`);
+      return;
+    }
+    setCalcStatus("running");
+    toast.success("开始优化设计计算");
+    setTimeout(() => setCalcStatus("done"), 4000);
+  };
 
   const magnetic = workloads.filter((w) => w.type === "magnetic");
   const fem = workloads.filter((w) => w.type === "fem");
@@ -624,13 +656,72 @@ function Index() {
 
             {/* Section 4: 计算选项 */}
             <Section step="4" title="计算选项">
-              <div className="flex items-center justify-end gap-2 py-1">
-                <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
-                  多目标遗传算法优化配置
-                </button>
-                <button className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90">
-                  参数预览
-                </button>
+              <div className="flex items-center justify-between gap-2 py-1">
+                <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-[12px] hover:bg-accent">
+                      <Brain className="h-3.5 w-3.5 text-primary" />
+                      <span className="text-muted-foreground">模型：</span>
+                      <span className="font-medium">{selectedModel === "solver" ? "求解器" : "代理模型"}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" className="w-64 p-1">
+                    {[
+                      { key: "solver" as const, label: "求解器", desc: "遗传算法直接求解" },
+                      { key: "surrogate" as const, label: "代理模型", desc: "代理模型加速寻优" },
+                    ].map((m) => (
+                      <div
+                        key={m.key}
+                        className={`group flex cursor-pointer items-center justify-between rounded px-2 py-1.5 text-[12px] hover:bg-accent ${selectedModel === m.key ? "bg-accent/60" : ""}`}
+                        onClick={() => {
+                          setSelectedModel(m.key);
+                          setModelPickerOpen(false);
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium">{m.label}</span>
+                          <span className="text-[10px] text-muted-foreground">{m.desc}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedModel(m.key);
+                            setModelPickerOpen(false);
+                            setModelDialog(m.key);
+                          }}
+                          className="rounded p-1 text-muted-foreground opacity-0 hover:bg-background hover:text-foreground group-hover:opacity-100"
+                          title="配置参数"
+                        >
+                          <Settings2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setModelDialog(selectedModel)}
+                    className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent"
+                  >
+                    模型配置
+                  </button>
+                  <button className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent">
+                    参数预览
+                  </button>
+                  <button
+                    onClick={() => toast.success("已保存")}
+                    className="rounded-md border border-input bg-background px-4 py-2 text-[12px] font-medium hover:bg-accent"
+                  >
+                    保存
+                  </button>
+                  <button
+                    onClick={runStartDesign}
+                    className="rounded-md border border-primary bg-primary px-4 py-2 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    分析计算
+                  </button>
+                </div>
               </div>
             </Section>
             </>
@@ -646,21 +737,7 @@ function Index() {
                 <AIChatPanel
                   calcStatus={calcStatus}
                   onClose={() => setChatOpen(false)}
-                  onStartDesign={() => {
-                    const badR = workloads.find(
-                      (w) =>
-                        w.type === "fem" &&
-                        w.femSource === "emforce" &&
-                        !(parseFloat(w.airgapRadius ?? "0") > 0),
-                    );
-                    if (badR) {
-                      toast.error(`工况"${badR.name}"的气隙半径必须大于 0，请修改后再开始计算`);
-                      return;
-                    }
-                    setCalcStatus("running");
-                    toast.success("开始优化设计计算");
-                    setTimeout(() => setCalcStatus("done"), 4000);
-                  }}
+                  onStartDesign={runStartDesign}
                   onViewResults={() => setSelectedNode("结果")}
                   onCreateProject={() => {
                     setSelectedNode("新设计(优化分析)");
@@ -714,6 +791,22 @@ function Index() {
         onConfirm={(o, f) => {
           addPrTarget(o, f);
           setPrDialogOpen(false);
+        }}
+      />
+      <ModelConfigDialog
+        kind={modelDialog}
+        onClose={() => setModelDialog(null)}
+        solverConfig={solverConfig}
+        surrogateConfig={surrogateConfig}
+        onSaveSolver={(c) => {
+          setSolverConfig(c);
+          setModelDialog(null);
+          toast.success("求解器配置已保存");
+        }}
+        onSaveSurrogate={(c) => {
+          setSurrogateConfig(c);
+          setModelDialog(null);
+          toast.success("代理模型配置已保存");
         }}
       />
     </div>
@@ -2072,6 +2165,160 @@ function PrEditDialog({
             className="rounded bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             添加
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type SolverConfig = { algo: string; generations: string; population: string };
+type SurrogateConfig = {
+  algo: string;
+  sampling: string;
+  generations: string;
+  population: string;
+  mode: string;
+  interval: string;
+  modelAlgo: string;
+};
+
+function ModelConfigDialog({
+  kind,
+  onClose,
+  solverConfig,
+  surrogateConfig,
+  onSaveSolver,
+  onSaveSurrogate,
+}: {
+  kind: null | "solver" | "surrogate";
+  onClose: () => void;
+  solverConfig: SolverConfig;
+  surrogateConfig: SurrogateConfig;
+  onSaveSolver: (c: SolverConfig) => void;
+  onSaveSurrogate: (c: SurrogateConfig) => void;
+}) {
+  const solverDefault: SolverConfig = { algo: "NSGA-II", generations: "20", population: "20" };
+  const surrogateDefault: SurrogateConfig = {
+    algo: "NSGA-II",
+    sampling: "随机采样",
+    generations: "20",
+    population: "20",
+    mode: "指定FEA间隔",
+    interval: "5",
+    modelAlgo: "随机森林算法",
+  };
+  const [solver, setSolver] = useState<SolverConfig>(solverConfig);
+  const [surrogate, setSurrogate] = useState<SurrogateConfig>(surrogateConfig);
+  useEffect(() => {
+    if (kind === "solver") setSolver(solverConfig);
+    if (kind === "surrogate") setSurrogate(surrogateConfig);
+  }, [kind, solverConfig, surrogateConfig]);
+
+  if (!kind) return null;
+
+  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+    <div>
+      <label className="mb-1 block text-[12px] font-medium">{label}</label>
+      {children}
+    </div>
+  );
+  const inputCls =
+    "w-full rounded border border-input bg-background px-2 py-1.5 text-[12px] focus:border-primary focus:outline-none";
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div
+        className="w-[420px] max-h-[90vh] overflow-y-auto rounded-md border border-border bg-card shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+          <span className="text-[13px] font-medium">{kind === "solver" ? "求解器配置" : "代理模型配置"}</span>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-accent">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="space-y-3 p-4">
+          {kind === "solver" ? (
+            <>
+              <Field label="遗传算法">
+                <select value={solver.algo} onChange={(e) => setSolver({ ...solver, algo: e.target.value })} className={inputCls}>
+                  <option>NSGA-II</option>
+                  <option>NSGA-III</option>
+                  <option>MOEA/D</option>
+                </select>
+              </Field>
+              <Field label="遗传代数">
+                <input value={solver.generations} onChange={(e) => setSolver({ ...solver, generations: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="每代种群数量">
+                <input value={solver.population} onChange={(e) => setSolver({ ...solver, population: e.target.value })} className={inputCls} />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="遗传算法">
+                <select value={surrogate.algo} onChange={(e) => setSurrogate({ ...surrogate, algo: e.target.value })} className={inputCls}>
+                  <option>NSGA-II</option>
+                  <option>NSGA-III</option>
+                  <option>MOEA/D</option>
+                </select>
+              </Field>
+              <Field label="采样方法">
+                <select value={surrogate.sampling} onChange={(e) => setSurrogate({ ...surrogate, sampling: e.target.value })} className={inputCls}>
+                  <option>随机采样</option>
+                  <option>拉丁超立方采样</option>
+                  <option>正交采样</option>
+                </select>
+              </Field>
+              <Field label="遗传代数">
+                <input value={surrogate.generations} onChange={(e) => setSurrogate({ ...surrogate, generations: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="每代种群数量">
+                <input value={surrogate.population} onChange={(e) => setSurrogate({ ...surrogate, population: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="工作模式">
+                <select value={surrogate.mode} onChange={(e) => setSurrogate({ ...surrogate, mode: e.target.value })} className={inputCls}>
+                  <option>指定FEA间隔</option>
+                  <option>全部使用代理模型</option>
+                </select>
+                <input
+                  value={surrogate.interval}
+                  onChange={(e) => setSurrogate({ ...surrogate, interval: e.target.value })}
+                  className={`${inputCls} mt-2`}
+                />
+                <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                  每隔N代采用非代理模型求解，其余使用代理模型求解。第1代与最后1代不可使用代理模型。例如：遗传代数为20，指定FEA间隔为5，则第1、7、13、19、20代使用非代理模型，其余代数使用代理模型。
+                </p>
+              </Field>
+              <Field label="模型算法">
+                <select value={surrogate.modelAlgo} onChange={(e) => setSurrogate({ ...surrogate, modelAlgo: e.target.value })} className={inputCls}>
+                  <option>随机森林算法</option>
+                  <option>高斯过程回归</option>
+                  <option>神经网络</option>
+                </select>
+              </Field>
+            </>
+          )}
+        </div>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+          <button onClick={onClose} className="rounded border border-input bg-background px-3 py-1.5 text-[12px] hover:bg-accent">
+            取消
+          </button>
+          <button
+            onClick={() => {
+              if (kind === "solver") setSolver(solverDefault);
+              else setSurrogate(surrogateDefault);
+            }}
+            className="rounded border border-input bg-background px-3 py-1.5 text-[12px] hover:bg-accent"
+          >
+            重置
+          </button>
+          <button
+            onClick={() => (kind === "solver" ? onSaveSolver(solver) : onSaveSurrogate(surrogate))}
+            className="rounded bg-foreground px-3 py-1.5 text-[12px] font-medium text-background hover:opacity-90"
+          >
+            保存
           </button>
         </div>
       </div>
