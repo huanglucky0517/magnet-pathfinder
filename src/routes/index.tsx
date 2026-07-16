@@ -2377,8 +2377,7 @@ function InlineCalcOptions({
     </section>
   );
 }
-
-
+function ModelConfigDialog({
   kind,
   onClose,
   solverConfig,
