@@ -2272,24 +2272,34 @@ function ModelConfigDialog({
               <Field label="工作模式">
                 <select value={surrogate.mode} onChange={(e) => setSurrogate({ ...surrogate, mode: e.target.value })} className={inputCls}>
                   <option>指定FEA间隔</option>
-                  <option>全部使用代理模型</option>
+                  <option>指定跳过FEA的代数</option>
+                  <option>智能工作模式</option>
                 </select>
-                <input
-                  value={surrogate.interval}
-                  onChange={(e) => setSurrogate({ ...surrogate, interval: e.target.value })}
-                  className={`${inputCls} mt-2`}
-                />
-                <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
-                  每隔N代采用非代理模型求解，其余使用代理模型求解。第1代与最后1代不可使用代理模型。例如：遗传代数为20，指定FEA间隔为5，则第1、7、13、19、20代使用非代理模型，其余代数使用代理模型。
-                </p>
+                {surrogate.mode !== "智能工作模式" && (
+                  <>
+                    <input
+                      value={surrogate.interval}
+                      onChange={(e) => setSurrogate({ ...surrogate, interval: e.target.value })}
+                      placeholder={surrogate.mode === "指定跳过FEA的代数" ? "例如：5-8,12" : "例如：5"}
+                      className={`${inputCls} mt-2`}
+                    />
+                    <p className="mt-1.5 text-[10px] leading-relaxed text-muted-foreground">
+                      {surrogate.mode === "指定跳过FEA的代数"
+                        ? "例如：输入\"5-8,12\"，表示第5代到第8代、第12代采用代理模型求解，其余采用非代理模型求解。第1代与最后1代不可使用代理模型求解。"
+                        : "每隔N代采用非代理模型求解，其余使用代理模型求解。第1代与最后1代不可使用代理模型。例如：遗传代数为20，指定FEA间隔为5，则第1、7、13、19、20代使用非代理模型，其余代数使用代理模型。"}
+                    </p>
+                  </>
+                )}
               </Field>
-              <Field label="模型算法">
-                <select value={surrogate.modelAlgo} onChange={(e) => setSurrogate({ ...surrogate, modelAlgo: e.target.value })} className={inputCls}>
-                  <option>随机森林算法</option>
-                  <option>高斯过程回归</option>
-                  <option>神经网络</option>
-                </select>
-              </Field>
+              {surrogate.mode !== "智能工作模式" && (
+                <Field label="模型算法">
+                  <select value={surrogate.modelAlgo} onChange={(e) => setSurrogate({ ...surrogate, modelAlgo: e.target.value })} className={inputCls}>
+                    <option>随机森林算法</option>
+                    <option>高斯过程回归</option>
+                    <option>神经网络</option>
+                  </select>
+                </Field>
+              )}
             </>
           )}
         </div>
