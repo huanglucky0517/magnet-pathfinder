@@ -664,7 +664,7 @@ function Index() {
                   <h2 className="text-[14px] font-semibold">计算选项</h2>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-muted-foreground">计算模型</span>
+                  <span className="text-[12px] text-muted-foreground">求解模式</span>
                   <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
                     <PopoverTrigger asChild>
                       <button className="inline-flex items-center gap-1.5 rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
@@ -695,7 +695,7 @@ function Index() {
                     onClick={() => setModelDialog(selectedModel)}
                     className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
                   >
-                    模型配置
+                    求解配置
                   </button>
                   <div className="mx-1 h-5 w-px bg-border" />
                   <button className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
