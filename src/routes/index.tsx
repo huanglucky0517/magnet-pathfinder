@@ -2318,14 +2318,6 @@ function InlineCalcOptions({
           </select>
         </div>
       )}
-      <div className="basis-full" />
-      <div className="flex items-start gap-1.5 rounded-md bg-primary/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-muted-foreground">
-        <Info className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
-        <span>
-          <span className="font-medium text-foreground">{surrogateConfig.mode}：</span>
-          {modeExplain[surrogateConfig.mode]}
-        </span>
-      </div>
     </>
   );
 
