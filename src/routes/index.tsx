@@ -273,6 +273,7 @@ function Index() {
   const [modelDialog, setModelDialog] = useState<null | "solver" | "surrogate">(null);
   const [solverConfig, setSolverConfig] = useState({
     algo: "NSGA-II",
+    sampling: "随机采样",
     generations: "20",
     population: "20",
   });
@@ -2164,7 +2165,7 @@ function PrEditDialog({
   );
 }
 
-type SolverConfig = { algo: string; generations: string; population: string };
+type SolverConfig = { algo: string; sampling: string; generations: string; population: string };
 type SurrogateConfig = {
   algo: string;
   sampling: string;
@@ -2190,7 +2191,7 @@ function ModelConfigDialog({
   onSaveSolver: (c: SolverConfig) => void;
   onSaveSurrogate: (c: SurrogateConfig) => void;
 }) {
-  const solverDefault: SolverConfig = { algo: "NSGA-II", generations: "20", population: "20" };
+  const solverDefault: SolverConfig = { algo: "NSGA-II", sampling: "随机采样", generations: "20", population: "20" };
   const surrogateDefault: SurrogateConfig = {
     algo: "NSGA-II",
     sampling: "随机采样",
@@ -2238,6 +2239,13 @@ function ModelConfigDialog({
                   <option>NSGA-II</option>
                   <option>NSGA-III</option>
                   <option>MOEA/D</option>
+                </select>
+              </Field>
+              <Field label="采样方法">
+                <select value={solver.sampling} onChange={(e) => setSolver({ ...solver, sampling: e.target.value })} className={inputCls}>
+                  <option>随机采样</option>
+                  <option>拉丁超立方采样</option>
+                  <option>正交采样</option>
                 </select>
               </Field>
               <Field label="遗传代数">
