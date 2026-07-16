@@ -2444,7 +2444,7 @@ function InfoTip({ label }: { label: string }) {
       </span>
       {pos && (
         <div
-          className="pointer-events-none fixed z-[200] max-w-[280px] whitespace-pre-line rounded-md bg-black/80 px-3 py-2 text-[11px] leading-relaxed text-white shadow-lg"
+          className="pointer-events-none fixed z-[200] max-w-[360px] whitespace-pre-line rounded-md bg-black/80 px-3 py-2 text-[11px] leading-relaxed text-white shadow-lg"
           style={{ left: pos.x, top: pos.y }}
         >
           {label}
