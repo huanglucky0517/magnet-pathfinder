@@ -2218,7 +2218,15 @@ function InlineCalcOptions({
   const chipLabelCls = "inline-flex items-center gap-1 text-[11px] text-muted-foreground";
 
   const workModeHelp =
-    "指定FEA间隔：每隔 N 代进行一次真实 FEA 校验；\n指定跳过FEA的代数：手动指定跳过 FEA 的代数区间（如 5-8,12）；\n智能工作模式：系统根据代理模型置信度自动决策何时调用 FEA。";
+    "指定FEA间隔：每隔 N 代采用非代理模型求解，其余使用代理模型求解。第 1 代与最后 1 代不可使用代理模型。例如：遗传代数为 20，指定 FEA 间隔为 5，则第 1、7、13、19、20 代使用非代理模型，其余代数使用代理模型。\n\n指定跳过FEA的代数：例如输入“5-8,12”，表示第 5 代到第 8 代、第 12 代采用代理模型求解，其余采用非代理模型求解。第 1 代与最后 1 代不可使用代理模型求解。\n\n智能工作模式：系统根据代理模型置信度自动决策何时调用 FEA。";
+  const modeExplain: Record<string, string> = {
+    "指定FEA间隔":
+      "每隔 N 代采用非代理模型求解，其余使用代理模型求解。第 1 代与最后 1 代不可使用代理模型。例如：遗传代数为 20，指定 FEA 间隔为 5，则第 1、7、13、19、20 代使用非代理模型，其余代数使用代理模型。",
+    "指定跳过FEA的代数":
+      "例如输入“5-8,12”，表示第 5 代到第 8 代、第 12 代采用代理模型求解，其余采用非代理模型求解。第 1 代与最后 1 代不可使用代理模型求解。",
+    "智能工作模式":
+      "系统根据代理模型置信度自动决策何时调用 FEA，无需手动配置间隔或跳过区间。",
+  };
 
   const SolverFields = (
     <>
@@ -2308,6 +2316,14 @@ function InlineCalcOptions({
           </select>
         </div>
       )}
+      <div className="basis-full" />
+      <div className="flex items-start gap-1.5 rounded-md bg-primary/5 px-2.5 py-1.5 text-[11px] leading-relaxed text-muted-foreground">
+        <Info className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
+        <span>
+          <span className="font-medium text-foreground">{surrogateConfig.mode}：</span>
+          {modeExplain[surrogateConfig.mode]}
+        </span>
+      </div>
     </>
   );
 
@@ -2406,8 +2422,8 @@ function InlineCalcOptions({
 function InfoTip({ label }: { label: string }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const handleMove = (e: React.MouseEvent) => {
-    const tipW = 280;
-    const tipH = 80;
+    const tipW = 360;
+    const tipH = 180;
     const pad = 8;
     let x = e.clientX + 12;
     let y = e.clientY - tipH - 10;
@@ -2428,7 +2444,7 @@ function InfoTip({ label }: { label: string }) {
       </span>
       {pos && (
         <div
-          className="pointer-events-none fixed z-[200] max-w-[280px] whitespace-pre-line rounded-md bg-black/80 px-3 py-2 text-[11px] leading-relaxed text-white shadow-lg"
+          className="pointer-events-none fixed z-[200] max-w-[360px] whitespace-pre-line rounded-md bg-black/80 px-3 py-2 text-[11px] leading-relaxed text-white shadow-lg"
           style={{ left: pos.x, top: pos.y }}
         >
           {label}
