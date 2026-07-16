@@ -2270,7 +2270,7 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
-        <ComboInput value={solverConfig.generations} onChange={(v) => setSolverConfig({ ...solverConfig, generations: v })} listId="solver-generations" presets={generationsPresets} />
+        <PresetSelect value={solverConfig.generations} onChange={(v) => setSolverConfig({ ...solverConfig, generations: v })} presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
