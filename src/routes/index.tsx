@@ -286,6 +286,26 @@ function Index() {
     interval: "5",
     modelAlgo: "随机森林算法",
   });
+  const [overallTargets, setOverallTargets] = useState<
+    { v: string; p: string; expr: string; c: string; dir: string }[]
+  >([
+    { v: "目标参数_1", p: "overall_target_1", expr: "", c: "", dir: "无" },
+    { v: "目标参数_2", p: "overall_target_2", expr: "", c: "", dir: "无" },
+    { v: "目标参数_3", p: "overall_target_3", expr: "", c: "", dir: "无" },
+  ]);
+  const addOverallTarget = () => {
+    const n = overallTargets.length + 1;
+    setOverallTargets((prev) => [
+      ...prev,
+      { v: `目标参数_${n}`, p: `overall_target_${n}`, expr: "", c: "", dir: "无" },
+    ]);
+  };
+  const updateOverallCell = (p: string, key: "v" | "expr" | "c" | "dir", val: string) => {
+    setOverallTargets((prev) => prev.map((t) => (t.p === p ? { ...t, [key]: val } : t)));
+  };
+  const removeOverallTarget = (p: string) => {
+    setOverallTargets((prev) => prev.filter((t) => t.p !== p));
+  };
   const runStartDesign = () => {
     const badR = workloads.find(
       (w) =>
@@ -655,8 +675,57 @@ function Index() {
               </div>
             </Section>
 
-            {/* Section 4: 计算选项 */}
-            <section className="border-b border-border px-5 py-4">
+            {/* Section 3: 综合目标 */}
+            <Section
+              step="3"
+              title="综合目标"
+              action={
+                <button
+                  onClick={addOverallTarget}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  添加
+                </button>
+              }
+            >
+              {overallTargets.length === 0 ? (
+                <div className="rounded-md border border-border bg-card px-3 py-8 text-center text-[12px] text-muted-foreground">
+                  暂无综合目标，点击右上角"+ 添加"新建
+                </div>
+              ) : (
+                <Table
+                  head={["变量名称", "参数名称", "目标表达式", "约束", "优化方向", ""]}
+                  widths={["1.4fr", "1.2fr", "1.6fr", "0.8fr", "1fr", "40px"]}
+                >
+                  {overallTargets.map((t) => (
+                    <Row key={t.p}>
+                      <EditCell value={t.v} onChange={(v) => updateOverallCell(t.p, "v", v)} />
+                      <Cell mono>{t.p}</Cell>
+                      <EditCell value={t.expr} onChange={(v) => updateOverallCell(t.p, "expr", v)} mono />
+                      <EditCell value={t.c} onChange={(v) => updateOverallCell(t.p, "c", v)} mono />
+                      <SelectEditCell
+                        value={t.dir || "无"}
+                        options={["最小", "最大", "无", "接近于"]}
+                        onChange={(v) => updateOverallCell(t.p, "dir", v)}
+                      />
+                      <div className="flex items-center justify-center border-r border-border last:border-r-0">
+                        <button
+                          onClick={() => removeOverallTarget(t.p)}
+                          className="rounded p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </Row>
+                  ))}
+                </Table>
+              )}
+            </Section>
+
+            {/* Section 4: 计算选项 (sticky bottom) */}
+            <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 px-5 py-3 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)] backdrop-blur">
+
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
