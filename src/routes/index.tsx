@@ -11,6 +11,8 @@ import {
   ListChecks,
   Copy,
   ChevronUp,
+  ChevronsDown,
+  ChevronsUp,
   Settings2,
   Sparkles,
   Pencil,
