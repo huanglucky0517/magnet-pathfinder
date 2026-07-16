@@ -2164,7 +2164,7 @@ function PrEditDialog({
   );
 }
 
-type SolverConfig = { algo: string; generations: string; population: string };
+type SolverConfig = { algo: string; sampling: string; generations: string; population: string };
 type SurrogateConfig = {
   algo: string;
   sampling: string;
