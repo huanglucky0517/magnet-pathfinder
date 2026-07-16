@@ -2220,15 +2220,7 @@ function InlineCalcOptions({
   const chipLabelCls = "inline-flex items-center gap-1 text-[11px] text-muted-foreground";
 
   const workModeHelp =
-    "指定FEA间隔：每隔 N 代采用非代理模型求解，其余使用代理模型求解。第 1 代与最后 1 代不可使用代理模型。例如：遗传代数为 20，指定 FEA 间隔为 5，则第 1、7、13、19、20 代使用非代理模型，其余代数使用代理模型。\n\n指定跳过FEA的代数：例如输入“5-8,12”，表示第 5 代到第 8 代、第 12 代采用代理模型求解，其余采用非代理模型求解。第 1 代与最后 1 代不可使用代理模型求解。\n\n智能工作模式：系统根据代理模型置信度自动决策何时调用 FEA。";
-  const modeExplain: Record<string, string> = {
-    "指定FEA间隔":
-      "每隔 N 代采用非代理模型求解，其余使用代理模型求解。第 1 代与最后 1 代不可使用代理模型。例如：遗传代数为 20，指定 FEA 间隔为 5，则第 1、7、13、19、20 代使用非代理模型，其余代数使用代理模型。",
-    "指定跳过FEA的代数":
-      "例如输入“5-8,12”，表示第 5 代到第 8 代、第 12 代采用代理模型求解，其余采用非代理模型求解。第 1 代与最后 1 代不可使用代理模型求解。",
-    "智能工作模式":
-      "系统根据代理模型置信度自动决策何时调用 FEA，无需手动配置间隔或跳过区间。",
-  };
+    "指定FEA间隔：每隔N代采用非代理模型求解，其余使用代理模型求解。第1代与最后1代不可使用代理模型。例如：遗传代数为20，指定FEA间隔为5，则第1、7、13、19、20代使用非代理模型，其余代数使用代理模型。\n\n指定跳过FEA的代数：例如：输入“5-8,12”，表示第5代到第8代，第12代采用代理模型求解，其余采用有非代理模型求解。第1代与最后1代不可使用代理模型求解。\n\n智能工作模式：系统根据代理模型置信度自动决策何时调用 FEA。";
 
   const generationsPresets = ["10", "20", "50", "100", "200"];
   const populationPresets = ["20", "50", "100", "200"];
@@ -2243,31 +2235,24 @@ function InlineCalcOptions({
     </select>
   );
 
-  const ComboInput = ({
+  const PresetSelect = ({
     value,
     onChange,
-    listId,
     presets,
   }: {
     value: string;
     onChange: (v: string) => void;
-    listId: string;
     presets: string[];
   }) => (
-    <>
-      <input
-        list={listId}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`${inputCls} w-20 pr-6 [background-image:none]`}
-      />
-      <datalist id={listId}>
-        {presets.map((p) => (
-          <option key={p} value={p} />
-        ))}
-      </datalist>
-    </>
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={`${selectCls} w-20`}>
+      {(presets.includes(value) ? presets : [value, ...presets]).map((p) => (
+        <option key={p} value={p}>
+          {p}
+        </option>
+      ))}
+    </select>
   );
+
 
   const SolverFields = (
     <>
@@ -2285,11 +2270,11 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
-        <ComboInput value={solverConfig.generations} onChange={(v) => setSolverConfig({ ...solverConfig, generations: v })} listId="solver-generations" presets={generationsPresets} />
+        <PresetSelect value={solverConfig.generations} onChange={(v) => setSolverConfig({ ...solverConfig, generations: v })} presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
-        <ComboInput value={solverConfig.population} onChange={(v) => setSolverConfig({ ...solverConfig, population: v })} listId="solver-population" presets={populationPresets} />
+        <PresetSelect value={solverConfig.population} onChange={(v) => setSolverConfig({ ...solverConfig, population: v })} presets={populationPresets} />
       </div>
     </>
   );
@@ -2310,11 +2295,11 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
-        <ComboInput value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} listId="surrogate-generations" presets={generationsPresets} />
+        <PresetSelect value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
-        <ComboInput value={surrogateConfig.population} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, population: v })} listId="surrogate-population" presets={populationPresets} />
+        <PresetSelect value={surrogateConfig.population} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, population: v })} presets={populationPresets} />
       </div>
       <div className="h-4 w-px bg-border" />
       <div className="flex items-center gap-1.5">
@@ -2367,15 +2352,6 @@ function InlineCalcOptions({
         }`}
       >
         <div className="min-h-0">
-          {selectedModel === "surrogate" && (
-            <div className="flex items-start gap-1.5 border-b border-border/60 bg-primary/5 px-5 py-2 text-[11px] leading-relaxed text-muted-foreground">
-              <Info className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
-              <span>
-                <span className="font-medium text-foreground">{surrogateConfig.mode}：</span>
-                {modeExplain[surrogateConfig.mode]}
-              </span>
-            </div>
-          )}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/20 px-5 py-2.5">
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
