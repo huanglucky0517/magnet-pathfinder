@@ -2241,6 +2241,13 @@ function ModelConfigDialog({
                   <option>MOEA/D</option>
                 </select>
               </Field>
+              <Field label="采样方法">
+                <select value={solver.sampling} onChange={(e) => setSolver({ ...solver, sampling: e.target.value })} className={inputCls}>
+                  <option>随机采样</option>
+                  <option>拉丁超立方采样</option>
+                  <option>正交采样</option>
+                </select>
+              </Field>
               <Field label="遗传代数">
                 <input value={solver.generations} onChange={(e) => setSolver({ ...solver, generations: e.target.value })} className={inputCls} />
               </Field>
