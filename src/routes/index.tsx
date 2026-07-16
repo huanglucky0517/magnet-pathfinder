@@ -723,69 +723,16 @@ function Index() {
               )}
             </Section>
 
-            {/* Section 4: 计算选项 (sticky bottom) */}
-            <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 px-5 py-3 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)] backdrop-blur">
-
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
-                    4
-                  </span>
-                  <h2 className="text-[14px] font-semibold">计算选项</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-muted-foreground">求解模式</span>
-                  <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
-                        {selectedModel === "solver" ? "求解器" : "代理模型"}
-                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-44 p-1">
-                      {[
-                        { key: "solver" as const, label: "求解器", desc: "遗传算法直接求解" },
-                        { key: "surrogate" as const, label: "代理模型", desc: "代理模型加速寻优" },
-                      ].map((m) => (
-                        <div
-                          key={m.key}
-                          onClick={() => {
-                            setSelectedModel(m.key);
-                            setModelPickerOpen(false);
-                          }}
-                          className={`flex cursor-pointer flex-col rounded px-2 py-1.5 text-[12px] hover:bg-accent ${selectedModel === m.key ? "bg-accent/60" : ""}`}
-                        >
-                          <span className="font-medium">{m.label}</span>
-                          <span className="text-[10px] text-muted-foreground">{m.desc}</span>
-                        </div>
-                      ))}
-                    </PopoverContent>
-                  </Popover>
-                  <button
-                    onClick={() => setModelDialog(selectedModel)}
-                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
-                  >
-                    求解配置
-                  </button>
-                  <div className="mx-1 h-5 w-px bg-border" />
-                  <button className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
-                    参数预览
-                  </button>
-                  <button
-                    onClick={() => toast.success("已保存")}
-                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
-                  >
-                    保存
-                  </button>
-                  <button
-                    onClick={runStartDesign}
-                    className="rounded bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
-                  >
-                    分析计算
-                  </button>
-                </div>
-              </div>
-            </section>
+            {/* Section 4: 计算选项 (sticky bottom, inline config) */}
+            <InlineCalcOptions
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              solverConfig={solverConfig}
+              setSolverConfig={setSolverConfig}
+              surrogateConfig={surrogateConfig}
+              setSurrogateConfig={setSurrogateConfig}
+              onRun={runStartDesign}
+            />
             </>
             )}
           </div>
