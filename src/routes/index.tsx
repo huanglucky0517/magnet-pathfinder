@@ -695,7 +695,7 @@ function Index() {
                     onClick={() => setModelDialog(selectedModel)}
                     className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
                   >
-                    模型配置
+                    求解配置
                   </button>
                   <div className="mx-1 h-5 w-px bg-border" />
                   <button className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
