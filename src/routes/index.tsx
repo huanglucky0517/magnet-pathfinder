@@ -2274,7 +2274,7 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
-        <ComboInput value={solverConfig.population} onChange={(v) => setSolverConfig({ ...solverConfig, population: v })} listId="solver-population" presets={populationPresets} />
+        <PresetSelect value={solverConfig.population} onChange={(v) => setSolverConfig({ ...solverConfig, population: v })} presets={populationPresets} />
       </div>
     </>
   );
@@ -2295,11 +2295,11 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
-        <ComboInput value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} listId="surrogate-generations" presets={generationsPresets} />
+        <PresetSelect value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
-        <ComboInput value={surrogateConfig.population} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, population: v })} listId="surrogate-population" presets={populationPresets} />
+        <PresetSelect value={surrogateConfig.population} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, population: v })} presets={populationPresets} />
       </div>
       <div className="h-4 w-px bg-border" />
       <div className="flex items-center gap-1.5">
