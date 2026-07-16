@@ -286,6 +286,26 @@ function Index() {
     interval: "5",
     modelAlgo: "随机森林算法",
   });
+  const [overallTargets, setOverallTargets] = useState<
+    { v: string; p: string; expr: string; c: string; dir: string }[]
+  >([
+    { v: "目标参数_1", p: "overall_target_1", expr: "", c: "", dir: "无" },
+    { v: "目标参数_2", p: "overall_target_2", expr: "", c: "", dir: "无" },
+    { v: "目标参数_3", p: "overall_target_3", expr: "", c: "", dir: "无" },
+  ]);
+  const addOverallTarget = () => {
+    const n = overallTargets.length + 1;
+    setOverallTargets((prev) => [
+      ...prev,
+      { v: `目标参数_${n}`, p: `overall_target_${n}`, expr: "", c: "", dir: "无" },
+    ]);
+  };
+  const updateOverallCell = (p: string, key: "v" | "expr" | "c" | "dir", val: string) => {
+    setOverallTargets((prev) => prev.map((t) => (t.p === p ? { ...t, [key]: val } : t)));
+  };
+  const removeOverallTarget = (p: string) => {
+    setOverallTargets((prev) => prev.filter((t) => t.p !== p));
+  };
   const runStartDesign = () => {
     const badR = workloads.find(
       (w) =>
