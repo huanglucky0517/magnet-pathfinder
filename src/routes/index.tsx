@@ -2337,12 +2337,9 @@ function InlineCalcOptions({
       >
         <div className="min-h-0">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/20 px-5 py-2.5">
-            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              {selectedModel === "solver" ? "求解器配置" : "代理模型配置"}
-            </span>
-            <div className="h-4 w-px bg-border" />
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
+
         </div>
       </div>
 
