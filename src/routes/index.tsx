@@ -2332,7 +2332,7 @@ function InlineCalcOptions({
       {/* Top-center collapse toggle tab */}
       <button
         onClick={() => setConfigOpen((v) => !v)}
-        className="absolute left-1/2 top-0 z-20 inline-flex h-5 w-10 -translate-x-1/2 -translate-y-full items-center justify-center rounded-t-md border border-b-0 border-border bg-background text-muted-foreground shadow-sm transition-colors hover:text-primary"
+        className="absolute left-1/2 top-0 z-20 inline-flex h-5 w-10 -translate-x-1/2 -translate-y-full items-center justify-center rounded-t-md border border-b-0 border-primary bg-background text-primary shadow-sm transition-colors hover:bg-primary hover:text-primary-foreground"
         title={configOpen ? "收起求解配置" : "展开求解配置"}
         aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
       >
