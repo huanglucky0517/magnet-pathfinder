@@ -2384,12 +2384,13 @@ function InlineCalcOptions({
           </div>
           <button
             onClick={() => setConfigOpen((v) => !v)}
-            className="inline-flex items-center gap-1 px-1 py-1.5 text-[12px] font-medium text-foreground transition-colors hover:text-primary"
-            title={configOpen ? "收起求解配置" : "求解配置"}
+            className="inline-flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
+            title={configOpen ? "收起求解配置" : "展开求解配置"}
+            aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
           >
-            {configOpen ? "收起求解配置" : "求解配置"}
-            <ChevronUp className={`h-3.5 w-3.5 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
+            <ChevronUp className={`h-4 w-4 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
           </button>
+
 
 
           <span className="text-[11px] text-muted-foreground">
