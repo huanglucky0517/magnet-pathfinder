@@ -723,69 +723,16 @@ function Index() {
               )}
             </Section>
 
-            {/* Section 4: 计算选项 (sticky bottom) */}
-            <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 px-5 py-3 shadow-[0_-4px_12px_-6px_rgba(0,0,0,0.08)] backdrop-blur">
-
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
-                    4
-                  </span>
-                  <h2 className="text-[14px] font-semibold">计算选项</h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-muted-foreground">求解模式</span>
-                  <Popover open={modelPickerOpen} onOpenChange={setModelPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <button className="inline-flex items-center gap-1.5 rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
-                        {selectedModel === "solver" ? "求解器" : "代理模型"}
-                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="w-44 p-1">
-                      {[
-                        { key: "solver" as const, label: "求解器", desc: "遗传算法直接求解" },
-                        { key: "surrogate" as const, label: "代理模型", desc: "代理模型加速寻优" },
-                      ].map((m) => (
-                        <div
-                          key={m.key}
-                          onClick={() => {
-                            setSelectedModel(m.key);
-                            setModelPickerOpen(false);
-                          }}
-                          className={`flex cursor-pointer flex-col rounded px-2 py-1.5 text-[12px] hover:bg-accent ${selectedModel === m.key ? "bg-accent/60" : ""}`}
-                        >
-                          <span className="font-medium">{m.label}</span>
-                          <span className="text-[10px] text-muted-foreground">{m.desc}</span>
-                        </div>
-                      ))}
-                    </PopoverContent>
-                  </Popover>
-                  <button
-                    onClick={() => setModelDialog(selectedModel)}
-                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
-                  >
-                    求解配置
-                  </button>
-                  <div className="mx-1 h-5 w-px bg-border" />
-                  <button className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
-                    参数预览
-                  </button>
-                  <button
-                    onClick={() => toast.success("已保存")}
-                    className="rounded border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
-                  >
-                    保存
-                  </button>
-                  <button
-                    onClick={runStartDesign}
-                    className="rounded bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
-                  >
-                    分析计算
-                  </button>
-                </div>
-              </div>
-            </section>
+            {/* Section 4: 计算选项 (sticky bottom, inline config) */}
+            <InlineCalcOptions
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              solverConfig={solverConfig}
+              setSolverConfig={setSolverConfig}
+              surrogateConfig={surrogateConfig}
+              setSurrogateConfig={setSurrogateConfig}
+              onRun={runStartDesign}
+            />
             </>
             )}
           </div>
@@ -2245,6 +2192,191 @@ type SurrogateConfig = {
   modelAlgo: string;
 };
 
+function InlineCalcOptions({
+  selectedModel,
+  setSelectedModel,
+  solverConfig,
+  setSolverConfig,
+  surrogateConfig,
+  setSurrogateConfig,
+  onRun,
+}: {
+  selectedModel: "solver" | "surrogate";
+  setSelectedModel: (m: "solver" | "surrogate") => void;
+  solverConfig: SolverConfig;
+  setSolverConfig: (c: SolverConfig) => void;
+  surrogateConfig: SurrogateConfig;
+  setSurrogateConfig: (c: SurrogateConfig) => void;
+  onRun: () => void;
+}) {
+  const selectCls =
+    "h-7 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
+  const inputCls =
+    "h-7 w-16 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
+  const chipLabelCls = "text-[11px] text-muted-foreground";
+
+  const SolverFields = (
+    <>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>遗传算法</span>
+        <select value={solverConfig.algo} onChange={(e) => setSolverConfig({ ...solverConfig, algo: e.target.value })} className={selectCls}>
+          <option>NSGA-II</option>
+          <option>NSGA-III</option>
+          <option>MOEA/D</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>采样方法</span>
+        <select value={solverConfig.sampling} onChange={(e) => setSolverConfig({ ...solverConfig, sampling: e.target.value })} className={selectCls}>
+          <option>随机采样</option>
+          <option>拉丁超立方采样</option>
+          <option>正交采样</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>遗传代数</span>
+        <input value={solverConfig.generations} onChange={(e) => setSolverConfig({ ...solverConfig, generations: e.target.value })} className={inputCls} />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>每代种群</span>
+        <input value={solverConfig.population} onChange={(e) => setSolverConfig({ ...solverConfig, population: e.target.value })} className={inputCls} />
+      </div>
+    </>
+  );
+
+  const SurrogateFields = (
+    <>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>遗传算法</span>
+        <select value={surrogateConfig.algo} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, algo: e.target.value })} className={selectCls}>
+          <option>NSGA-II</option>
+          <option>NSGA-III</option>
+          <option>MOEA/D</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>采样方法</span>
+        <select value={surrogateConfig.sampling} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, sampling: e.target.value })} className={selectCls}>
+          <option>随机采样</option>
+          <option>拉丁超立方采样</option>
+          <option>正交采样</option>
+        </select>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>遗传代数</span>
+        <input value={surrogateConfig.generations} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, generations: e.target.value })} className={inputCls} />
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>每代种群</span>
+        <input value={surrogateConfig.population} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, population: e.target.value })} className={inputCls} />
+      </div>
+      <div className="h-4 w-px bg-border" />
+      <div className="flex items-center gap-1.5">
+        <span className={chipLabelCls}>工作模式</span>
+        <select value={surrogateConfig.mode} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, mode: e.target.value })} className={selectCls}>
+          <option>指定FEA间隔</option>
+          <option>指定跳过FEA的代数</option>
+          <option>智能工作模式</option>
+        </select>
+      </div>
+      {surrogateConfig.mode !== "智能工作模式" && (
+        <div className="flex items-center gap-1.5">
+          <span className={chipLabelCls}>{surrogateConfig.mode === "指定跳过FEA的代数" ? "跳过代数" : "FEA间隔"}</span>
+          <input
+            value={surrogateConfig.interval}
+            onChange={(e) => setSurrogateConfig({ ...surrogateConfig, interval: e.target.value })}
+            placeholder={surrogateConfig.mode === "指定跳过FEA的代数" ? "5-8,12" : "5"}
+            className={`${inputCls} w-24`}
+          />
+        </div>
+      )}
+      {surrogateConfig.mode !== "智能工作模式" && (
+        <div className="flex items-center gap-1.5">
+          <span className={chipLabelCls}>模型算法</span>
+          <select value={surrogateConfig.modelAlgo} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, modelAlgo: e.target.value })} className={selectCls}>
+            <option>随机森林算法</option>
+            <option>高斯过程回归</option>
+            <option>神经网络</option>
+          </select>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur">
+      {/* Row 1: title · segmented mode · actions */}
+      <div className="flex items-center justify-between gap-3 px-5 pt-2.5">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              4
+            </span>
+            <h2 className="text-[14px] font-semibold">计算选项</h2>
+          </div>
+          {/* Dribbble-style segmented pill */}
+          <div className="relative flex items-center gap-1 rounded-full border border-border bg-muted/60 p-0.5">
+            <button
+              onClick={() => setSelectedModel("solver")}
+              className={`relative z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-all ${
+                selectedModel === "solver"
+                  ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              求解器
+            </button>
+            <button
+              onClick={() => setSelectedModel("surrogate")}
+              className={`relative z-10 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-all ${
+                selectedModel === "surrogate"
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              代理模型
+              {selectedModel !== "surrogate" && (
+                <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0 text-[9px] font-semibold text-primary">
+                  AI 加速
+                </span>
+              )}
+            </button>
+          </div>
+          <span className="text-[11px] text-muted-foreground">
+            {selectedModel === "solver" ? "遗传算法直接求解，精度高" : "代理模型加速寻优，效率提升 5-10x"}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="rounded-[4px] border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent">
+            参数预览
+          </button>
+          <button
+            onClick={() => toast.success("已保存")}
+            className="rounded-[4px] border border-input bg-background px-3 py-1.5 text-[12px] font-medium hover:bg-accent"
+          >
+            保存
+          </button>
+          <button
+            onClick={onRun}
+            className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
+          >
+            分析计算
+          </button>
+        </div>
+      </div>
+      {/* Row 2: inline chip-style config */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/60 bg-muted/20 px-5 py-2">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          求解配置
+        </span>
+        <div className="h-4 w-px bg-border" />
+        {selectedModel === "solver" ? SolverFields : SurrogateFields}
+      </div>
+    </section>
+  );
+}
 function ModelConfigDialog({
   kind,
   onClose,
