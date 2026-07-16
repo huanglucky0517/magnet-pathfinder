@@ -2191,7 +2191,7 @@ function ModelConfigDialog({
   onSaveSolver: (c: SolverConfig) => void;
   onSaveSurrogate: (c: SurrogateConfig) => void;
 }) {
-  const solverDefault: SolverConfig = { algo: "NSGA-II", generations: "20", population: "20" };
+  const solverDefault: SolverConfig = { algo: "NSGA-II", sampling: "随机采样", generations: "20", population: "20" };
   const surrogateDefault: SurrogateConfig = {
     algo: "NSGA-II",
     sampling: "随机采样",
