@@ -24,6 +24,7 @@ import {
   Loader2,
   Mic,
   ArrowUp,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
