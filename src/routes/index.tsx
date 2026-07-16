@@ -2422,8 +2422,8 @@ function InlineCalcOptions({
 function InfoTip({ label }: { label: string }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const handleMove = (e: React.MouseEvent) => {
-    const tipW = 280;
-    const tipH = 80;
+    const tipW = 360;
+    const tipH = 180;
     const pad = 8;
     let x = e.clientX + 12;
     let y = e.clientY - tipH - 10;
