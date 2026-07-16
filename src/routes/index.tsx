@@ -2328,7 +2328,7 @@ function InlineCalcOptions({
   );
 
   return (
-    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur">
+    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur relative">
       {/* Top-center collapse toggle tab */}
       <button
         onClick={() => setConfigOpen((v) => !v)}
