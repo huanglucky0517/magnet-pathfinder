@@ -2328,7 +2328,16 @@ function InlineCalcOptions({
   );
 
   return (
-    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur">
+    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur relative">
+      {/* Top-center collapse toggle tab */}
+      <button
+        onClick={() => setConfigOpen((v) => !v)}
+        className="absolute left-1/2 top-0 z-20 inline-flex h-5 w-10 -translate-x-1/2 -translate-y-full items-center justify-center rounded-t-md border border-b-0 border-border bg-background text-muted-foreground shadow-sm transition-colors hover:text-primary"
+        title={configOpen ? "收起求解配置" : "展开求解配置"}
+        aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
+      >
+        <ChevronUp className={`h-4 w-4 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
+      </button>
       {/* Collapsible config panel — expands upward */}
       <div
         className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
@@ -2342,6 +2351,7 @@ function InlineCalcOptions({
 
         </div>
       </div>
+
 
       {/* Action bar: title · segmented mode · collapse toggle · actions */}
       <div className="flex items-center justify-between gap-3 px-5 py-2.5">
@@ -2382,14 +2392,8 @@ function InlineCalcOptions({
               )}
             </button>
           </div>
-          <button
-            onClick={() => setConfigOpen((v) => !v)}
-            className="inline-flex h-7 w-7 items-center justify-center rounded text-muted-foreground transition-colors hover:bg-accent hover:text-primary"
-            title={configOpen ? "收起求解配置" : "展开求解配置"}
-            aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
-          >
-            <ChevronUp className={`h-4 w-4 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
-          </button>
+
+
 
 
 
