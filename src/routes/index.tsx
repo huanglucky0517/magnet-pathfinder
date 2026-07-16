@@ -2230,15 +2230,50 @@ function InlineCalcOptions({
       "系统根据代理模型置信度自动决策何时调用 FEA，无需手动配置间隔或跳过区间。",
   };
 
+  const generationsPresets = ["10", "20", "50", "100", "200"];
+  const populationPresets = ["20", "50", "100", "200"];
+  const genHelp = "代数代表算法迭代的次数，它决定了算法搜索最优解的时间长度。";
+  const popHelp = "种群数是指每一代中个体的数量，它影响算法的多样性和搜索空间的覆盖度。";
+
+  const AlgoSelect = ({ value, onChange }: { value: string; onChange: (v: string) => void }) => (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className={selectCls}>
+      <option value="NSGA-II">NSGA-II（目标数≤3时，建议选择）</option>
+      <option value="NSGA-III">NSGA-III（目标数≥4时，建议选择）</option>
+      <option value="MOEA/D">MOEA/D</option>
+    </select>
+  );
+
+  const ComboInput = ({
+    value,
+    onChange,
+    listId,
+    presets,
+  }: {
+    value: string;
+    onChange: (v: string) => void;
+    listId: string;
+    presets: string[];
+  }) => (
+    <>
+      <input
+        list={listId}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${inputCls} w-20 pr-6 [background-image:none]`}
+      />
+      <datalist id={listId}>
+        {presets.map((p) => (
+          <option key={p} value={p} />
+        ))}
+      </datalist>
+    </>
+  );
+
   const SolverFields = (
     <>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传算法</span>
-        <select value={solverConfig.algo} onChange={(e) => setSolverConfig({ ...solverConfig, algo: e.target.value })} className={selectCls}>
-          <option>NSGA-II</option>
-          <option>NSGA-III</option>
-          <option>MOEA/D</option>
-        </select>
+        <AlgoSelect value={solverConfig.algo} onChange={(v) => setSolverConfig({ ...solverConfig, algo: v })} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>采样方法</span>
@@ -2249,12 +2284,12 @@ function InlineCalcOptions({
         </select>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>遗传代数</span>
-        <input value={solverConfig.generations} onChange={(e) => setSolverConfig({ ...solverConfig, generations: e.target.value })} className={inputCls} />
+        <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
+        <ComboInput value={solverConfig.generations} onChange={(v) => setSolverConfig({ ...solverConfig, generations: v })} listId="solver-generations" presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>每代种群</span>
-        <input value={solverConfig.population} onChange={(e) => setSolverConfig({ ...solverConfig, population: e.target.value })} className={inputCls} />
+        <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
+        <ComboInput value={solverConfig.population} onChange={(v) => setSolverConfig({ ...solverConfig, population: v })} listId="solver-population" presets={populationPresets} />
       </div>
     </>
   );
@@ -2263,11 +2298,7 @@ function InlineCalcOptions({
     <>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传算法</span>
-        <select value={surrogateConfig.algo} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, algo: e.target.value })} className={selectCls}>
-          <option>NSGA-II</option>
-          <option>NSGA-III</option>
-          <option>MOEA/D</option>
-        </select>
+        <AlgoSelect value={surrogateConfig.algo} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, algo: v })} />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>采样方法</span>
@@ -2278,19 +2309,16 @@ function InlineCalcOptions({
         </select>
       </div>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>遗传代数</span>
-        <input value={surrogateConfig.generations} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, generations: e.target.value })} className={inputCls} />
+        <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
+        <ComboInput value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} listId="surrogate-generations" presets={generationsPresets} />
       </div>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>每代种群</span>
-        <input value={surrogateConfig.population} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, population: e.target.value })} className={inputCls} />
+        <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
+        <ComboInput value={surrogateConfig.population} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, population: v })} listId="surrogate-population" presets={populationPresets} />
       </div>
       <div className="h-4 w-px bg-border" />
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>
-          工作模式
-        </span>
-
+        <span className={chipLabelCls}>工作模式<InfoTip label={workModeHelp} /></span>
         <select value={surrogateConfig.mode} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, mode: e.target.value })} className={selectCls}>
           <option>指定FEA间隔</option>
           <option>指定跳过FEA的代数</option>
