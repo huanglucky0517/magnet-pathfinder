@@ -2287,8 +2287,8 @@ function InlineCalcOptions({
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>
           工作模式
-          <InfoTip label={workModeHelp} />
         </span>
+
         <select value={surrogateConfig.mode} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, mode: e.target.value })} className={selectCls}>
           <option>指定FEA间隔</option>
           <option>指定跳过FEA的代数</option>
