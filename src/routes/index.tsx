@@ -2287,8 +2287,8 @@ function InlineCalcOptions({
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>
           工作模式
-          <InfoTip label={workModeHelp} />
         </span>
+
         <select value={surrogateConfig.mode} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, mode: e.target.value })} className={selectCls}>
           <option>指定FEA间隔</option>
           <option>指定跳过FEA的代数</option>
@@ -2387,12 +2387,14 @@ function InlineCalcOptions({
           </div>
           <button
             onClick={() => setConfigOpen((v) => !v)}
-            className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-            title={configOpen ? "收起求解配置" : "展开求解配置"}
+            className="group inline-flex items-center gap-1.5 rounded-[4px] border border-input bg-background px-3 py-1.5 text-[12px] font-medium text-foreground transition-all hover:border-primary/50 hover:bg-accent"
+            title={configOpen ? "收起折叠配置" : "求解配置"}
           >
-            求解配置
-            <ChevronUp className={`h-3 w-3 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
+            <Settings2 className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-primary" />
+            {configOpen ? "收起折叠配置" : "求解配置"}
+            <ChevronUp className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
           </button>
+
           <span className="text-[11px] text-muted-foreground">
             {selectedModel === "solver" ? "遗传算法直接求解，精度高" : "代理模型加速寻优，效率提升 5-10x"}
           </span>
