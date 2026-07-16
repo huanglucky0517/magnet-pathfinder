@@ -2352,15 +2352,6 @@ function InlineCalcOptions({
         }`}
       >
         <div className="min-h-0">
-          {selectedModel === "surrogate" && (
-            <div className="flex items-start gap-1.5 border-b border-border/60 bg-primary/5 px-5 py-2 text-[11px] leading-relaxed text-muted-foreground">
-              <Info className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
-              <span>
-                <span className="font-medium text-foreground">{surrogateConfig.mode}：</span>
-                {modeExplain[surrogateConfig.mode]}
-              </span>
-            </div>
-          )}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/20 px-5 py-2.5">
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
