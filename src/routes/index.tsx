@@ -273,6 +273,7 @@ function Index() {
   const [modelDialog, setModelDialog] = useState<null | "solver" | "surrogate">(null);
   const [solverConfig, setSolverConfig] = useState({
     algo: "NSGA-II",
+    sampling: "随机采样",
     generations: "20",
     population: "20",
   });
