@@ -2336,7 +2336,7 @@ function InlineCalcOptions({
         title={configOpen ? "收起求解配置" : "展开求解配置"}
         aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
       >
-        <ChevronUp className={`h-4 w-4 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
+        <ChevronUp className={`h-4 w-4 transition-transform duration-300 ${configOpen ? "rotate-180" : ""}`} />
       </button>
       {/* Collapsible config panel — expands upward */}
       <div
