@@ -2387,11 +2387,6 @@ function InlineCalcOptions({
             >
               <Sparkles className="h-3.5 w-3.5" />
               代理模型
-              {selectedModel !== "surrogate" && (
-                <span className="ml-0.5 rounded-full bg-primary/15 px-1.5 py-0 text-[9px] font-semibold text-primary">
-                  AI 加速
-                </span>
-              )}
             </button>
           </div>
 
