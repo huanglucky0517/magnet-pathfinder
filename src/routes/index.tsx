@@ -24,6 +24,7 @@ import {
   Loader2,
   Mic,
   ArrowUp,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -2209,11 +2210,15 @@ function InlineCalcOptions({
   setSurrogateConfig: (c: SurrogateConfig) => void;
   onRun: () => void;
 }) {
+  const [configOpen, setConfigOpen] = useState(true);
   const selectCls =
     "h-7 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
   const inputCls =
     "h-7 w-16 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
-  const chipLabelCls = "text-[11px] text-muted-foreground";
+  const chipLabelCls = "inline-flex items-center gap-1 text-[11px] text-muted-foreground";
+
+  const workModeHelp =
+    "指定FEA间隔：每隔 N 代进行一次真实 FEA 校验；\n指定跳过FEA的代数：手动指定跳过 FEA 的代数区间（如 5-8,12）；\n智能工作模式：系统根据代理模型置信度自动决策何时调用 FEA。";
 
   const SolverFields = (
     <>
@@ -2272,7 +2277,10 @@ function InlineCalcOptions({
       </div>
       <div className="h-4 w-px bg-border" />
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>工作模式</span>
+        <span className={chipLabelCls}>
+          工作模式
+          <InfoTip label={workModeHelp} />
+        </span>
         <select value={surrogateConfig.mode} onChange={(e) => setSurrogateConfig({ ...surrogateConfig, mode: e.target.value })} className={selectCls}>
           <option>指定FEA间隔</option>
           <option>指定跳过FEA的代数</option>
@@ -2305,8 +2313,25 @@ function InlineCalcOptions({
 
   return (
     <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur">
-      {/* Row 1: title · segmented mode · actions */}
-      <div className="flex items-center justify-between gap-3 px-5 pt-2.5">
+      {/* Collapsible config panel — expands upward */}
+      <div
+        className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${
+          configOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="min-h-0">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/20 px-5 py-2.5">
+            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {selectedModel === "solver" ? "求解器配置" : "代理模型配置"}
+            </span>
+            <div className="h-4 w-px bg-border" />
+            {selectedModel === "solver" ? SolverFields : SurrogateFields}
+          </div>
+        </div>
+      </div>
+
+      {/* Action bar: title · segmented mode · collapse toggle · actions */}
+      <div className="flex items-center justify-between gap-3 px-5 py-2.5">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
@@ -2344,6 +2369,14 @@ function InlineCalcOptions({
               )}
             </button>
           </div>
+          <button
+            onClick={() => setConfigOpen((v) => !v)}
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            title={configOpen ? "收起求解配置" : "展开求解配置"}
+          >
+            求解配置
+            <ChevronUp className={`h-3 w-3 transition-transform duration-300 ${configOpen ? "" : "rotate-180"}`} />
+          </button>
           <span className="text-[11px] text-muted-foreground">
             {selectedModel === "solver" ? "遗传算法直接求解，精度高" : "代理模型加速寻优，效率提升 5-10x"}
           </span>
@@ -2366,15 +2399,42 @@ function InlineCalcOptions({
           </button>
         </div>
       </div>
-      {/* Row 2: inline chip-style config */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/60 bg-muted/20 px-5 py-2">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          求解配置
-        </span>
-        <div className="h-4 w-px bg-border" />
-        {selectedModel === "solver" ? SolverFields : SurrogateFields}
-      </div>
     </section>
+  );
+}
+
+function InfoTip({ label }: { label: string }) {
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const handleMove = (e: React.MouseEvent) => {
+    const tipW = 280;
+    const tipH = 80;
+    const pad = 8;
+    let x = e.clientX + 12;
+    let y = e.clientY - tipH - 10;
+    if (x + tipW + pad > window.innerWidth) x = window.innerWidth - tipW - pad;
+    if (y < pad) y = e.clientY + 18;
+    if (x < pad) x = pad;
+    setPos({ x, y });
+  };
+  return (
+    <>
+      <span
+        onMouseEnter={handleMove}
+        onMouseMove={handleMove}
+        onMouseLeave={() => setPos(null)}
+        className="inline-flex cursor-help items-center text-muted-foreground/70 hover:text-primary"
+      >
+        <Info className="h-3 w-3" />
+      </span>
+      {pos && (
+        <div
+          className="pointer-events-none fixed z-[200] max-w-[280px] whitespace-pre-line rounded-md bg-black/80 px-3 py-2 text-[11px] leading-relaxed text-white shadow-lg"
+          style={{ left: pos.x, top: pos.y }}
+        >
+          {label}
+        </div>
+      )}
+    </>
   );
 }
 function ModelConfigDialog({
