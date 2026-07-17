@@ -2253,6 +2253,85 @@ function InlineCalcOptions({
     </select>
   );
 
+  const PresetCombo = ({
+    value,
+    onChange,
+    presets,
+    validate,
+    placeholder,
+    width = "w-28",
+  }: {
+    value: string;
+    onChange: (v: string) => void;
+    presets: string[];
+    validate?: (v: string) => string | null;
+    placeholder?: string;
+    width?: string;
+  }) => {
+    const [open, setOpen] = useState(false);
+    const wrapRef = React.useRef<HTMLDivElement>(null);
+    const error = validate ? validate(value) : null;
+    React.useEffect(() => {
+      if (!open) return;
+      const onDoc = (e: MouseEvent) => {
+        if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      };
+      document.addEventListener("mousedown", onDoc);
+      return () => document.removeEventListener("mousedown", onDoc);
+    }, [open]);
+    return (
+      <div ref={wrapRef} className={`relative ${width}`}>
+        <div className="relative">
+          <input
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e.target.value)}
+            onFocus={() => setOpen(true)}
+            className={`h-7 w-full rounded-[4px] border ${error ? "border-destructive bg-destructive/5 placeholder:text-destructive/60" : "border-input bg-background"} pl-2 pr-6 text-[12px] focus:outline-none ${error ? "focus:border-destructive" : "focus:border-primary"}`}
+          />
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => setOpen((v) => !v)}
+            className="absolute right-1 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center text-muted-foreground hover:text-foreground"
+          >
+            <ChevronDown className="h-3 w-3" />
+          </button>
+          {open && (
+            <div className="absolute left-0 right-0 bottom-full z-50 mb-1 max-h-48 overflow-auto rounded-md border border-border bg-popover shadow-md">
+              {presets.map((p) => (
+                <div
+                  key={p}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    onChange(p);
+                    setOpen(false);
+                  }}
+                  className={`cursor-pointer px-2 py-1 text-[12px] hover:bg-accent ${p === value ? "bg-accent/50" : ""}`}
+                >
+                  {p}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {error && (
+          <div className="absolute left-0 top-full mt-0.5 whitespace-nowrap text-[11px] text-destructive">
+            {error}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const validateGenerations = (v: string): string | null => {
+    const s = (v ?? "").trim();
+    if (s === "") return "遗传代数输入不正确，请输入大于0的整数。";
+    if (!/^-?\d+$/.test(s)) return "遗传代数输入不正确，请输入大于0的整数。";
+    if (parseInt(s, 10) <= 0) return "遗传代数输入不正确，请输入大于0的整数。";
+    return null;
+  };
+
 
   const SolverFields = (
     <>
