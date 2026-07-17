@@ -2374,7 +2374,7 @@ function InlineCalcOptions({
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>遗传代数<InfoTip label={genHelp} /></span>
-        <PresetSelect value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} presets={generationsPresets} />
+        <PresetCombo value={surrogateConfig.generations} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, generations: v })} presets={generationsPresets} validate={validateGenerations} placeholder="请输入正整数" />
       </div>
       <div className="flex items-center gap-1.5">
         <span className={chipLabelCls}>每代种群<InfoTip label={popHelp} /></span>
