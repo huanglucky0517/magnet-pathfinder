@@ -2269,12 +2269,17 @@ function InlineCalcOptions({
     width?: string;
   }) => {
     const [open, setOpen] = useState(false);
+    const [touched, setTouched] = useState(false);
     const wrapRef = React.useRef<HTMLDivElement>(null);
-    const error = validate ? validate(value) : null;
+    const rawError = validate ? validate(value) : null;
+    const error = touched ? rawError : null;
     React.useEffect(() => {
       if (!open) return;
       const onDoc = (e: MouseEvent) => {
-        if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+        if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+          setOpen(false);
+          setTouched(true);
+        }
       };
       document.addEventListener("mousedown", onDoc);
       return () => document.removeEventListener("mousedown", onDoc);
@@ -2287,6 +2292,7 @@ function InlineCalcOptions({
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
             onFocus={() => setOpen(true)}
+            onBlur={() => setTouched(true)}
             className={`h-7 w-full rounded-[4px] border ${error ? "border-destructive bg-destructive/5 placeholder:text-destructive/60" : "border-input bg-background"} pl-2 pr-6 text-[12px] focus:outline-none ${error ? "focus:border-destructive" : "focus:border-primary"}`}
           />
           <button
@@ -2306,6 +2312,7 @@ function InlineCalcOptions({
                     e.preventDefault();
                     onChange(p);
                     setOpen(false);
+                    setTouched(true);
                   }}
                   className={`cursor-pointer px-2 py-1 text-[12px] hover:bg-accent ${p === value ? "bg-accent/50" : ""}`}
                 >
@@ -2316,13 +2323,14 @@ function InlineCalcOptions({
           )}
         </div>
         {error && (
-          <div className="absolute left-0 top-full mt-0.5 whitespace-nowrap text-[11px] text-destructive">
+          <div className="absolute left-0 bottom-full mb-1 z-40 whitespace-nowrap rounded bg-destructive px-2 py-1 text-[11px] leading-tight text-destructive-foreground shadow">
             {error}
           </div>
         )}
       </div>
     );
   };
+
 
   const validateGenerations = (v: string): string | null => {
     const s = (v ?? "").trim();
