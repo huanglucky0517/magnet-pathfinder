@@ -2269,21 +2269,24 @@ function InlineCalcOptions({
     width?: string;
   }) => {
     const [open, setOpen] = useState(false);
-    const [touched, setTouched] = useState(false);
     const wrapRef = React.useRef<HTMLDivElement>(null);
-    const rawError = validate ? validate(value) : null;
-    const error = touched ? rawError : null;
+    const notify = (v: string) => {
+      if (!validate) return;
+      const err = validate(v);
+      if (err) toast.error(err, { duration: 3000, position: "top-center" });
+    };
+    const error = validate ? validate(value) : null;
     React.useEffect(() => {
       if (!open) return;
       const onDoc = (e: MouseEvent) => {
         if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
           setOpen(false);
-          setTouched(true);
+          notify(value);
         }
       };
       document.addEventListener("mousedown", onDoc);
       return () => document.removeEventListener("mousedown", onDoc);
-    }, [open]);
+    }, [open, value]);
     return (
       <div ref={wrapRef} className={`relative ${width}`}>
         <div className="relative">
@@ -2292,7 +2295,7 @@ function InlineCalcOptions({
             placeholder={placeholder}
             onChange={(e) => onChange(e.target.value)}
             onFocus={() => setOpen(true)}
-            onBlur={() => setTouched(true)}
+            onBlur={() => notify(value)}
             className={`h-7 w-full rounded-[4px] border ${error ? "border-destructive bg-destructive/5 placeholder:text-destructive/60" : "border-input bg-background"} pl-2 pr-6 text-[12px] focus:outline-none ${error ? "focus:border-destructive" : "focus:border-primary"}`}
           />
           <button
@@ -2312,7 +2315,7 @@ function InlineCalcOptions({
                     e.preventDefault();
                     onChange(p);
                     setOpen(false);
-                    setTouched(true);
+                    notify(p);
                   }}
                   className={`cursor-pointer px-2 py-1 text-[12px] hover:bg-accent ${p === value ? "bg-accent/50" : ""}`}
                 >
@@ -2322,14 +2325,10 @@ function InlineCalcOptions({
             </div>
           )}
         </div>
-        {error && (
-          <div className="absolute left-0 bottom-full mb-1 z-40 whitespace-nowrap rounded bg-destructive px-2 py-1 text-[11px] leading-tight text-destructive-foreground shadow">
-            {error}
-          </div>
-        )}
       </div>
     );
   };
+
 
 
   const validateGenerations = (v: string): string | null => {
