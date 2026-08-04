@@ -2343,7 +2343,7 @@ function InlineCalcOptions({
   const SolverFields = (
     <>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>遗传算法</span>
+        <span className={chipLabelCls}>多目标优化算法</span>
         <AlgoSelect value={solverConfig.algo} onChange={(v) => setSolverConfig({ ...solverConfig, algo: v })} />
       </div>
       <div className="flex items-center gap-1.5">
@@ -2368,7 +2368,7 @@ function InlineCalcOptions({
   const SurrogateFields = (
     <>
       <div className="flex items-center gap-1.5">
-        <span className={chipLabelCls}>遗传算法</span>
+        <span className={chipLabelCls}>多目标优化算法</span>
         <AlgoSelect value={surrogateConfig.algo} onChange={(v) => setSurrogateConfig({ ...surrogateConfig, algo: v })} />
       </div>
       <div className="flex items-center gap-1.5">
@@ -2489,7 +2489,7 @@ function InlineCalcOptions({
 
 
           <span className="text-[11px] text-muted-foreground">
-            {selectedModel === "solver" ? "遗传算法直接求解，精度高" : "代理模型加速寻优，效率提升 5-10x"}
+            {selectedModel === "solver" ? "真实求解器直接求解，精度高" : "代理模型加速寻优，速度快"}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -2606,7 +2606,7 @@ function ModelConfigDialog({
         <div className="space-y-3 p-4">
           {kind === "solver" ? (
             <>
-              <Field label="遗传算法">
+              <Field label="多目标优化算法">
                 <select value={solver.algo} onChange={(e) => setSolver({ ...solver, algo: e.target.value })} className={inputCls}>
                   <option>NSGA-II</option>
                   <option>NSGA-III</option>
@@ -2629,7 +2629,7 @@ function ModelConfigDialog({
             </>
           ) : (
             <>
-              <Field label="遗传算法">
+              <Field label="多目标优化算法">
                 <select value={surrogate.algo} onChange={(e) => setSurrogate({ ...surrogate, algo: e.target.value })} className={inputCls}>
                   <option>NSGA-II</option>
                   <option>NSGA-III</option>
