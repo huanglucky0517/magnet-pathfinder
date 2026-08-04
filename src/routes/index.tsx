@@ -2421,7 +2421,7 @@ function InlineCalcOptions({
   );
 
   return (
-    <section className="sticky bottom-0 z-10 border-t border-border/80 bg-card/95 shadow-[0_-1px_0_0_hsl(var(--border)/0.6),0_-12px_28px_-14px_rgba(15,23,42,0.22)] backdrop-blur-md relative">
+    <section className="sticky bottom-0 z-10 border-t border-border/80 bg-card/95 shadow-[0_-12px_28px_-14px_rgba(15,23,42,0.22)] backdrop-blur-md relative">
       {/* Soft fade so content above scrolls into the panel instead of butting against it */}
       <div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background/80 to-transparent" />
       {/* Top-center collapse toggle tab */}
@@ -2440,7 +2440,7 @@ function InlineCalcOptions({
         }`}
       >
         <div className="min-h-0">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/35 px-5 py-2.5 shadow-[inset_0_1px_0_0_hsl(var(--border)/0.4)]">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/35 px-5 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]">
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
 
