@@ -2421,11 +2421,13 @@ function InlineCalcOptions({
   );
 
   return (
-    <section className="sticky bottom-0 z-10 border-t border-border bg-background/95 shadow-[0_-6px_18px_-8px_rgba(0,0,0,0.12)] backdrop-blur relative">
+    <section className="sticky bottom-0 z-10 border-t border-border/80 bg-card/95 shadow-[0_-12px_28px_-14px_rgba(15,23,42,0.22)] backdrop-blur-md relative">
+      {/* Soft fade so content above scrolls into the panel instead of butting against it */}
+      <div className="pointer-events-none absolute inset-x-0 -top-6 h-6 bg-gradient-to-t from-background/80 to-transparent" />
       {/* Top-center collapse toggle tab */}
       <button
         onClick={() => setConfigOpen((v) => !v)}
-        className="absolute left-1/2 top-0 z-20 inline-flex h-5 w-10 -translate-x-1/2 -translate-y-full items-center justify-center rounded-t-md border border-b-0 border-border bg-background shadow-sm transition-colors hover:bg-accent"
+        className="absolute left-1/2 top-0 z-20 inline-flex h-5 w-10 -translate-x-1/2 -translate-y-full items-center justify-center rounded-t-md border border-b-0 border-border bg-card shadow-[0_-4px_10px_-6px_rgba(15,23,42,0.25)] transition-colors hover:bg-accent"
         title={configOpen ? "收起求解配置" : "展开求解配置"}
         aria-label={configOpen ? "收起求解配置" : "展开求解配置"}
       >
@@ -2438,9 +2440,10 @@ function InlineCalcOptions({
         }`}
       >
         <div className="min-h-0">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/20 px-5 py-2.5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/35 px-5 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]">
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
+
 
         </div>
       </div>
