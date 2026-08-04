@@ -2440,7 +2440,7 @@ function InlineCalcOptions({
         }`}
       >
         <div className="min-h-0">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-border/60 bg-muted/35 px-5 py-2.5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-primary/15 bg-[color-mix(in_oklab,var(--primary)_8%,var(--card))] px-5 py-2.5 shadow-[inset_0_1px_0_0_color-mix(in_oklab,var(--primary)_18%,transparent)]">
             {selectedModel === "solver" ? SolverFields : SurrogateFields}
           </div>
 
