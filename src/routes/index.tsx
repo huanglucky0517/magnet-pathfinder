@@ -408,9 +408,9 @@ function Index() {
                   </button>
                 )}
               </div>
-              <div className="flex-1 overflow-auto">
+              <div className="flex flex-1 overflow-hidden">
                 {showDiagram ? (
-                  <div className="flex h-full items-center justify-center bg-white p-6">
+                  <div className="flex h-full flex-1 items-center justify-center bg-white p-6">
                     <img
                       src={ventAsset.url}
                       alt={shaft.ventShape === "circle" ? "圆孔通风尺寸示意图" : "环形通风尺寸示意图"}
@@ -418,9 +418,15 @@ function Index() {
                     />
                   </div>
                 ) : selectedNode === "结果" ? (
-                  <OptimizationResults />
+                  <div className="flex-1 overflow-auto">
+                    <OptimizationResults />
+                  </div>
                 ) : (
                 <>
+                <ResizablePanelGroup direction="horizontal" className="flex-1">
+                  <ResizablePanel minSize="420px">
+                    <div className="h-full overflow-auto">
+
                 {/* Section 1: 变量 */}
                 <Section step="1" title="变量" subtitle="选择需要优化的参数" action={
                   <button className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-opacity hover:opacity-90">
