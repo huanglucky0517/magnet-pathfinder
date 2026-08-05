@@ -335,6 +335,7 @@ function Index() {
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
   const [chatOpen, setChatOpen] = useState(true);
+  const [modelOpen, setModelOpen] = useState(true);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
   const dragRef = useRef<{
