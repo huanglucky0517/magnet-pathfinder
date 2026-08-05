@@ -46,6 +46,7 @@ import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
 import { MotorInput } from "@/components/motor/motor-input";
+import { ModelViewPanel, ModelViewRail } from "@/components/motor/model-view-panel";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
 export const Route = createFileRoute("/")({
@@ -334,6 +335,7 @@ function Index() {
   const showDiagram = diagramHot !== null;
   const [calcStatus, setCalcStatus] = useState<"idle" | "running" | "done">("idle");
   const [chatOpen, setChatOpen] = useState(true);
+  const [modelOpen, setModelOpen] = useState(true);
   const btnRef = useRef<HTMLButtonElement>(null);
   const [btnPos, setBtnPos] = useState<{ x: number; y: number } | null>(null);
   const dragRef = useRef<{
@@ -742,6 +744,14 @@ function Index() {
           <StatusBar />
         </main>
           </ResizablePanel>
+          {modelOpen && (
+            <>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize="380px" minSize="220px" maxSize="900px">
+                <ModelViewPanel onCollapse={() => setModelOpen(false)} />
+              </ResizablePanel>
+            </>
+          )}
           {chatOpen && (
             <>
               <ResizableHandle withHandle />
@@ -760,6 +770,7 @@ function Index() {
             </>
           )}
         </ResizablePanelGroup>
+        {!modelOpen && <ModelViewRail onExpand={() => setModelOpen(true)} />}
         {!chatOpen && (
           <button
             ref={btnRef}
