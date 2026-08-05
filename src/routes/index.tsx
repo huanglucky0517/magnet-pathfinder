@@ -733,31 +733,38 @@ function Index() {
                 </Table>
               )}
             </Section>
+                    </div>
+                  </ResizablePanel>
+                  {modelOpen && (
+                    <>
+                      <ResizableHandle withHandle />
+                      <ResizablePanel defaultSize="380px" minSize="220px" maxSize="900px">
+                        <ModelViewPanel onCollapse={() => setModelOpen(false)} />
+                      </ResizablePanel>
+                    </>
+                  )}
+                </ResizablePanelGroup>
+                {!modelOpen && <ModelViewRail onExpand={() => setModelOpen(true)} />}
+                </>
+                )}
+              </div>
 
-            {/* Section 4: 计算选项 (sticky bottom, inline config) */}
-            <InlineCalcOptions
-              selectedModel={selectedModel}
-              setSelectedModel={setSelectedModel}
-              solverConfig={solverConfig}
-              setSolverConfig={setSolverConfig}
-              surrogateConfig={surrogateConfig}
-              setSurrogateConfig={setSurrogateConfig}
-              onRun={runStartDesign}
-            />
-            </>
-            )}
-          </div>
+              {/* Section 4: 计算选项 (底部固定) */}
+              {!showDiagram && selectedNode !== "结果" && (
+                <InlineCalcOptions
+                  selectedModel={selectedModel}
+                  setSelectedModel={setSelectedModel}
+                  solverConfig={solverConfig}
+                  setSolverConfig={setSolverConfig}
+                  surrogateConfig={surrogateConfig}
+                  setSurrogateConfig={setSurrogateConfig}
+                  onRun={runStartDesign}
+                />
+              )}
           <StatusBar />
         </main>
           </ResizablePanel>
-          {modelOpen && (
-            <>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize="380px" minSize="220px" maxSize="900px">
-                <ModelViewPanel onCollapse={() => setModelOpen(false)} />
-              </ResizablePanel>
-            </>
-          )}
+
           {chatOpen && (
             <>
               <ResizableHandle withHandle />
