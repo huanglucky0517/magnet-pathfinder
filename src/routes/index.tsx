@@ -743,6 +743,14 @@ function Index() {
           <StatusBar />
         </main>
           </ResizablePanel>
+          {modelOpen && (
+            <>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize="380px" minSize="220px" maxSize="900px">
+                <ModelViewPanel onCollapse={() => setModelOpen(false)} />
+              </ResizablePanel>
+            </>
+          )}
           {chatOpen && (
             <>
               <ResizableHandle withHandle />
