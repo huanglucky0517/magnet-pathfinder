@@ -770,6 +770,7 @@ function Index() {
             </>
           )}
         </ResizablePanelGroup>
+        {!modelOpen && <ModelViewRail onExpand={() => setModelOpen(true)} />}
         {!chatOpen && (
           <button
             ref={btnRef}
