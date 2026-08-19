@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Sparkles, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -222,85 +222,88 @@ function SlotRecommendDialog({
   const [picked, setPicked] = useState<number | null>(null);
 
   React.useEffect(() => {
-    if (open) setPicked(null);
-  }, [open]);
+    if (open) setPicked(combos[0]?.slots ?? null);
+  }, [open, combos]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-[15px]">推荐极槽配合</DialogTitle>
-          <DialogDescription className="text-[12px]">
-            已读取项目参数：极数 {poles} · 定子内径 {innerDia} mm · 并联支路数 {branches}
-            。请选择需要的极槽配合，确认后代入项目。
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="max-h-[320px] overflow-auto rounded-md border border-border">
-          <div className="grid grid-cols-[70px_60px_1fr] bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
-            <div>槽数</div>
-            <div>每极每相槽数 q</div>
-            <div>说明</div>
-          </div>
-          {combos.length === 0 && (
-            <div className="px-3 py-6 text-center text-[12px] text-muted-foreground">
-              未找到合适的极槽配合，请检查极数与定子内径
-            </div>
-          )}
-          {combos.map((c) => {
-            const active = picked === c.slots;
-            return (
-              <button
-                key={c.slots}
-                type="button"
-                onClick={() => setPicked(c.slots)}
-                className={`grid w-full grid-cols-[70px_60px_1fr] items-center gap-1 border-t border-border px-2 py-2 text-left text-[12px] transition-colors ${
-                  active ? "bg-primary/10" : "hover:bg-accent"
-                }`}
-              >
-                <div className="flex items-center gap-1 font-medium">
-                  {active ? <Check className="h-3 w-3 text-primary" /> : <span className="w-3" />}
-                  {c.slots}
-                </div>
-                <div>{c.q}</div>
-                <div className="text-muted-foreground">
-                  {c.windingType}；{c.note}
-                  {c.recommended && (
-                    <span className="ml-1 rounded bg-primary/15 px-1 text-[10px] text-primary">
-                      推荐
-                    </span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
+      <DialogContent className="max-w-md overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
+        <div className="bg-gradient-to-br from-primary/5 to-background px-6 pb-4 pt-6">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-center text-[17px] font-semibold tracking-tight">
+              推荐极槽配合
+            </DialogTitle>
+            <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
+              当前电机极数 {poles} · 定子内径 {innerDia} mm · 并联支路数 {branches}。
+              <br />
+              为您推荐以下槽极配合：
+            </DialogDescription>
+          </DialogHeader>
         </div>
 
-        <DialogFooter>
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="h-8 rounded-[4px] border border-input px-3 text-[12px]"
-          >
-            取消
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const c = combos.find((x) => x.slots === picked);
-              if (!c) {
-                toast.error("请先选择一个极槽配合");
-                return;
-              }
-              onConfirm(c);
-              onOpenChange(false);
-              toast.success(`已代入项目：槽数 ${c.slots}`);
-            }}
-            className="h-8 rounded-[4px] bg-primary px-3 text-[12px] font-medium text-primary-foreground"
-          >
-            确认代入
-          </button>
-        </DialogFooter>
+        <div className="px-6 pb-6">
+          <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
+            <div className="grid grid-cols-[44px_1fr_1fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
+              <div></div>
+              <div>槽数</div>
+              <div>极数</div>
+            </div>
+            {combos.length === 0 && (
+              <div className="px-4 py-8 text-center text-[12px] text-muted-foreground">
+                未找到合适的极槽配合，请检查极数与定子内径
+              </div>
+            )}
+            {combos.map((c, idx) => {
+              const active = picked === c.slots;
+              return (
+                <button
+                  key={c.slots}
+                  type="button"
+                  onClick={() => setPicked(c.slots)}
+                  className={`grid w-full grid-cols-[44px_1fr_1fr] items-center gap-1 border-t border-border/50 px-3 py-3 text-left text-[13px] transition-all ${
+                    active ? "bg-primary/5" : "hover:bg-accent/40"
+                  }`}
+                >
+                  <div className="flex justify-center">
+                    <div
+                      className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
+                        active ? "border-primary bg-primary" : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                    </div>
+                  </div>
+                  <div className="font-medium text-foreground">{c.slots}</div>
+                  <div className="text-muted-foreground">{poles}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="h-9 rounded-[6px] border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={!picked}
+              onClick={() => {
+                const c = combos.find((x) => x.slots === picked);
+                if (!c) return;
+                onConfirm(c);
+                onOpenChange(false);
+                toast.success(`已代入项目：槽数 ${c.slots}`);
+              }}
+              className="h-9 rounded-[6px] bg-primary px-4 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              确定带入
+            </button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
