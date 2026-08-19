@@ -46,6 +46,8 @@ import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
 import { MotorInput } from "@/components/motor/motor-input";
+import { StatorWindingPanel, FieldWindingPanel } from "@/components/motor/winding-panels";
+
 import { ModelViewPanel, ModelViewRail } from "@/components/motor/model-view-panel";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
