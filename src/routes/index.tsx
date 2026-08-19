@@ -1354,21 +1354,23 @@ function SelIn({ v, options, onChange }: { v: string; options: string[]; onChang
 function VentRowBlock({
   idx,
   row,
+  baseIndex,
   onChange,
   onFocusVentParam,
 }: {
   idx: number;
   row: VentRow;
+  baseIndex: number;
   onChange: (patch: Partial<VentRow>) => void;
   onFocusVentParam: (k: DimKey) => void;
 }) {
   const [open, setOpen] = useState(true);
   return (
     <>
-      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-emerald-300/60 bg-emerald-200/40 px-2 py-1.5 text-[12px] font-medium">
+      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border bg-[var(--table-header)] px-2 py-1.5 text-[12px] font-medium">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1 text-left text-emerald-900"
+          className="flex items-center gap-1 text-left"
         >
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
           第{idx + 1}行
@@ -1377,7 +1379,14 @@ function VentRowBlock({
       </div>
       {open && (
         <>
-          <PRow2 label="　　通风孔数目" unit="个" result="0">
+          <PRow2 label="　　通风孔形状" index={baseIndex + 1}>
+            <SelIn
+              v={row.shape === "circle" ? "圆形轴向通风孔" : "环形轴向通风孔"}
+              options={["圆形轴向通风孔", "环形轴向通风孔"]}
+              onChange={(v) => onChange({ shape: v === "圆形轴向通风孔" ? "circle" : "ring" })}
+            />
+          </PRow2>
+          <PRow2 label="　　通风孔数目" unit="个" result="0" index={baseIndex + 2}>
             <NumIn
               v={row.holeCount}
               integer
@@ -1385,40 +1394,30 @@ function VentRowBlock({
               onFocus={() => onFocusVentParam("count")}
             />
           </PRow2>
-          <PRow2 label="　　通风孔形状">
-            <select
-              value={row.shape}
-              onChange={(e) => onChange({ shape: e.target.value as VentShape })}
-              className="w-full rounded border border-sidebar-border bg-background px-1 py-0.5 text-[12px]"
-            >
-              <option value="circle">圆形轴向通风孔</option>
-              <option value="ring">环形轴向通风孔</option>
-            </select>
-          </PRow2>
           {row.shape === "circle" ? (
             <>
-              <PRow2 label="　　通风孔直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔直径" unit="毫米" result="0" index={baseIndex + 3}>
                 <NumIn v={row.holeDia} onChange={(v) => onChange({ holeDia: v })} onFocus={() => onFocusVentParam("holeDia")} />
               </PRow2>
-              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0" index={baseIndex + 4}>
                 <NumIn v={row.holePitchDia} onChange={(v) => onChange({ holePitchDia: v })} onFocus={() => onFocusVentParam("pitchDia")} />
               </PRow2>
-              <PRow2 label="　　偏移角度" unit="度" result="0">
+              <PRow2 label="　　偏移角度" unit="度" result="0" index={baseIndex + 5}>
                 <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           ) : (
             <>
-              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0" index={baseIndex + 3}>
                 <NumIn v={row.ringInnerDia} onChange={(v) => onChange({ ringInnerDia: v })} onFocus={() => onFocusVentParam("innerDia")} />
               </PRow2>
-              <PRow2 label="　　通风孔高度" unit="毫米" result="0">
+              <PRow2 label="　　通风孔高度" unit="毫米" result="0" index={baseIndex + 4}>
                 <NumIn v={row.ringHeight} onChange={(v) => onChange({ ringHeight: v })} onFocus={() => onFocusVentParam("archH")} />
               </PRow2>
-              <PRow2 label="　　齿宽" unit="度" result="0">
+              <PRow2 label="　　齿宽" unit="度" result="0" index={baseIndex + 5}>
                 <NumIn v={row.ringToothW} onChange={(v) => onChange({ ringToothW: v })} onFocus={() => onFocusVentParam("toothW")} />
               </PRow2>
-              <PRow2 label="　　偏移角度" unit="度" result="0">
+              <PRow2 label="　　偏移角度" unit="度" result="0" index={baseIndex + 6}>
                 <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
@@ -1428,6 +1427,7 @@ function VentRowBlock({
     </>
   );
 }
+
 
 
 type TreeNode = { label: string; children?: TreeNode[]; active?: boolean; badge?: boolean };
