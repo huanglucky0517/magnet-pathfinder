@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Sparkles, Check } from "lucide-react";
+import { ChevronDown, ChevronRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import {
