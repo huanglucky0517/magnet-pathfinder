@@ -1026,9 +1026,14 @@ function LeftPane({
             <div className="flex-1 overflow-auto">
               {selectedNode === "转轴" ? (
                 <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
+              ) : selectedNode === "绕组" ? (
+                <StatorWindingPanel poles={6} statorInnerDia={520} />
+              ) : selectedNode === "励磁绕组" ? (
+                <FieldWindingPanel />
               ) : (
                 <DefaultPropertiesPanel />
               )}
+
             </div>
           </div>
         </ResizablePanel>
