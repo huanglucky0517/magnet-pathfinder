@@ -1222,14 +1222,19 @@ function PRow2({
   unit,
   result,
   children,
+  index,
+  gridClassName = "grid-cols-[1.2fr_1fr_60px_50px]",
 }: {
   label: string;
   unit?: string;
   result?: string;
   children: React.ReactNode;
+  index?: number;
+  gridClassName?: string;
 }) {
+  const stripe = index !== undefined && index % 2 === 1 ? "bg-[var(--row-stripe)]" : "";
   return (
-    <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border px-2 py-1.5 text-[12px]">
+    <div className={`grid ${gridClassName} items-center border-b border-sidebar-border px-2 py-1.5 text-[12px] ${stripe}`}>
       <div className="truncate" title={label.replace(/　/g, "")}>{label}</div>
       <div className="pr-1">{children}</div>
       <div className="text-[11px] text-muted-foreground">{unit ?? ""}</div>
@@ -1239,8 +1244,22 @@ function PRow2({
 }
 
 function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: number) => void; integer?: boolean; onFocus?: () => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        onFocus={onFocus}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
   return (
     <input
+      autoFocus
       type="number"
       value={v}
       onFocus={onFocus}
@@ -1250,10 +1269,75 @@ function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: num
         if (integer) n = Math.trunc(n);
         onChange(n);
       }}
+      onBlur={() => setEditing(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") setEditing(false);
+      }}
       className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
     />
   );
 }
+
+function TextIn({ v, onChange }: { v: string; onChange?: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing || !onChange) {
+    return (
+      <button
+        type="button"
+        onClick={() => onChange && setEditing(true)}
+        className={`h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground ${onChange ? "transition-colors hover:border-input hover:bg-accent/40" : ""}`}
+      >
+        {v}
+      </button>
+    );
+  }
+  return (
+    <input
+      autoFocus
+      value={v}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={() => setEditing(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") setEditing(false);
+      }}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    />
+  );
+}
+
+function SelIn({ v, options, onChange }: { v: string; options: string[]; onChange: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
+  return (
+    <select
+      autoFocus
+      value={v}
+      onChange={(e) => {
+        onChange(e.target.value);
+        setEditing(false);
+      }}
+      onBlur={() => setEditing(false)}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 
 
 function VentRowBlock({
