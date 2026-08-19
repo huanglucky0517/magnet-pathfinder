@@ -1143,29 +1143,29 @@ function ShaftPropertiesPanel({
       <div className="grid grid-cols-[1.2fr_1fr_60px_50px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
         <div>名称</div><div>值</div><div>单位</div><div>结果</div>
       </div>
-      <PRow2 label="材料">
-        <input value={s.material} onChange={(e) => set("material", e.target.value)} className="w-full bg-transparent outline-none" />
+      <PRow2 label="材料" index={0}>
+        <TextIn v={s.material} onChange={(v) => set("material", v)} />
       </PRow2>
-      <PRow2 label="轴颈直径" unit="毫米" result="0">
+      <PRow2 label="轴颈直径" unit="毫米" result="0" index={1}>
         <NumIn v={s.neckDia} onChange={(v) => set("neckDia", v)} />
       </PRow2>
-      <PRow2 label="转轴长度" unit="毫米" result="0">
+      <PRow2 label="转轴长度" unit="毫米" result="0" index={2}>
         <NumIn v={s.length} onChange={(v) => set("length", v)} />
       </PRow2>
-      <PRow2 label="轴颈长度" unit="毫米" result="0">
+      <PRow2 label="轴颈长度" unit="毫米" result="0" index={3}>
         <NumIn v={s.neckLen} onChange={(v) => set("neckLen", v)} />
       </PRow2>
-      <PRow2 label="外风扇的转动惯量" unit="千克*米^2" result="0">
+      <PRow2 label="外风扇的转动惯量" unit="千克*米^2" result="0" index={4}>
         <NumIn v={s.fanInertia} onChange={(v) => set("fanInertia", v)} />
       </PRow2>
-      <PRow2 label="铁芯直接套在轴上">
+      <PRow2 label="铁芯直接套在轴上" index={5}>
         <label className="flex items-center gap-1">
           <input type="checkbox" checked={s.coreOnShaft} onChange={(e) => set("coreOnShaft", e.target.checked)} className="accent-[var(--primary)]" />
           是
         </label>
       </PRow2>
 
-      <PRow2 label="轴向通风孔">
+      <PRow2 label="轴向通风孔" index={6}>
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -1178,8 +1178,8 @@ function ShaftPropertiesPanel({
       </PRow2>
 
       {s.axialVent && (
-        <div className="border-b border-emerald-300/60 bg-emerald-100/50">
-          <PRow2 label="　通风孔排数" unit="排" result="0">
+        <>
+          <PRow2 label="　通风孔排数" unit="排" result="0" index={7}>
             <NumIn
               v={s.ventRowCount}
               integer
@@ -1196,28 +1196,37 @@ function ShaftPropertiesPanel({
             />
           </PRow2>
 
-          {s.ventRows.slice(0, s.ventRowCount).map((row, idx) => (
-            <VentRowBlock
-              key={idx}
-              idx={idx}
-              row={row}
-              onChange={(patch) => {
-                const rows = s.ventRows.map((r, i) => (i === idx ? { ...r, ...patch } : r));
-                const next: Partial<ShaftState> = { ventRows: rows };
-                if (patch.shape) next.ventShape = patch.shape;
-                setS((p) => ({ ...p, ...next }));
-              }}
-              onFocusVentParam={(k) => {
-                setS((p) => ({ ...p, ventShape: row.shape }));
-                onFocusVentParam(k);
-              }}
-            />
-          ))}
-        </div>
+          {s.ventRows.slice(0, s.ventRowCount).map((row, idx) => {
+            const baseIndex =
+              8 +
+              s.ventRows
+                .slice(0, idx)
+                .reduce((acc, r) => acc + (r.shape === "circle" ? 6 : 7), 0);
+            return (
+              <VentRowBlock
+                key={idx}
+                idx={idx}
+                row={row}
+                baseIndex={baseIndex}
+                onChange={(patch) => {
+                  const rows = s.ventRows.map((r, i) => (i === idx ? { ...r, ...patch } : r));
+                  const next: Partial<ShaftState> = { ventRows: rows };
+                  if (patch.shape) next.ventShape = patch.shape;
+                  setS((p) => ({ ...p, ...next }));
+                }}
+                onFocusVentParam={(k) => {
+                  setS((p) => ({ ...p, ventShape: row.shape }));
+                  onFocusVentParam(k);
+                }}
+              />
+            );
+          })}
+        </>
       )}
     </>
   );
 }
+
 
 function PRow2({
   label,
