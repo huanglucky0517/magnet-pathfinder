@@ -1056,25 +1056,30 @@ function dimLabel(k: DimKey | null, shape: VentShape): string {
 
 
 function DefaultPropertiesPanel() {
+  const [name, setName] = useState("新设计");
+  const [scenario, setScenario] = useState("工况");
   return (
     <>
       <div className="grid grid-cols-[1fr_1fr_60px_60px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
         <div>名称</div><div>值</div><div>单位</div><div>结果</div>
       </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>名称</div><div>新设计</div><div></div><div></div>
-      </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>相关工况</div><div>工况</div><div></div><div></div>
-      </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>保存算例详细结果</div>
-        <div><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> 是</div>
-        <div></div><div></div>
-      </div>
+      <PRow2 label="名称" index={0} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <TextIn v={name} onChange={setName} />
+      </PRow2>
+      <PRow2 label="相关工况" index={1} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <TextIn v={scenario} onChange={setScenario} />
+      </PRow2>
+      <PRow2 label="保存算例详细结果" index={2} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <label className="flex items-center gap-1">
+          <input type="checkbox" defaultChecked className="accent-[var(--primary)]" />
+          是
+        </label>
+      </PRow2>
     </>
   );
 }
+
+
 
 type VentShape = "circle" | "ring";
 interface VentRow {
@@ -1141,29 +1146,29 @@ function ShaftPropertiesPanel({
       <div className="grid grid-cols-[1.2fr_1fr_60px_50px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
         <div>名称</div><div>值</div><div>单位</div><div>结果</div>
       </div>
-      <PRow2 label="材料">
-        <input value={s.material} onChange={(e) => set("material", e.target.value)} className="w-full bg-transparent outline-none" />
+      <PRow2 label="材料" index={0}>
+        <TextIn v={s.material} onChange={(v) => set("material", v)} />
       </PRow2>
-      <PRow2 label="轴颈直径" unit="毫米" result="0">
+      <PRow2 label="轴颈直径" unit="毫米" result="0" index={1}>
         <NumIn v={s.neckDia} onChange={(v) => set("neckDia", v)} />
       </PRow2>
-      <PRow2 label="转轴长度" unit="毫米" result="0">
+      <PRow2 label="转轴长度" unit="毫米" result="0" index={2}>
         <NumIn v={s.length} onChange={(v) => set("length", v)} />
       </PRow2>
-      <PRow2 label="轴颈长度" unit="毫米" result="0">
+      <PRow2 label="轴颈长度" unit="毫米" result="0" index={3}>
         <NumIn v={s.neckLen} onChange={(v) => set("neckLen", v)} />
       </PRow2>
-      <PRow2 label="外风扇的转动惯量" unit="千克*米^2" result="0">
+      <PRow2 label="外风扇的转动惯量" unit="千克*米^2" result="0" index={4}>
         <NumIn v={s.fanInertia} onChange={(v) => set("fanInertia", v)} />
       </PRow2>
-      <PRow2 label="铁芯直接套在轴上">
+      <PRow2 label="铁芯直接套在轴上" index={5}>
         <label className="flex items-center gap-1">
           <input type="checkbox" checked={s.coreOnShaft} onChange={(e) => set("coreOnShaft", e.target.checked)} className="accent-[var(--primary)]" />
           是
         </label>
       </PRow2>
 
-      <PRow2 label="轴向通风孔">
+      <PRow2 label="轴向通风孔" index={6}>
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -1176,8 +1181,8 @@ function ShaftPropertiesPanel({
       </PRow2>
 
       {s.axialVent && (
-        <div className="border-b border-emerald-300/60 bg-emerald-100/50">
-          <PRow2 label="　通风孔排数" unit="排" result="0">
+        <>
+          <PRow2 label="　通风孔排数" unit="排" result="0" index={7}>
             <NumIn
               v={s.ventRowCount}
               integer
@@ -1194,42 +1199,56 @@ function ShaftPropertiesPanel({
             />
           </PRow2>
 
-          {s.ventRows.slice(0, s.ventRowCount).map((row, idx) => (
-            <VentRowBlock
-              key={idx}
-              idx={idx}
-              row={row}
-              onChange={(patch) => {
-                const rows = s.ventRows.map((r, i) => (i === idx ? { ...r, ...patch } : r));
-                const next: Partial<ShaftState> = { ventRows: rows };
-                if (patch.shape) next.ventShape = patch.shape;
-                setS((p) => ({ ...p, ...next }));
-              }}
-              onFocusVentParam={(k) => {
-                setS((p) => ({ ...p, ventShape: row.shape }));
-                onFocusVentParam(k);
-              }}
-            />
-          ))}
-        </div>
+          {s.ventRows.slice(0, s.ventRowCount).map((row, idx) => {
+            const baseIndex =
+              8 +
+              s.ventRows
+                .slice(0, idx)
+                .reduce((acc, r) => acc + (r.shape === "circle" ? 6 : 7), 0);
+            return (
+              <VentRowBlock
+                key={idx}
+                idx={idx}
+                row={row}
+                baseIndex={baseIndex}
+                onChange={(patch) => {
+                  const rows = s.ventRows.map((r, i) => (i === idx ? { ...r, ...patch } : r));
+                  const next: Partial<ShaftState> = { ventRows: rows };
+                  if (patch.shape) next.ventShape = patch.shape;
+                  setS((p) => ({ ...p, ...next }));
+                }}
+                onFocusVentParam={(k) => {
+                  setS((p) => ({ ...p, ventShape: row.shape }));
+                  onFocusVentParam(k);
+                }}
+              />
+            );
+          })}
+        </>
       )}
     </>
   );
 }
+
 
 function PRow2({
   label,
   unit,
   result,
   children,
+  index,
+  gridClassName = "grid-cols-[1.2fr_1fr_60px_50px]",
 }: {
   label: string;
   unit?: string;
   result?: string;
   children: React.ReactNode;
+  index?: number;
+  gridClassName?: string;
 }) {
+  const stripe = index !== undefined && index % 2 === 1 ? "bg-[var(--row-stripe)]" : "";
   return (
-    <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border px-2 py-1.5 text-[12px]">
+    <div className={`grid ${gridClassName} items-center border-b border-sidebar-border px-2 py-1.5 text-[12px] ${stripe}`}>
       <div className="truncate" title={label.replace(/　/g, "")}>{label}</div>
       <div className="pr-1">{children}</div>
       <div className="text-[11px] text-muted-foreground">{unit ?? ""}</div>
@@ -1239,8 +1258,22 @@ function PRow2({
 }
 
 function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: number) => void; integer?: boolean; onFocus?: () => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        onFocus={onFocus}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
   return (
     <input
+      autoFocus
       type="number"
       value={v}
       onFocus={onFocus}
@@ -1250,30 +1283,97 @@ function NumIn({ v, onChange, integer, onFocus }: { v: number; onChange: (n: num
         if (integer) n = Math.trunc(n);
         onChange(n);
       }}
+      onBlur={() => setEditing(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") setEditing(false);
+      }}
       className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
     />
   );
 }
 
+function TextIn({ v, onChange }: { v: string; onChange?: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing || !onChange) {
+    return (
+      <button
+        type="button"
+        onClick={() => onChange && setEditing(true)}
+        className={`h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground ${onChange ? "transition-colors hover:border-input hover:bg-accent/40" : ""}`}
+      >
+        {v}
+      </button>
+    );
+  }
+  return (
+    <input
+      autoFocus
+      value={v}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={() => setEditing(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") setEditing(false);
+      }}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    />
+  );
+}
+
+function SelIn({ v, options, onChange }: { v: string; options: string[]; onChange: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
+  return (
+    <select
+      autoFocus
+      value={v}
+      onChange={(e) => {
+        onChange(e.target.value);
+        setEditing(false);
+      }}
+      onBlur={() => setEditing(false)}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>
+          {o}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+
 
 function VentRowBlock({
   idx,
   row,
+  baseIndex,
   onChange,
   onFocusVentParam,
 }: {
   idx: number;
   row: VentRow;
+  baseIndex: number;
   onChange: (patch: Partial<VentRow>) => void;
   onFocusVentParam: (k: DimKey) => void;
 }) {
   const [open, setOpen] = useState(true);
   return (
     <>
-      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-emerald-300/60 bg-emerald-200/40 px-2 py-1.5 text-[12px] font-medium">
+      <div className="grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border bg-[var(--table-header)] px-2 py-1.5 text-[12px] font-medium">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1 text-left text-emerald-900"
+          className="flex items-center gap-1 text-left"
         >
           {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
           第{idx + 1}行
@@ -1282,7 +1382,14 @@ function VentRowBlock({
       </div>
       {open && (
         <>
-          <PRow2 label="　　通风孔数目" unit="个" result="0">
+          <PRow2 label="　　通风孔形状" index={baseIndex + 1}>
+            <SelIn
+              v={row.shape === "circle" ? "圆形轴向通风孔" : "环形轴向通风孔"}
+              options={["圆形轴向通风孔", "环形轴向通风孔"]}
+              onChange={(v) => onChange({ shape: v === "圆形轴向通风孔" ? "circle" : "ring" })}
+            />
+          </PRow2>
+          <PRow2 label="　　通风孔数目" unit="个" result="0" index={baseIndex + 2}>
             <NumIn
               v={row.holeCount}
               integer
@@ -1290,40 +1397,30 @@ function VentRowBlock({
               onFocus={() => onFocusVentParam("count")}
             />
           </PRow2>
-          <PRow2 label="　　通风孔形状">
-            <select
-              value={row.shape}
-              onChange={(e) => onChange({ shape: e.target.value as VentShape })}
-              className="w-full rounded border border-sidebar-border bg-background px-1 py-0.5 text-[12px]"
-            >
-              <option value="circle">圆形轴向通风孔</option>
-              <option value="ring">环形轴向通风孔</option>
-            </select>
-          </PRow2>
           {row.shape === "circle" ? (
             <>
-              <PRow2 label="　　通风孔直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔直径" unit="毫米" result="0" index={baseIndex + 3}>
                 <NumIn v={row.holeDia} onChange={(v) => onChange({ holeDia: v })} onFocus={() => onFocusVentParam("holeDia")} />
               </PRow2>
-              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔位置直径" unit="毫米" result="0" index={baseIndex + 4}>
                 <NumIn v={row.holePitchDia} onChange={(v) => onChange({ holePitchDia: v })} onFocus={() => onFocusVentParam("pitchDia")} />
               </PRow2>
-              <PRow2 label="　　偏移角度" unit="度" result="0">
+              <PRow2 label="　　偏移角度" unit="度" result="0" index={baseIndex + 5}>
                 <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
           ) : (
             <>
-              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0">
+              <PRow2 label="　　通风孔内圆直径" unit="毫米" result="0" index={baseIndex + 3}>
                 <NumIn v={row.ringInnerDia} onChange={(v) => onChange({ ringInnerDia: v })} onFocus={() => onFocusVentParam("innerDia")} />
               </PRow2>
-              <PRow2 label="　　通风孔高度" unit="毫米" result="0">
+              <PRow2 label="　　通风孔高度" unit="毫米" result="0" index={baseIndex + 4}>
                 <NumIn v={row.ringHeight} onChange={(v) => onChange({ ringHeight: v })} onFocus={() => onFocusVentParam("archH")} />
               </PRow2>
-              <PRow2 label="　　齿宽" unit="度" result="0">
+              <PRow2 label="　　齿宽" unit="度" result="0" index={baseIndex + 5}>
                 <NumIn v={row.ringToothW} onChange={(v) => onChange({ ringToothW: v })} onFocus={() => onFocusVentParam("toothW")} />
               </PRow2>
-              <PRow2 label="　　偏移角度" unit="度" result="0">
+              <PRow2 label="　　偏移角度" unit="度" result="0" index={baseIndex + 6}>
                 <NumIn v={row.holeOffset} onChange={(v) => onChange({ holeOffset: v })} onFocus={() => onFocusVentParam("offsetDeg")} />
               </PRow2>
             </>
@@ -1333,6 +1430,7 @@ function VentRowBlock({
     </>
   );
 }
+
 
 
 type TreeNode = { label: string; children?: TreeNode[]; active?: boolean; badge?: boolean };
