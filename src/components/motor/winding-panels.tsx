@@ -452,7 +452,7 @@ export function FieldWindingPanel() {
     shoeIns: 2,
     bodyIns: 2,
     poleGap: 0,
-    plateThickness: 0,
+    plateThickness: 10,
     plateMaterial: "不锈钢Q355B",
     coilIns: 0,
     turnIns: 0,
