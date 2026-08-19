@@ -46,6 +46,8 @@ import easimotorLogoAsset from "@/assets/easimotor-logo.png.asset.json";
 
 import aiChatBadgeAsset from "@/assets/aichat-widget-v3.png.asset.json";
 import { MotorInput } from "@/components/motor/motor-input";
+import { StatorWindingPanel, FieldWindingPanel } from "@/components/motor/winding-panels";
+
 import { ModelViewPanel, ModelViewRail } from "@/components/motor/model-view-panel";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 
@@ -1026,9 +1028,14 @@ function LeftPane({
             <div className="flex-1 overflow-auto">
               {selectedNode === "转轴" ? (
                 <ShaftPropertiesPanel s={shaft} setS={setShaft} onFocusVentParam={onFocusVentParam} />
+              ) : selectedNode === "绕组" ? (
+                <StatorWindingPanel poles={6} statorInnerDia={520} />
+              ) : selectedNode === "励磁绕组" ? (
+                <FieldWindingPanel />
               ) : (
                 <DefaultPropertiesPanel />
               )}
+
             </div>
           </div>
         </ResizablePanel>
@@ -1365,8 +1372,35 @@ const projectTree: TreeNode = {
         { label: "材料" },
       ],
     },
+    {
+      label: "6极300kW电励磁凸极同步发电机(案例_不可编辑)",
+      children: [
+        {
+          label: "新建电机(电励磁同步电机)",
+          children: [
+            { label: "定子", children: [{ label: "绕组" }] },
+            { label: "转子", children: [{ label: "阻尼笼" }, { label: "励磁绕组" }] },
+            { label: "转轴" },
+            { label: "工况", children: [{ label: "空载工况" }] },
+            { label: "参数化设计" },
+            { label: "优化设计" },
+            { label: "蒙特卡罗分析" },
+            { label: "附件", children: [{ label: "文档" }] },
+          ],
+        },
+        { label: "空载静磁场模型" },
+        { label: "直轴电抗试验" },
+        { label: "直轴瞬变电抗试验" },
+        { label: "直轴超瞬变电抗试验" },
+        { label: "交轴电抗试验" },
+        { label: "三相短路试验" },
+        { label: "负载虚拟试验" },
+        { label: "材料" },
+      ],
+    },
   ],
 };
+
 
 function Tree({
   node,
