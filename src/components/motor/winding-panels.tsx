@@ -19,19 +19,18 @@ function Row({
   unit,
   result,
   children,
-  highlight,
+  index,
 }: {
   label: string;
   unit?: string;
   result?: string;
   children?: React.ReactNode;
-  highlight?: boolean;
+  index?: number;
 }) {
+  const stripe = index !== undefined && index % 2 === 1 ? "bg-[var(--row-stripe)]" : "";
   return (
     <div
-      className={`grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border px-2 py-1.5 text-[12px] ${
-        highlight ? "bg-emerald-100/50" : ""
-      }`}
+      className={`grid grid-cols-[1.2fr_1fr_60px_50px] items-center border-b border-sidebar-border px-2 py-1.5 text-[12px] ${stripe}`}
     >
       <div className="truncate" title={label.replace(/　/g, "")}>
         {label}
@@ -52,8 +51,21 @@ function Num({
   onChange: (n: number) => void;
   integer?: boolean;
 }) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
   return (
     <input
+      autoFocus
       type="number"
       value={v}
       onChange={(e) => {
@@ -62,8 +74,53 @@ function Num({
         if (integer) n = Math.trunc(n);
         onChange(n);
       }}
+      onBlur={() => setEditing(false)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") setEditing(false);
+      }}
       className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
     />
+  );
+}
+
+function Sel({
+  v,
+  options,
+  onChange,
+}: {
+  v: string;
+  options: string[];
+  onChange: (v: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="h-6 w-full rounded border border-transparent px-1 text-left text-[12px] text-foreground transition-colors hover:border-input hover:bg-accent/40"
+      >
+        {v}
+      </button>
+    );
+  }
+  return (
+    <select
+      autoFocus
+      value={v}
+      onChange={(e) => {
+        onChange(e.target.value);
+        setEditing(false);
+      }}
+      onBlur={() => setEditing(false)}
+      className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
+    >
+      {options.map((m) => (
+        <option key={m} value={m}>
+          {m}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -281,10 +338,10 @@ export function StatorWindingPanel({
   return (
     <>
       <Head />
-      <Row label="绕组结构">
+      <Row label="绕组结构" index={0}>
         <Text v="绕线式" />
       </Row>
-      <Row label="槽数" result={String(slots)}>
+      <Row label="槽数" result={String(slots)} index={1}>
         <Num v={slots} integer onChange={setSlots} />
       </Row>
       <div className="border-b border-sidebar-border px-2 py-1.5">
@@ -297,7 +354,7 @@ export function StatorWindingPanel({
           推荐极槽配合
         </button>
       </div>
-      <Row label="平行齿">
+      <Row label="平行齿" index={2}>
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -308,26 +365,26 @@ export function StatorWindingPanel({
           {parallelTooth ? "是" : "否"}
         </label>
       </Row>
-      <Row label="斜槽" result={String(skew)}>
+      <Row label="斜槽" result={String(skew)} index={3}>
         <Num v={skew} onChange={setSkew} />
       </Row>
-      <Row label="最大槽满率">
+      <Row label="最大槽满率" index={4}>
         <Num v={maxFill} onChange={setMaxFill} />
       </Row>
 
       <GroupRow title="线规" open={wireOpen} onToggle={() => setWireOpen((v) => !v)} />
       {wireOpen && (
         <>
-          <Row label="　绕组线型">
+          <Row label="　绕组线型" index={5}>
             <Text v="扁线" />
           </Row>
-          <Row label="　绕组排布方式">
+          <Row label="　绕组排布方式" index={6}>
             <Text v="单根单排" />
           </Row>
-          <Row label="　并联支路数" result={String(branches)}>
+          <Row label="　并联支路数" result={String(branches)} index={7}>
             <Text v={String(branches)} />
           </Row>
-          <Row label="　包含第二线规">
+          <Row label="　包含第二线规" index={8}>
             <Text v="否" />
           </Row>
         </>
@@ -336,28 +393,28 @@ export function StatorWindingPanel({
       <GroupRow title="绝缘" open={insOpen} onToggle={() => setInsOpen((v) => !v)} />
       {insOpen && (
         <>
-          <Row label="　槽绝缘厚度" unit="毫米" result={String(ins.slotIns)}>
+          <Row label="　槽绝缘厚度" unit="毫米" result={String(ins.slotIns)} index={9}>
             <Num v={ins.slotIns} onChange={(v) => setIns((p) => ({ ...p, slotIns: v }))} />
           </Row>
-          <Row label="　槽楔厚度" unit="毫米" result={String(ins.wedge)}>
+          <Row label="　槽楔厚度" unit="毫米" result={String(ins.wedge)} index={10}>
             <Num v={ins.wedge} onChange={(v) => setIns((p) => ({ ...p, wedge: v }))} />
           </Row>
-          <Row label="　槽楔底绝缘" unit="毫米" result={String(ins.wedgeBottom)}>
+          <Row label="　槽楔底绝缘" unit="毫米" result={String(ins.wedgeBottom)} index={11}>
             <Num v={ins.wedgeBottom} onChange={(v) => setIns((p) => ({ ...p, wedgeBottom: v }))} />
           </Row>
-          <Row label="　层间绝缘厚度" unit="毫米" result={String(ins.layer)}>
+          <Row label="　层间绝缘厚度" unit="毫米" result={String(ins.layer)} index={12}>
             <Num v={ins.layer} onChange={(v) => setIns((p) => ({ ...p, layer: v }))} />
           </Row>
-          <Row label="　槽底绝缘" unit="毫米" result={String(ins.slotBottom)}>
+          <Row label="　槽底绝缘" unit="毫米" result={String(ins.slotBottom)} index={13}>
             <Num v={ins.slotBottom} onChange={(v) => setIns((p) => ({ ...p, slotBottom: v }))} />
           </Row>
-          <Row label="　线圈绝缘" unit="毫米" result={String(ins.coil)}>
+          <Row label="　线圈绝缘" unit="毫米" result={String(ins.coil)} index={14}>
             <Num v={ins.coil} onChange={(v) => setIns((p) => ({ ...p, coil: v }))} />
           </Row>
-          <Row label="　匝间绝缘厚度" unit="毫米" result={String(ins.turnToTurn)} highlight>
+          <Row label="　匝间绝缘厚度" unit="毫米" result={String(ins.turnToTurn)} index={15}>
             <Num v={ins.turnToTurn} onChange={(v) => setIns((p) => ({ ...p, turnToTurn: v }))} />
           </Row>
-          <Row label="　是否磁性槽楔">
+          <Row label="　是否磁性槽楔" index={16}>
             <label className="flex items-center gap-1">
               <input
                 type="checkbox"
@@ -410,68 +467,58 @@ export function FieldWindingPanel() {
   return (
     <>
       <Head />
-      <Row label="导线材料">
+      <Row label="导线材料" index={0}>
         <Text v="紫铜" />
       </Row>
-      <Row label="极靴绝缘" unit="毫米" result={String(s.shoeIns)}>
+      <Row label="极靴绝缘" unit="毫米" result={String(s.shoeIns)} index={1}>
         <Num v={s.shoeIns} onChange={(v) => set("shoeIns", v)} />
       </Row>
-      <Row label="极身绝缘" unit="毫米" result={String(s.bodyIns)}>
+      <Row label="极身绝缘" unit="毫米" result={String(s.bodyIns)} index={2}>
         <Num v={s.bodyIns} onChange={(v) => set("bodyIns", v)} />
       </Row>
-      <Row label="两磁极绕组之间的间隙" unit="毫米" result={String(s.poleGap)}>
+      <Row label="两磁极绕组之间的间隙" unit="毫米" result={String(s.poleGap)} index={3}>
         <Num v={s.poleGap} onChange={(v) => set("poleGap", v)} />
       </Row>
-      <Row label="磁极压板厚度" unit="毫米" result={String(s.plateThickness)} highlight>
+      <Row label="磁极压板厚度" unit="毫米" result={String(s.plateThickness)} index={4}>
         <Num v={s.plateThickness} onChange={(v) => set("plateThickness", v)} />
       </Row>
-      <Row label="磁极压板材料" highlight>
-        <select
-          value={s.plateMaterial}
-          onChange={(e) => set("plateMaterial", e.target.value)}
-          className="h-6 w-full rounded border border-sidebar-border bg-background px-1 text-[12px]"
-        >
-          {plateMaterials.map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+      <Row label="磁极压板材料" index={5}>
+        <Sel v={s.plateMaterial} options={plateMaterials} onChange={(v) => set("plateMaterial", v)} />
       </Row>
-      <Row label="绕组绝缘厚" unit="毫米" result={String(s.coilIns)}>
+      <Row label="绕组绝缘厚" unit="毫米" result={String(s.coilIns)} index={6}>
         <Num v={s.coilIns} onChange={(v) => set("coilIns", v)} />
       </Row>
-      <Row label="绕组匝间绝缘" unit="毫米" result={String(s.turnIns)}>
+      <Row label="绕组匝间绝缘" unit="毫米" result={String(s.turnIns)} index={7}>
         <Num v={s.turnIns} onChange={(v) => set("turnIns", v)} />
       </Row>
-      <Row label="绕组端部类型">
+      <Row label="绕组端部类型" index={8}>
         <Text v="圆头线圈" />
       </Row>
-      <Row label="绕线模式">
+      <Row label="绕线模式" index={9}>
         <Text v="矩形线平绕磁极绕组" />
       </Row>
-      <Row label="并联支路数" result={String(s.branches)}>
+      <Row label="并联支路数" result={String(s.branches)} index={10}>
         <Num v={s.branches} integer onChange={(v) => set("branches", v)} />
       </Row>
-      <Row label="每极匝数" result={String(s.turnsPerPole)}>
+      <Row label="每极匝数" result={String(s.turnsPerPole)} index={11}>
         <Num v={s.turnsPerPole} integer onChange={(v) => set("turnsPerPole", v)} />
       </Row>
-      <Row label="间隙s1" unit="毫米" result={String(s.s1)}>
+      <Row label="间隙s1" unit="毫米" result={String(s.s1)} index={12}>
         <Num v={s.s1} onChange={(v) => set("s1", v)} />
       </Row>
-      <Row label="间隙s2" unit="毫米" result={String(s.s2)}>
+      <Row label="间隙s2" unit="毫米" result={String(s.s2)} index={13}>
         <Num v={s.s2} onChange={(v) => set("s2", v)} />
       </Row>
-      <Row label="最大宽度" unit="毫米" result={String(s.maxW)}>
+      <Row label="最大宽度" unit="毫米" result={String(s.maxW)} index={14}>
         <Num v={s.maxW} onChange={(v) => set("maxW", v)} />
       </Row>
-      <Row label="最大高度" unit="毫米" result={String(s.maxH)}>
+      <Row label="最大高度" unit="毫米" result={String(s.maxH)} index={15}>
         <Num v={s.maxH} onChange={(v) => set("maxH", v)} />
       </Row>
-      <Row label="平均半匝长度" unit="毫米" result={String(s.halfTurnLen)}>
+      <Row label="平均半匝长度" unit="毫米" result={String(s.halfTurnLen)} index={16}>
         <Num v={s.halfTurnLen} onChange={(v) => set("halfTurnLen", v)} />
       </Row>
-      <Row label="包含第二线规">
+      <Row label="包含第二线规" index={17}>
         <Text v="否" />
       </Row>
     </>
