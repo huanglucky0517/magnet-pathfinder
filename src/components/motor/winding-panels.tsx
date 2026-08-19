@@ -347,17 +347,17 @@ export function StatorWindingPanel({
       <Row label="槽数" result={String(slots)} index={1}>
         <Num v={slots} integer onChange={setSlots} />
       </Row>
-      <div className="border-b border-sidebar-border px-2 py-1.5">
+      <Row label="槽极配合推荐" index={2}>
         <button
           type="button"
           onClick={() => setOpenRec(true)}
-          className="inline-flex h-6 items-center gap-1 rounded-[4px] border border-primary/40 bg-primary/10 px-2 text-[12px] font-medium text-primary transition-colors hover:bg-primary/20"
+          className="inline-flex h-6 w-full items-center justify-center gap-1 rounded-[4px] border border-primary/40 bg-primary/10 px-2 text-[12px] font-medium text-primary transition-colors hover:bg-primary/20"
         >
           <Sparkles className="h-3 w-3" />
           推荐极槽配合
         </button>
-      </div>
-      <Row label="平行齿" index={2}>
+      </Row>
+      <Row label="平行齿" index={3}>
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
@@ -368,26 +368,26 @@ export function StatorWindingPanel({
           {parallelTooth ? "是" : "否"}
         </label>
       </Row>
-      <Row label="斜槽" result={String(skew)} index={3}>
+      <Row label="斜槽" result={String(skew)} index={4}>
         <Num v={skew} onChange={setSkew} />
       </Row>
-      <Row label="最大槽满率" index={4}>
+      <Row label="最大槽满率" index={5}>
         <Num v={maxFill} onChange={setMaxFill} />
       </Row>
 
       <GroupRow title="线规" open={wireOpen} onToggle={() => setWireOpen((v) => !v)} />
       {wireOpen && (
         <>
-          <Row label="　绕组线型" index={5}>
+          <Row label="　绕组线型" index={6}>
             <Text v="扁线" />
           </Row>
-          <Row label="　绕组排布方式" index={6}>
+          <Row label="　绕组排布方式" index={7}>
             <Text v="单根单排" />
           </Row>
-          <Row label="　并联支路数" result={String(branches)} index={7}>
+          <Row label="　并联支路数" result={String(branches)} index={8}>
             <Text v={String(branches)} />
           </Row>
-          <Row label="　包含第二线规" index={8}>
+          <Row label="　包含第二线规" index={9}>
             <Text v="否" />
           </Row>
         </>
@@ -396,28 +396,28 @@ export function StatorWindingPanel({
       <GroupRow title="绝缘" open={insOpen} onToggle={() => setInsOpen((v) => !v)} />
       {insOpen && (
         <>
-          <Row label="　槽绝缘厚度" unit="毫米" result={String(ins.slotIns)} index={9}>
+          <Row label="　槽绝缘厚度" unit="毫米" result={String(ins.slotIns)} index={10}>
             <Num v={ins.slotIns} onChange={(v) => setIns((p) => ({ ...p, slotIns: v }))} />
           </Row>
-          <Row label="　槽楔厚度" unit="毫米" result={String(ins.wedge)} index={10}>
+          <Row label="　槽楔厚度" unit="毫米" result={String(ins.wedge)} index={11}>
             <Num v={ins.wedge} onChange={(v) => setIns((p) => ({ ...p, wedge: v }))} />
           </Row>
-          <Row label="　槽楔底绝缘" unit="毫米" result={String(ins.wedgeBottom)} index={11}>
+          <Row label="　槽楔底绝缘" unit="毫米" result={String(ins.wedgeBottom)} index={12}>
             <Num v={ins.wedgeBottom} onChange={(v) => setIns((p) => ({ ...p, wedgeBottom: v }))} />
           </Row>
-          <Row label="　层间绝缘厚度" unit="毫米" result={String(ins.layer)} index={12}>
+          <Row label="　层间绝缘厚度" unit="毫米" result={String(ins.layer)} index={13}>
             <Num v={ins.layer} onChange={(v) => setIns((p) => ({ ...p, layer: v }))} />
           </Row>
-          <Row label="　槽底绝缘" unit="毫米" result={String(ins.slotBottom)} index={13}>
+          <Row label="　槽底绝缘" unit="毫米" result={String(ins.slotBottom)} index={14}>
             <Num v={ins.slotBottom} onChange={(v) => setIns((p) => ({ ...p, slotBottom: v }))} />
           </Row>
-          <Row label="　线圈绝缘" unit="毫米" result={String(ins.coil)} index={14}>
+          <Row label="　线圈绝缘" unit="毫米" result={String(ins.coil)} index={15}>
             <Num v={ins.coil} onChange={(v) => setIns((p) => ({ ...p, coil: v }))} />
           </Row>
-          <Row label="　匝间绝缘厚度" unit="毫米" result={String(ins.turnToTurn)} index={15}>
+          <Row label="　匝间绝缘厚度" unit="毫米" result={String(ins.turnToTurn)} index={16}>
             <Num v={ins.turnToTurn} onChange={(v) => setIns((p) => ({ ...p, turnToTurn: v }))} />
           </Row>
-          <Row label="　是否磁性槽楔" index={16}>
+          <Row label="　是否磁性槽楔" index={17}>
             <label className="flex items-center gap-1">
               <input
                 type="checkbox"
