@@ -1056,16 +1056,18 @@ function dimLabel(k: DimKey | null, shape: VentShape): string {
 
 
 function DefaultPropertiesPanel() {
+  const [name, setName] = useState("新设计");
+  const [scenario, setScenario] = useState("工况");
   return (
     <>
       <div className="grid grid-cols-[1fr_1fr_60px_60px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
         <div>名称</div><div>值</div><div>单位</div><div>结果</div>
       </div>
       <PRow2 label="名称" index={0} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
-        <TextIn v="新设计" />
+        <TextIn v={name} onChange={setName} />
       </PRow2>
       <PRow2 label="相关工况" index={1} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
-        <TextIn v="工况" />
+        <TextIn v={scenario} onChange={setScenario} />
       </PRow2>
       <PRow2 label="保存算例详细结果" index={2} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
         <label className="flex items-center gap-1">
@@ -1076,6 +1078,7 @@ function DefaultPropertiesPanel() {
     </>
   );
 }
+
 
 
 type VentShape = "circle" | "ring";
