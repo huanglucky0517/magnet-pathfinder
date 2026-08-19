@@ -1061,20 +1061,22 @@ function DefaultPropertiesPanel() {
       <div className="grid grid-cols-[1fr_1fr_60px_60px] border-y border-sidebar-border bg-[var(--table-header)] px-2 py-1 text-[11px] text-muted-foreground">
         <div>名称</div><div>值</div><div>单位</div><div>结果</div>
       </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>名称</div><div>新设计</div><div></div><div></div>
-      </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>相关工况</div><div>工况</div><div></div><div></div>
-      </div>
-      <div className="grid grid-cols-[1fr_1fr_60px_60px] border-b border-sidebar-border px-2 py-1.5">
-        <div>保存算例详细结果</div>
-        <div><input type="checkbox" defaultChecked className="accent-[var(--primary)]" /> 是</div>
-        <div></div><div></div>
-      </div>
+      <PRow2 label="名称" index={0} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <TextIn v="新设计" />
+      </PRow2>
+      <PRow2 label="相关工况" index={1} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <TextIn v="工况" />
+      </PRow2>
+      <PRow2 label="保存算例详细结果" index={2} gridClassName="grid-cols-[1fr_1fr_60px_60px]">
+        <label className="flex items-center gap-1">
+          <input type="checkbox" defaultChecked className="accent-[var(--primary)]" />
+          是
+        </label>
+      </PRow2>
     </>
   );
 }
+
 
 type VentShape = "circle" | "ring";
 interface VentRow {
