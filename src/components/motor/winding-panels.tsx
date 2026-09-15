@@ -200,12 +200,16 @@ export function recommendSlotCombos(
   return top;
 }
 
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
 function SlotRecommendDialog({
   open,
   onOpenChange,
-  poles,
-  innerDia,
-  branches,
+  poles: initPoles,
+  innerDia: initInnerDia,
+  branches: initBranches,
   onConfirm,
 }: {
   open: boolean;
@@ -215,70 +219,121 @@ function SlotRecommendDialog({
   branches: number;
   onConfirm: (c: SlotCombo) => void;
 }) {
-  const combos = React.useMemo(
-    () => (open ? recommendSlotCombos(poles, innerDia, branches) : []),
-    [open, poles, innerDia, branches],
-  );
+  const [innerDia, setInnerDia] = useState(initInnerDia);
+  const [outerDia, setOuterDia] = useState(650);
+  const [poles, setPoles] = useState(initPoles);
+  const [branches, setBranches] = useState(initBranches);
+  const [combos, setCombos] = useState<SlotCombo[]>([]);
   const [picked, setPicked] = useState<number | null>(null);
 
   React.useEffect(() => {
-    if (open) setPicked(combos[0]?.slots ?? null);
-  }, [open, combos]);
+    if (open) {
+      setInnerDia(initInnerDia);
+      setPoles(initPoles);
+      setBranches(initBranches);
+      setCombos([]);
+      setPicked(null);
+    }
+  }, [open, initInnerDia, initPoles, initBranches]);
+
+  const calc = () => {
+    const list = recommendSlotCombos(poles, innerDia, branches);
+    setCombos(list);
+    setPicked(list[0]?.slots ?? null);
+    if (list.length === 0) toast.error("未找到合适的极槽配合，请调整输入参数");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
+      <DialogContent className="max-w-lg overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
         <div className="bg-gradient-to-br from-primary/5 to-background px-6 pb-4 pt-6">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-center text-[17px] font-semibold tracking-tight">
               推荐极槽配合
             </DialogTitle>
             <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              当前电机极数 {poles} · 定子内径 {innerDia} mm · 并联支路数 {branches}。
-              <br />
-              为您推荐以下槽极配合：
+              输入电机参数后点击计算，为您推荐 5 组槽极配合：
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <div className="px-6 pb-6">
-          <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
-            <div className="grid grid-cols-[44px_1fr_1fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
-              <div></div>
-              <div>槽数</div>
-              <div>极数</div>
-            </div>
-            {combos.length === 0 && (
-              <div className="px-4 py-8 text-center text-[12px] text-muted-foreground">
-                未找到合适的极槽配合，请检查极数与定子内径
-              </div>
-            )}
-            {combos.map((c, idx) => {
-              const active = picked === c.slots;
-              return (
-                <button
-                  key={c.slots}
-                  type="button"
-                  onClick={() => setPicked(c.slots)}
-                  className={`grid w-full grid-cols-[44px_1fr_1fr] items-center gap-1 border-t border-border/50 px-3 py-3 text-left text-[13px] transition-all ${
-                    active ? "bg-primary/5" : "hover:bg-accent/40"
-                  }`}
-                >
-                  <div className="flex justify-center">
-                    <div
-                      className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
-                        active ? "border-primary bg-primary" : "border-muted-foreground/30"
-                      }`}
-                    >
-                      {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
-                    </div>
-                  </div>
-                  <div className="font-medium text-foreground">{c.slots}</div>
-                  <div className="text-muted-foreground">{poles}</div>
-                </button>
-              );
-            })}
+          {/* 输入参数 */}
+          <div className="grid grid-cols-2 gap-3">
+            {(
+              [
+                ["定子内径（mm）", innerDia, setInnerDia],
+                ["定子外径（mm）", outerDia, setOuterDia],
+                ["极数", poles, setPoles],
+                ["每相并联支路数", branches, setBranches],
+              ] as const
+            ).map(([label, val, set]) => (
+              <label key={label} className="block">
+                <span className="mb-1 block text-[11px] text-muted-foreground">{label}</span>
+                <input
+                  type="number"
+                  value={val}
+                  onChange={(e) => {
+                    const n = Number(e.target.value);
+                    (set as (n: number) => void)(Number.isNaN(n) ? 0 : n);
+                  }}
+                  className="h-8 w-full rounded-[6px] border border-input bg-background px-2 text-[12px] outline-none transition-colors focus:border-primary"
+                />
+              </label>
+            ))}
           </div>
+          <button
+            type="button"
+            onClick={calc}
+            className="mt-3 h-9 w-full rounded-[6px] bg-primary text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            计算推荐
+          </button>
+
+          {/* 推荐结果 */}
+          {combos.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-border/60 bg-card">
+              <div className="grid grid-cols-[32px_1fr_1fr_1fr_1fr_1fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
+                <div></div>
+                <div>槽数</div>
+                <div>极数</div>
+                <div>槽距(mm)</div>
+                <div>q 值</div>
+                <div>t 值</div>
+              </div>
+              {combos.map((c) => {
+                const active = picked === c.slots;
+                const pitch = (Math.PI * Math.max(innerDia, 1)) / c.slots;
+                const q = c.slots / (3 * poles);
+                const t = poles % 2 === 0 ? gcd(c.slots, poles / 2) : gcd(c.slots, poles);
+                return (
+                  <button
+                    key={c.slots}
+                    type="button"
+                    onClick={() => setPicked(c.slots)}
+                    className={`grid w-full grid-cols-[32px_1fr_1fr_1fr_1fr_1fr] items-center gap-1 border-t border-border/50 px-3 py-2.5 text-left text-[13px] transition-all ${
+                      active ? "bg-primary/5" : "hover:bg-accent/40"
+                    }`}
+                  >
+                    <div className="flex justify-center">
+                      <div
+                        className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
+                          active ? "border-primary bg-primary" : "border-muted-foreground/30"
+                        }`}
+                      >
+                        {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                      </div>
+                    </div>
+                    <div className="font-medium text-foreground">{c.slots}</div>
+                    <div className="text-muted-foreground">{poles}</div>
+                    <div className="text-muted-foreground">{pitch.toFixed(1)}</div>
+                    <div className="text-muted-foreground">{Number.isInteger(q) ? q : q.toFixed(2)}</div>
+                    <div className="text-muted-foreground">{t}</div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div className="mt-5 flex items-center justify-end gap-2">
             <button
