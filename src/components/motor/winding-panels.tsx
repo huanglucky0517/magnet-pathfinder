@@ -200,12 +200,16 @@ export function recommendSlotCombos(
   return top;
 }
 
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b);
+}
+
 function SlotRecommendDialog({
   open,
   onOpenChange,
-  poles,
-  innerDia,
-  branches,
+  poles: initPoles,
+  innerDia: initInnerDia,
+  branches: initBranches,
   onConfirm,
 }: {
   open: boolean;
@@ -215,15 +219,29 @@ function SlotRecommendDialog({
   branches: number;
   onConfirm: (c: SlotCombo) => void;
 }) {
-  const combos = React.useMemo(
-    () => (open ? recommendSlotCombos(poles, innerDia, branches) : []),
-    [open, poles, innerDia, branches],
-  );
+  const [innerDia, setInnerDia] = useState(initInnerDia);
+  const [outerDia, setOuterDia] = useState(650);
+  const [poles, setPoles] = useState(initPoles);
+  const [branches, setBranches] = useState(initBranches);
+  const [combos, setCombos] = useState<SlotCombo[]>([]);
   const [picked, setPicked] = useState<number | null>(null);
 
   React.useEffect(() => {
-    if (open) setPicked(combos[0]?.slots ?? null);
-  }, [open, combos]);
+    if (open) {
+      setInnerDia(initInnerDia);
+      setPoles(initPoles);
+      setBranches(initBranches);
+      setCombos([]);
+      setPicked(null);
+    }
+  }, [open, initInnerDia, initPoles, initBranches]);
+
+  const calc = () => {
+    const list = recommendSlotCombos(poles, innerDia, branches);
+    setCombos(list);
+    setPicked(list[0]?.slots ?? null);
+    if (list.length === 0) toast.error("未找到合适的极槽配合，请调整输入参数");
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
