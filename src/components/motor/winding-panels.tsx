@@ -251,7 +251,7 @@ function SlotRecommendDialog({
         <div className="px-5 pb-5 pt-4">
           {/* 当前项目参数 */}
           <div className="text-[12px] font-medium text-foreground">当前项目参数：</div>
-          <div className="mt-2 grid grid-cols-3 gap-2">
+          <div className="mt-6 grid grid-cols-3 gap-2">
             {(
               [
                 ["定子内径(mm)", `${innerDia}`],
