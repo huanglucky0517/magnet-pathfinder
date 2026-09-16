@@ -240,21 +240,19 @@ function SlotRecommendDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden rounded-xl border border-border/60 p-0 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.25)]">
-        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 pb-5 pt-6">
-          <DialogHeader className="space-y-2">
-            <DialogTitle className="text-center text-[16px] font-semibold tracking-tight">
-              槽极配合
+      <DialogContent className="max-w-md overflow-hidden rounded-xl border border-border/60 p-0 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.25)]">
+        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.05] to-transparent px-5 pb-3.5 pt-4">
+          <DialogHeader>
+            <DialogTitle className="text-[15px] font-semibold tracking-tight">
+              推荐槽极配合
             </DialogTitle>
-            <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              基于当前项目参数，自动读取并推荐以下 5 组槽极配合：
-            </DialogDescription>
           </DialogHeader>
         </div>
 
-        <div className="px-6 pb-6">
-          {/* 自动读取的项目参数 */}
-          <div className="grid grid-cols-3 gap-3">
+        <div className="px-5 pb-5 pt-4">
+          {/* 当前项目参数 */}
+          <div className="text-[12px] font-medium text-foreground">当前项目参数：</div>
+          <div className="mt-2 grid grid-cols-3 gap-2">
             {(
               [
                 ["定子内径(mm)", `${innerDia}`],
@@ -264,65 +262,68 @@ function SlotRecommendDialog({
             ).map(([label, val]) => (
               <div
                 key={label}
-                className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 transition-colors hover:border-primary/30"
+                className="rounded-md border border-border/60 bg-muted/40 px-2.5 py-1.5 transition-colors hover:border-primary/30"
               >
-                <div className="text-[11px] text-muted-foreground">{label}</div>
-                <div className="mt-1 text-[14px] font-semibold tabular-nums text-foreground">{val}</div>
+                <div className="truncate text-[10px] text-muted-foreground" title={label}>{label}</div>
+                <div className="mt-0.5 text-[13px] font-semibold tabular-nums text-foreground">{val}</div>
               </div>
             ))}
           </div>
 
           {/* 推荐结果 */}
           {combos.length > 0 && (
-            <div className="mt-4 overflow-hidden rounded-lg border border-border/60 bg-card">
-              <div className="grid grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] border-b border-border/60 bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
-                <div></div>
-                <div>槽数</div>
-                <div>极数</div>
-                <div>绕组系数</div>
-                <div>每极每相槽数</div>
-              </div>
-              {combos.map((c) => {
-                const active = picked === c.slots;
-                const q = c.slots / (3 * poles);
-                const kw = windingFactor(c.slots, poles);
-                return (
-                  <button
-                    key={c.slots}
-                    type="button"
-                    onClick={() => setPicked(c.slots)}
-                    className={`grid w-full grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/40 px-3 py-2.5 text-left text-[13px] transition-colors first:border-t-0 ${
-                      active
-                        ? "bg-primary/[0.07] shadow-[inset_2px_0_0_0_var(--primary)]"
-                        : "hover:bg-accent/40"
-                    }`}
-                  >
-                    <div className="flex justify-center">
-                      <div
-                        className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
-                          active ? "border-primary bg-primary" : "border-muted-foreground/30"
-                        }`}
-                      >
-                        {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+            <>
+              <div className="mt-4 text-[12px] font-medium text-foreground">推荐以下5组槽极配合：</div>
+              <div className="mt-2 overflow-hidden rounded-lg border border-border/60 bg-card">
+                <div className="grid grid-cols-[28px_1fr_1fr_1.2fr_1.2fr] border-b border-border/60 bg-[var(--table-header)] px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+                  <div></div>
+                  <div>槽数</div>
+                  <div>极数</div>
+                  <div>绕组系数</div>
+                  <div>每极每相槽数</div>
+                </div>
+                {combos.map((c) => {
+                  const active = picked === c.slots;
+                  const q = c.slots / (3 * poles);
+                  const kw = windingFactor(c.slots, poles);
+                  return (
+                    <button
+                      key={c.slots}
+                      type="button"
+                      onClick={() => setPicked(c.slots)}
+                      className={`grid w-full grid-cols-[28px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/40 px-3 py-1.5 text-left text-[12px] transition-colors first:border-t-0 ${
+                        active
+                          ? "bg-primary/[0.07] shadow-[inset_2px_0_0_0_var(--primary)]"
+                          : "hover:bg-accent/40"
+                      }`}
+                    >
+                      <div className="flex justify-center">
+                        <div
+                          className={`flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 transition-colors ${
+                            active ? "border-primary bg-primary" : "border-muted-foreground/30"
+                          }`}
+                        >
+                          {active && <div className="h-1 w-1 rounded-full bg-primary-foreground" />}
+                        </div>
                       </div>
-                    </div>
-                    <div className={`font-medium tabular-nums ${active ? "text-primary" : "text-foreground"}`}>{c.slots}</div>
-                    <div className="tabular-nums text-muted-foreground">{poles}</div>
-                    <div className="tabular-nums text-muted-foreground">{kw.toFixed(3)}</div>
-                    <div className="tabular-nums text-muted-foreground">
-                      {Number.isInteger(q) ? q : q.toFixed(2)}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                      <div className={`font-medium tabular-nums ${active ? "text-primary" : "text-foreground"}`}>{c.slots}</div>
+                      <div className="tabular-nums text-muted-foreground">{poles}</div>
+                      <div className="tabular-nums text-muted-foreground">{kw.toFixed(3)}</div>
+                      <div className="tabular-nums text-muted-foreground">
+                        {Number.isInteger(q) ? q : q.toFixed(2)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
           )}
 
-          <div className="mt-5 flex items-center justify-end gap-2">
+          <div className="mt-4 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="h-9 rounded-md border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
+              className="h-8 rounded-md border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
             >
               取消
             </button>
@@ -336,7 +337,7 @@ function SlotRecommendDialog({
                 onOpenChange(false);
                 toast.success(`已代入项目：槽数 ${c.slots}`);
               }}
-              className="h-9 rounded-md bg-primary px-5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-8 rounded-md bg-primary px-5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
             >
               确定带入
             </button>
