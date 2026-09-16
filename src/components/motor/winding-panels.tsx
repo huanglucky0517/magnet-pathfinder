@@ -234,20 +234,20 @@ function SlotRecommendDialog({
       const list = recommendSlotCombos(poles, innerDia, branches);
       setCombos(list);
       setPicked(list[0]?.slots ?? null);
-      if (list.length === 0) toast.error("未找到合适的极槽配合，请调整项目参数");
+      if (list.length === 0) toast.error("未找到合适的槽极配合，请调整项目参数");
     }
   }, [open, poles, innerDia, branches]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
-        <div className="bg-gradient-to-br from-primary/5 to-background px-6 pb-4 pt-6">
-          <DialogHeader className="space-y-3">
-            <DialogTitle className="text-center text-[17px] font-semibold tracking-tight">
-              推荐极槽配合
+      <DialogContent className="max-w-lg overflow-hidden rounded-xl border border-border/60 p-0 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.25)]">
+        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 pb-5 pt-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-center text-[16px] font-semibold tracking-tight">
+              槽极配合
             </DialogTitle>
             <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              基于当前项目参数，为您推荐以下 5 组槽极配合：
+              基于当前项目参数，自动读取并推荐以下 5 组槽极配合：
             </DialogDescription>
           </DialogHeader>
         </div>
