@@ -234,20 +234,20 @@ function SlotRecommendDialog({
       const list = recommendSlotCombos(poles, innerDia, branches);
       setCombos(list);
       setPicked(list[0]?.slots ?? null);
-      if (list.length === 0) toast.error("未找到合适的极槽配合，请调整项目参数");
+      if (list.length === 0) toast.error("未找到合适的槽极配合，请调整项目参数");
     }
   }, [open, poles, innerDia, branches]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
-        <div className="bg-gradient-to-br from-primary/5 to-background px-6 pb-4 pt-6">
-          <DialogHeader className="space-y-3">
-            <DialogTitle className="text-center text-[17px] font-semibold tracking-tight">
-              推荐极槽配合
+      <DialogContent className="max-w-lg overflow-hidden rounded-xl border border-border/60 p-0 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.25)]">
+        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.06] to-transparent px-6 pb-5 pt-6">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-center text-[16px] font-semibold tracking-tight">
+              槽极配合
             </DialogTitle>
             <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              基于当前项目参数，为您推荐以下 5 组槽极配合：
+              基于当前项目参数，自动读取并推荐以下 5 组槽极配合：
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -257,30 +257,30 @@ function SlotRecommendDialog({
           <div className="grid grid-cols-3 gap-3">
             {(
               [
-                ["定子内径", `${innerDia} mm`],
+                ["定子内径(mm)", `${innerDia}`],
                 ["极数", `${poles}`],
                 ["每相并联支路数", `${branches}`],
               ] as const
             ).map(([label, val]) => (
               <div
                 key={label}
-                className="rounded-[8px] border border-border/60 bg-muted/40 px-3 py-2"
+                className="rounded-lg border border-border/60 bg-muted/40 px-3 py-2.5 transition-colors hover:border-primary/30"
               >
                 <div className="text-[11px] text-muted-foreground">{label}</div>
-                <div className="mt-0.5 text-[13px] font-medium text-foreground">{val}</div>
+                <div className="mt-1 text-[14px] font-semibold tabular-nums text-foreground">{val}</div>
               </div>
             ))}
           </div>
 
           {/* 推荐结果 */}
           {combos.length > 0 && (
-            <div className="mt-4 overflow-hidden rounded-xl border border-border/60 bg-card">
-              <div className="grid grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
+            <div className="mt-4 overflow-hidden rounded-lg border border-border/60 bg-card">
+              <div className="grid grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] border-b border-border/60 bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
                 <div></div>
                 <div>槽数</div>
                 <div>极数</div>
-                <div>绕组系数 kw1</div>
-                <div>每极每相槽数 q</div>
+                <div>绕组系数</div>
+                <div>每极每相槽数</div>
               </div>
               {combos.map((c) => {
                 const active = picked === c.slots;
@@ -291,8 +291,10 @@ function SlotRecommendDialog({
                     key={c.slots}
                     type="button"
                     onClick={() => setPicked(c.slots)}
-                    className={`grid w-full grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/50 px-3 py-2.5 text-left text-[13px] transition-all ${
-                      active ? "bg-primary/5" : "hover:bg-accent/40"
+                    className={`grid w-full grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/40 px-3 py-2.5 text-left text-[13px] transition-colors first:border-t-0 ${
+                      active
+                        ? "bg-primary/[0.07] shadow-[inset_2px_0_0_0_var(--primary)]"
+                        : "hover:bg-accent/40"
                     }`}
                   >
                     <div className="flex justify-center">
@@ -304,10 +306,10 @@ function SlotRecommendDialog({
                         {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
                       </div>
                     </div>
-                    <div className="font-medium text-foreground">{c.slots}</div>
-                    <div className="text-muted-foreground">{poles}</div>
-                    <div className="text-muted-foreground">{kw.toFixed(3)}</div>
-                    <div className="text-muted-foreground">
+                    <div className={`font-medium tabular-nums ${active ? "text-primary" : "text-foreground"}`}>{c.slots}</div>
+                    <div className="tabular-nums text-muted-foreground">{poles}</div>
+                    <div className="tabular-nums text-muted-foreground">{kw.toFixed(3)}</div>
+                    <div className="tabular-nums text-muted-foreground">
                       {Number.isInteger(q) ? q : q.toFixed(2)}
                     </div>
                   </button>
@@ -320,7 +322,7 @@ function SlotRecommendDialog({
             <button
               type="button"
               onClick={() => onOpenChange(false)}
-              className="h-9 rounded-[6px] border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
+              className="h-9 rounded-md border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
             >
               取消
             </button>
@@ -334,7 +336,7 @@ function SlotRecommendDialog({
                 onOpenChange(false);
                 toast.success(`已代入项目：槽数 ${c.slots}`);
               }}
-              className="h-9 rounded-[6px] bg-primary px-4 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-9 rounded-md bg-primary px-5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
             >
               确定带入
             </button>
@@ -383,14 +385,14 @@ export function StatorWindingPanel({
       <Row label="槽数" result={String(slots)} index={1}>
         <Num v={slots} integer onChange={setSlots} />
       </Row>
-      <Row label="槽极配合推荐" index={2}>
+      <Row label="槽极配合" index={2}>
         <button
           type="button"
           onClick={() => setOpenRec(true)}
           className="inline-flex h-6 w-full items-center justify-center gap-1 rounded-[4px] border border-primary/40 bg-primary/10 px-2 text-[12px] font-medium text-primary transition-colors hover:bg-primary/20"
         >
           <Sparkles className="h-3 w-3" />
-          推荐极槽配合
+          槽极配合
         </button>
       </Row>
       <Row label="平行齿" index={3}>
