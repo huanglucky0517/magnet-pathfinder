@@ -338,7 +338,7 @@ function SlotRecommendDialog({
               }}
               className="h-8 rounded-md bg-primary px-5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
             >
-              确定带入
+              确定代入
             </button>
           </div>
         </div>
