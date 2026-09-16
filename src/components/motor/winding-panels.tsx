@@ -204,7 +204,149 @@ function gcd(a: number, b: number): number {
   return b === 0 ? a : gcd(b, a % b);
 }
 
+// 分布系数 kd1（60°相带，q 可为分数的近似值）
+function windingFactor(slots: number, poles: number): number {
+  const q = slots / (3 * poles);
+  if (q <= 0) return 0;
+  const alpha = ((poles / 2) * 360) / slots; // 槽距电角度
+  const kd = Math.sin(Math.PI / 6) / (q * Math.sin(((alpha / 2) * Math.PI) / 180));
+  const kw = Math.min(Math.max(kd, 0), 1); // 短距系数按整距近似 1
+  return kw;
+}
+
 function SlotRecommendDialog({
+  open,
+  onOpenChange,
+  poles,
+  innerDia,
+  branches,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  poles: number;
+  innerDia: number;
+  branches: number;
+  onConfirm: (c: SlotCombo) => void;
+}) {
+  const [combos, setCombos] = useState<SlotCombo[]>([]);
+  const [picked, setPicked] = useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (open) {
+      const list = recommendSlotCombos(poles, innerDia, branches);
+      setCombos(list);
+      setPicked(list[0]?.slots ?? null);
+      if (list.length === 0) toast.error("未找到合适的极槽配合，请调整项目参数");
+    }
+  }, [open, poles, innerDia, branches]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg overflow-hidden rounded-2xl border border-border/60 p-0 shadow-2xl">
+        <div className="bg-gradient-to-br from-primary/5 to-background px-6 pb-4 pt-6">
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-center text-[17px] font-semibold tracking-tight">
+              推荐极槽配合
+            </DialogTitle>
+            <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
+              基于当前项目参数，为您推荐以下 5 组槽极配合：
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 pb-6">
+          {/* 自动读取的项目参数 */}
+          <div className="grid grid-cols-3 gap-3">
+            {(
+              [
+                ["定子内径", `${innerDia} mm`],
+                ["极数", `${poles}`],
+                ["每相并联支路数", `${branches}`],
+              ] as const
+            ).map(([label, val]) => (
+              <div
+                key={label}
+                className="rounded-[8px] border border-border/60 bg-muted/40 px-3 py-2"
+              >
+                <div className="text-[11px] text-muted-foreground">{label}</div>
+                <div className="mt-0.5 text-[13px] font-medium text-foreground">{val}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* 推荐结果 */}
+          {combos.length > 0 && (
+            <div className="mt-4 overflow-hidden rounded-xl border border-border/60 bg-card">
+              <div className="grid grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
+                <div></div>
+                <div>槽数</div>
+                <div>极数</div>
+                <div>绕组系数 kw1</div>
+                <div>每极每相槽数 q</div>
+              </div>
+              {combos.map((c) => {
+                const active = picked === c.slots;
+                const q = c.slots / (3 * poles);
+                const kw = windingFactor(c.slots, poles);
+                return (
+                  <button
+                    key={c.slots}
+                    type="button"
+                    onClick={() => setPicked(c.slots)}
+                    className={`grid w-full grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/50 px-3 py-2.5 text-left text-[13px] transition-all ${
+                      active ? "bg-primary/5" : "hover:bg-accent/40"
+                    }`}
+                  >
+                    <div className="flex justify-center">
+                      <div
+                        className={`flex h-4 w-4 items-center justify-center rounded-full border-2 transition-colors ${
+                          active ? "border-primary bg-primary" : "border-muted-foreground/30"
+                        }`}
+                      >
+                        {active && <div className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                      </div>
+                    </div>
+                    <div className="font-medium text-foreground">{c.slots}</div>
+                    <div className="text-muted-foreground">{poles}</div>
+                    <div className="text-muted-foreground">{kw.toFixed(3)}</div>
+                    <div className="text-muted-foreground">
+                      {Number.isInteger(q) ? q : q.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="h-9 rounded-[6px] border border-input bg-background px-4 text-[12px] font-medium text-foreground transition-colors hover:bg-accent/50"
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              disabled={!picked}
+              onClick={() => {
+                const c = combos.find((x) => x.slots === picked);
+                if (!c) return;
+                onConfirm(c);
+                onOpenChange(false);
+                toast.success(`已代入项目：槽数 ${c.slots}`);
+              }}
+              className="h-9 rounded-[6px] bg-primary px-4 text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              确定带入
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
   open,
   onOpenChange,
   poles: initPoles,
