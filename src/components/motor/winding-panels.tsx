@@ -200,16 +200,23 @@ export function recommendSlotCombos(
   return top;
 }
 
-function gcd(a: number, b: number): number {
-  return b === 0 ? a : gcd(b, a % b);
+
+// 分布系数 kd1（60°相带，q 可为分数的近似值）
+function windingFactor(slots: number, poles: number): number {
+  const q = slots / (3 * poles);
+  if (q <= 0) return 0;
+  const alpha = ((poles / 2) * 360) / slots; // 槽距电角度
+  const kd = Math.sin(Math.PI / 6) / (q * Math.sin(((alpha / 2) * Math.PI) / 180));
+  const kw = Math.min(Math.max(kd, 0), 1); // 短距系数按整距近似 1
+  return kw;
 }
 
 function SlotRecommendDialog({
   open,
   onOpenChange,
-  poles: initPoles,
-  innerDia: initInnerDia,
-  branches: initBranches,
+  poles,
+  innerDia,
+  branches,
   onConfirm,
 }: {
   open: boolean;
@@ -219,29 +226,17 @@ function SlotRecommendDialog({
   branches: number;
   onConfirm: (c: SlotCombo) => void;
 }) {
-  const [innerDia, setInnerDia] = useState(initInnerDia);
-  const [outerDia, setOuterDia] = useState(650);
-  const [poles, setPoles] = useState(initPoles);
-  const [branches, setBranches] = useState(initBranches);
   const [combos, setCombos] = useState<SlotCombo[]>([]);
   const [picked, setPicked] = useState<number | null>(null);
 
   React.useEffect(() => {
     if (open) {
-      setInnerDia(initInnerDia);
-      setPoles(initPoles);
-      setBranches(initBranches);
-      setCombos([]);
-      setPicked(null);
+      const list = recommendSlotCombos(poles, innerDia, branches);
+      setCombos(list);
+      setPicked(list[0]?.slots ?? null);
+      if (list.length === 0) toast.error("未找到合适的极槽配合，请调整项目参数");
     }
-  }, [open, initInnerDia, initPoles, initBranches]);
-
-  const calc = () => {
-    const list = recommendSlotCombos(poles, innerDia, branches);
-    setCombos(list);
-    setPicked(list[0]?.slots ?? null);
-    if (list.length === 0) toast.error("未找到合适的极槽配合，请调整输入参数");
-  };
+  }, [open, poles, innerDia, branches]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -252,66 +247,51 @@ function SlotRecommendDialog({
               推荐极槽配合
             </DialogTitle>
             <DialogDescription className="text-center text-[12px] leading-relaxed text-muted-foreground">
-              输入电机参数后点击计算，为您推荐 5 组槽极配合：
+              基于当前项目参数，为您推荐以下 5 组槽极配合：
             </DialogDescription>
           </DialogHeader>
         </div>
 
         <div className="px-6 pb-6">
-          {/* 输入参数 */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* 自动读取的项目参数 */}
+          <div className="grid grid-cols-3 gap-3">
             {(
               [
-                ["定子内径（mm）", innerDia, setInnerDia],
-                ["定子外径（mm）", outerDia, setOuterDia],
-                ["极数", poles, setPoles],
-                ["每相并联支路数", branches, setBranches],
+                ["定子内径", `${innerDia} mm`],
+                ["极数", `${poles}`],
+                ["每相并联支路数", `${branches}`],
               ] as const
-            ).map(([label, val, set]) => (
-              <label key={label} className="block">
-                <span className="mb-1 block text-[11px] text-muted-foreground">{label}</span>
-                <input
-                  type="number"
-                  value={val}
-                  onChange={(e) => {
-                    const n = Number(e.target.value);
-                    (set as (n: number) => void)(Number.isNaN(n) ? 0 : n);
-                  }}
-                  className="h-8 w-full rounded-[6px] border border-input bg-background px-2 text-[12px] outline-none transition-colors focus:border-primary"
-                />
-              </label>
+            ).map(([label, val]) => (
+              <div
+                key={label}
+                className="rounded-[8px] border border-border/60 bg-muted/40 px-3 py-2"
+              >
+                <div className="text-[11px] text-muted-foreground">{label}</div>
+                <div className="mt-0.5 text-[13px] font-medium text-foreground">{val}</div>
+              </div>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={calc}
-            className="mt-3 h-9 w-full rounded-[6px] bg-primary text-[12px] font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            计算推荐
-          </button>
 
           {/* 推荐结果 */}
           {combos.length > 0 && (
             <div className="mt-4 overflow-hidden rounded-xl border border-border/60 bg-card">
-              <div className="grid grid-cols-[32px_1fr_1fr_1fr_1fr_1fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
+              <div className="grid grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] bg-[var(--table-header)] px-3 py-2.5 text-[11px] font-medium text-muted-foreground">
                 <div></div>
                 <div>槽数</div>
                 <div>极数</div>
-                <div>槽距(mm)</div>
-                <div>q 值</div>
-                <div>t 值</div>
+                <div>绕组系数 kw1</div>
+                <div>每极每相槽数 q</div>
               </div>
               {combos.map((c) => {
                 const active = picked === c.slots;
-                const pitch = (Math.PI * Math.max(innerDia, 1)) / c.slots;
                 const q = c.slots / (3 * poles);
-                const t = poles % 2 === 0 ? gcd(c.slots, poles / 2) : gcd(c.slots, poles);
+                const kw = windingFactor(c.slots, poles);
                 return (
                   <button
                     key={c.slots}
                     type="button"
                     onClick={() => setPicked(c.slots)}
-                    className={`grid w-full grid-cols-[32px_1fr_1fr_1fr_1fr_1fr] items-center gap-1 border-t border-border/50 px-3 py-2.5 text-left text-[13px] transition-all ${
+                    className={`grid w-full grid-cols-[32px_1fr_1fr_1.2fr_1.2fr] items-center gap-1 border-t border-border/50 px-3 py-2.5 text-left text-[13px] transition-all ${
                       active ? "bg-primary/5" : "hover:bg-accent/40"
                     }`}
                   >
@@ -326,9 +306,10 @@ function SlotRecommendDialog({
                     </div>
                     <div className="font-medium text-foreground">{c.slots}</div>
                     <div className="text-muted-foreground">{poles}</div>
-                    <div className="text-muted-foreground">{pitch.toFixed(1)}</div>
-                    <div className="text-muted-foreground">{Number.isInteger(q) ? q : q.toFixed(2)}</div>
-                    <div className="text-muted-foreground">{t}</div>
+                    <div className="text-muted-foreground">{kw.toFixed(3)}</div>
+                    <div className="text-muted-foreground">
+                      {Number.isInteger(q) ? q : q.toFixed(2)}
+                    </div>
                   </button>
                 );
               })}
