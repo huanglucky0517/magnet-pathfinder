@@ -240,7 +240,7 @@ function SlotRecommendDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md overflow-hidden rounded-xl border border-border/60 p-0 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.25)]">
-        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.05] to-transparent px-5 pb-3.5 pt-4">
+        <div className="border-b border-border/60 bg-gradient-to-b from-primary/[0.05] to-transparent px-5 pb-3 pt-4">
           <DialogHeader>
             <DialogTitle className="text-[15px] font-semibold tracking-tight">
               推荐槽极配合
@@ -248,10 +248,10 @@ function SlotRecommendDialog({
           </DialogHeader>
         </div>
 
-        <div className="px-5 pb-5 pt-4">
+        <div className="px-5 pb-6 pt-3">
           {/* 当前项目参数 */}
           <div className="text-[12px] font-medium text-foreground">当前项目参数：</div>
-          <div className="mt-6 grid grid-cols-3 gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             {(
               [
                 ["定子内径(mm)", `${innerDia}`],
@@ -272,8 +272,8 @@ function SlotRecommendDialog({
           {/* 推荐结果 */}
           {combos.length > 0 && (
             <>
-              <div className="mt-4 text-[12px] font-medium text-foreground">推荐以下5组槽极配合：</div>
-              <div className="mt-2 overflow-hidden rounded-lg border border-border/60 bg-card">
+              <div className="mt-6 text-[12px] font-medium text-foreground">推荐以下5组槽极配合：</div>
+              <div className="mt-4 overflow-hidden rounded-lg border border-border/60 bg-card">
                 <div className="grid grid-cols-[28px_1fr_1fr_1.2fr_1.2fr] border-b border-border/60 bg-[var(--table-header)] px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
                   <div></div>
                   <div>槽数</div>
@@ -318,7 +318,7 @@ function SlotRecommendDialog({
             </>
           )}
 
-          <div className="mt-4 flex items-center justify-end gap-2">
+          <div className="mt-6 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
