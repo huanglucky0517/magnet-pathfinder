@@ -200,9 +200,6 @@ export function recommendSlotCombos(
   return top;
 }
 
-function gcd(a: number, b: number): number {
-  return b === 0 ? a : gcd(b, a % b);
-}
 
 // 分布系数 kd1（60°相带，q 可为分数的近似值）
 function windingFactor(slots: number, poles: number): number {
