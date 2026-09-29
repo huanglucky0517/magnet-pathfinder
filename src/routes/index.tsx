@@ -2708,7 +2708,7 @@ function InlineCalcOptions({
             onClick={handleResume}
             disabled={!lastRun || resuming}
             title={lastRun ? "在上次计算结果基础上继续计算" : "尚无可续算的计算结果"}
-            className="rounded-[4px] border border-primary/50 bg-background px-3 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-input disabled:text-muted-foreground disabled:opacity-60 disabled:hover:bg-background"
+            className="rounded-[4px] border border-primary/50 bg-background px-3 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-input disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:hover:bg-muted"
           >
             {resuming ? "续算中…" : "续算"}
           </button>
@@ -2733,7 +2733,7 @@ function InlineCalcOptions({
               onRun();
             }}
             disabled={resuming}
-            className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md disabled:cursor-not-allowed disabled:border disabled:border-input disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none"
           >
             分析计算
           </button>
