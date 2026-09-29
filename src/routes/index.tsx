@@ -2369,6 +2369,37 @@ function InlineCalcOptions({
   onRun: () => void;
 }) {
   const [configOpen, setConfigOpen] = useState(true);
+  // 续算：记录上次计算时的配置快照与已完成代数（计算中断时 completed < target）
+  const [lastRun, setLastRun] = useState<{
+    model: "solver" | "surrogate";
+    config: Record<string, string>;
+    completed: number;
+    target: number;
+  } | null>(null);
+  const handleResume = () => {
+    const err = (m: string) => toast.error(m, { position: "top-center", duration: 3000 });
+    if (!lastRun) return err("尚无可续算的计算结果");
+    if (lastRun.model !== selectedModel) return err("求解模式已修改，无法续算，请重新分析计算");
+    const cur = (selectedModel === "solver" ? solverConfig : surrogateConfig) as unknown as Record<string, string>;
+    const labels: Record<string, string> = {
+      algo: "多目标优化算法", sampling: "采样方法", population: "每代种群数",
+      mode: "工作模式", interval: "工作模式参数", modelAlgo: "模型算法",
+    };
+    const changed = Object.keys(lastRun.config).filter(
+      (k) => k !== "generations" && lastRun.config[k] !== cur[k],
+    );
+    if (changed.length) {
+      return err(`${changed.map((k) => labels[k] ?? k).join("、")}已修改，无法续算，仅可修改遗传代数`);
+    }
+    const gen = Number(cur.generations);
+    const interrupted = lastRun.completed < lastRun.target;
+    if (!Number.isInteger(gen) || gen <= lastRun.completed || (!interrupted && gen <= lastRun.target)) {
+      return err(`续算的遗传代数需大于已完成代数（${lastRun.completed}）`);
+    }
+    toast.success(`开始续算：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代`, { position: "top-center", duration: 3000 });
+    setLastRun({ ...lastRun, config: { ...cur }, completed: gen, target: gen });
+    onRun();
+  };
   const selectCls =
     "h-7 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
   const inputCls =
@@ -2658,8 +2689,30 @@ function InlineCalcOptions({
           >
             保存
           </button>
+          {lastRun && (
+            <span className="text-[11px] text-muted-foreground tabular-nums">
+              上次计算：已完成 {lastRun.completed}/{lastRun.target} 代
+            </span>
+          )}
           <button
-            onClick={onRun}
+            onClick={handleResume}
+            disabled={!lastRun}
+            title={lastRun ? "在上次计算结果基础上继续计算" : "尚无可续算的计算结果"}
+            className="rounded-[4px] border border-primary/50 bg-background px-3 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-input disabled:text-muted-foreground disabled:opacity-60 disabled:hover:bg-background"
+          >
+            续算
+          </button>
+          <button
+            onClick={() => {
+              const cfg = selectedModel === "solver" ? solverConfig : surrogateConfig;
+              const target = Number(cfg.generations);
+              if (!Number.isInteger(target) || target <= 0) {
+                toast.error("遗传代数需为正整数", { position: "top-center", duration: 3000 });
+                return;
+              }
+              setLastRun({ model: selectedModel, config: { ...cfg }, completed: target, target });
+              onRun();
+            }}
             className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
           >
             分析计算
