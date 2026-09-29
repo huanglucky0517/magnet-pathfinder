@@ -2369,6 +2369,8 @@ function InlineCalcOptions({
   onRun: () => void;
 }) {
   const [configOpen, setConfigOpen] = useState(true);
+  // 续算中：续算按钮显示“续算中”并禁用，分析计算同时禁用，3 秒后完成
+  const [resuming, setResuming] = useState(false);
   // 续算：记录上次计算时的配置快照与已完成代数（计算中断时 completed < target）
   const [lastRun, setLastRun] = useState<{
     model: "solver" | "surrogate";
