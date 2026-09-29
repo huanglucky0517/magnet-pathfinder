@@ -2396,7 +2396,10 @@ function InlineCalcOptions({
     if (!Number.isInteger(gen) || gen <= lastRun.completed || (!interrupted && gen <= lastRun.target)) {
       return err(`续算的遗传代数需大于已完成代数（${lastRun.completed}）`);
     }
-    toast.success(`开始续算：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代`, { position: "top-center", duration: 3000 });
+    toast.success(`续算完成：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代，已完成 ${gen}/${gen} 代`, {
+      position: "top-center",
+      duration: 3000,
+    });
     setLastRun({ ...lastRun, config: { ...cur }, completed: gen, target: gen });
     onRun();
   };
