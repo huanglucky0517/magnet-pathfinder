@@ -2732,7 +2732,8 @@ function InlineCalcOptions({
               }
               onRun();
             }}
-            className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
+            disabled={resuming}
+            className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
           >
             分析计算
           </button>
