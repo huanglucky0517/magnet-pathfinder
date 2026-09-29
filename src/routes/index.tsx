@@ -2379,9 +2379,9 @@ function InlineCalcOptions({
     target: number;
   } | null>(null);
   const handleResume = () => {
-    const err = (m: string) => toast.error(m, { position: "top-center", duration: 3000 });
-    if (!lastRun) return err("尚无可续算的计算结果");
-    if (lastRun.model !== selectedModel) return err("求解模式已修改，无法续算，请重新分析计算");
+    const handleResumeErr = (m: string) => toast.error(m, { position: "top-center", duration: 3000 });
+    if (!lastRun) return handleResumeErr("尚无可续算的计算结果");
+    if (lastRun.model !== selectedModel) return handleResumeErr("求解模式已修改，无法续算，请重新分析计算");
     const cur = (selectedModel === "solver" ? solverConfig : surrogateConfig) as unknown as Record<string, string>;
     const labels: Record<string, string> = {
       algo: "多目标优化算法", sampling: "采样方法", population: "每代种群数",
@@ -2391,19 +2391,24 @@ function InlineCalcOptions({
       (k) => k !== "generations" && lastRun.config[k] !== cur[k],
     );
     if (changed.length) {
-      return err(`${changed.map((k) => labels[k] ?? k).join("、")}已修改，无法续算，仅可修改遗传代数`);
+      return handleResumeErr(`${changed.map((k) => labels[k] ?? k).join("、")}已修改，无法续算，仅可修改遗传代数`);
     }
     const gen = Number(cur.generations);
     const interrupted = lastRun.completed < lastRun.target;
     if (!Number.isInteger(gen) || gen <= lastRun.completed || (!interrupted && gen <= lastRun.target)) {
-      return err(`续算的遗传代数需大于已完成代数（${lastRun.completed}）`);
+      return handleResumeErr(`续算的遗传代数需大于已完成代数（${lastRun.completed}）`);
     }
-    toast.success(`续算完成：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代，已完成 ${gen}/${gen} 代`, {
-      position: "top-center",
-      duration: 3000,
-    });
-    setLastRun({ ...lastRun, config: { ...cur }, completed: gen, target: gen });
-    onRun();
+    // 进入续算中：续算与分析计算均不可点击，3 秒后完成计算
+    setResuming(true);
+    window.setTimeout(() => {
+      toast.success(`续算完成：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代，已完成 ${gen}/${gen} 代`, {
+        position: "top-center",
+        duration: 3000,
+      });
+      setLastRun({ ...lastRun, config: { ...cur }, completed: gen, target: gen });
+      setResuming(false);
+      onRun();
+    }, 3000);
   };
   const selectCls =
     "h-7 rounded-[4px] border border-input bg-background px-2 text-[12px] focus:border-primary focus:outline-none";
