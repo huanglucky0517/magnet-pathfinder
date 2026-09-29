@@ -2396,7 +2396,10 @@ function InlineCalcOptions({
     if (!Number.isInteger(gen) || gen <= lastRun.completed || (!interrupted && gen <= lastRun.target)) {
       return err(`续算的遗传代数需大于已完成代数（${lastRun.completed}）`);
     }
-    toast.success(`开始续算：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代`, { position: "top-center", duration: 3000 });
+    toast.success(`续算完成：第 ${lastRun.completed + 1} 代 → 第 ${gen} 代，已完成 ${gen}/${gen} 代`, {
+      position: "top-center",
+      duration: 3000,
+    });
     setLastRun({ ...lastRun, config: { ...cur }, completed: gen, target: gen });
     onRun();
   };
@@ -2710,7 +2713,15 @@ function InlineCalcOptions({
                 toast.error("遗传代数需为正整数", { position: "top-center", duration: 3000 });
                 return;
               }
-              setLastRun({ model: selectedModel, config: { ...cfg }, completed: target, target });
+              // 模拟计算中断（如积分不足）：仅完成部分代数，可通过“续算”补齐
+              const completed = Math.max(1, Math.min(target - 1, Math.round(target * 0.35)));
+              setLastRun({ model: selectedModel, config: { ...cfg }, completed, target });
+              if (completed < target) {
+                toast.error(`计算中断：已完成 ${completed}/${target} 代，可点击“续算”继续`, {
+                  position: "top-center",
+                  duration: 3000,
+                });
+              }
               onRun();
             }}
             className="rounded-[4px] bg-primary px-4 py-1.5 text-[12px] font-medium text-primary-foreground shadow-sm transition-all hover:opacity-90 hover:shadow-md"
