@@ -2706,14 +2706,15 @@ function InlineCalcOptions({
           )}
           <button
             onClick={handleResume}
-            disabled={!lastRun}
+            disabled={!lastRun || resuming}
             title={lastRun ? "在上次计算结果基础上继续计算" : "尚无可续算的计算结果"}
             className="rounded-[4px] border border-primary/50 bg-background px-3 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:border-input disabled:text-muted-foreground disabled:opacity-60 disabled:hover:bg-background"
           >
-            续算
+            {resuming ? "续算中…" : "续算"}
           </button>
           <button
             onClick={() => {
+              if (resuming) return;
               const cfg = selectedModel === "solver" ? solverConfig : surrogateConfig;
               const target = Number(cfg.generations);
               if (!Number.isInteger(target) || target <= 0) {
